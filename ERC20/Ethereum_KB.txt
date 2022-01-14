@@ -1,0 +1,62 @@
+consensys.github.io/smart-contract - best practices
+
+truffle init - To create a bare truffle project with no smart contract
+truffle develop - starts a server at localhost port 9545
+
+Connect from metamask to the truffle server
+
+To import the accounts, copy the private key and use the ImportAccount feature in metamask
+
+
+geth (Ethereum node server on Go language)
+
+Go to the geth directory 
+
+.\geth --syncmode "light" --> to run a light version etherum node
+
+<Contract_name>.deployed().then(function(instance) {return instance.<functionName>(<parameter1>,<parameter2>)});
+
+Testing frameworks
+
+npm install --save-dev chai
+npm install --save-dev chai-as-promised
+npm install --save-dev mocha
+npm install --save-dev @openzeppelin/test-helpers
+
+
+
+byte32 template:
+0x666f6f0000000000000000000000000000000000000000000000000000000000
+0x4554480000000000000000000000000000000000000000000000000000000000
+
+
+GenToken Contract:
+
+Symbol : 0x474e524100000000000000000000000000000000000000000000000000000000
+Address : 0x05B672A7B570A3fc720E58527f1C2d9759775995 (Rinkeby)
+
+Wallet Contract:
+
+Address : 0x4b1f15EbD9624Ee2887DA094C4284636596bDBdb (Rinkeby)
+
+Hermez Contract - 
+Symbol : 0x48455a0000000000000000000000000000000000000000000000000000000000
+Address : 0xEEF9f339514298C6A857EfCfC1A762aF84438dEE
+
+
+
+Metamask accounts :
+
+Ether Account:
+Ether  - 0x743937C03780c9490FF93B9c9937591d48017167
+Hermez - 0x743937C03780c9490FF93B9c9937591d48017167
+
+Rinkeby1:
+Ether  - 0x6cb767C924433b3705B66ba117A84eB972B3611D
+Hermez - 0x6cb767C924433b3705B66ba117A84eB972B3611D
+
+Rinkeby2 :
+Ether - 0xB007C0c163620356E84552bC2A5cb8D454F44bde
+
+["0x743937C03780c9490FF93B9c9937591d48017167","0x6cb767C924433b3705B66ba117A84eB972B3611D","0xB007C0c163620356E84552bC2A5cb8D454F44bde"]
+
