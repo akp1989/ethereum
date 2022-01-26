@@ -1,13 +1,13 @@
 pragma solidity >=0.4.22 <0.9.0;
 
 //import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol"; 
-import "./ERC20Int.sol";
+import "./library/IERC20.sol";
  
 contract Multisign{
     uint constant public MAX_OWNER_COUNT = 10;  
     
     //ERC20 public ercToken;
-    ERC20Int public ercToken;
+    IERC20 public ercToken;
     address private _owner;
 
     /***********Events**********************/
@@ -240,7 +240,7 @@ contract Multisign{
                     emit Execution(transactionId);
                 }
             }else{
-                ercToken = ERC20Int(txn.token);
+                ercToken = IERC20(txn.token);
 
                 if(txn.value > ercToken.balanceOf(msg.sender) && txn.value > ercToken.allowance(msg.sender, address(this))){
                     emit ExecutionFailure(transactionId);

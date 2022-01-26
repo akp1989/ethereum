@@ -48,14 +48,17 @@ const [contractOwner,secondAccount,thirdAccount] = accounts;
     it("Balance of the contractOwner",async () => {
         const balance = await genToken.balanceOf(contractOwner)
         expect(balance.toNumber()).to.greaterThan(0)
+        console.log("The balance of the contract owner :"+ balance);
     })
     it("Balance of the secondAccount",async () => {
         const balance = await genToken.balanceOf(secondAccount)
         expect(balance.toNumber()).to.equal(0)
+        console.log("The balance of the second account :"+ balance);
     })
     it("Balance of the thirdAccount",async () => {
         const balance = await genToken.balanceOf(thirdAccount)
         expect(balance.toNumber()).to.equal(0)
+        console.log("The balance of the third account :"+ balance);
     })
     
   })
@@ -65,12 +68,14 @@ const [contractOwner,secondAccount,thirdAccount] = accounts;
           await genToken.transfer(secondAccount, 100, {from:contractOwner})
           const newBalance = await genToken.balanceOf(secondAccount)
           expect(newBalance.toNumber()).to.equal(100)
+          console.log("The balance of second Account post transfer : " + newBalance);
       })
 
       it("Transfer to the thirdAccount", async() => {
         await genToken.transfer(thirdAccount, 200, {from:contractOwner})
         const newBalance = await genToken.balanceOf(thirdAccount)
         expect(newBalance.toNumber()).to.equal(200)
+        console.log("The balance of third Account post transfer : " + newBalance);
     })
   })
 
@@ -79,14 +84,17 @@ const [contractOwner,secondAccount,thirdAccount] = accounts;
     it("Allowance of secondAccount",async () => {
         const allowance = await genToken.allowance(contractOwner,secondAccount)
         expect(allowance.toNumber()).to.equal(0)
+        console.log("The allowance of second Account before setting : " + allowance);
     })
     it("Setting the allowance of second account",async () => {
         await genToken.approve(secondAccount,100, {from:contractOwner})
+        
          
     })
     it("New allowance of the secondAccount",async () => {
         const allowance = await genToken.allowance(contractOwner,secondAccount)
         expect(allowance.toNumber()).to.equal(100)
+        console.log("The allowance of second Account after setting : " + allowance);
     })
     
   })
