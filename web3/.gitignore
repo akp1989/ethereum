@@ -1,0 +1,6 @@
+#git ignore 
+
+# Dependency directories
+/node_modules
+
+/package*.json
