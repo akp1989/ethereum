@@ -9,49 +9,45 @@ const httpsUrl = "http://127.0.0.1:8545";
 const  web3Provider = new Web3.providers.HttpProvider(httpsUrl);
 var web3 = new Web3(web3Provider);
 
-//Defining the etheres connection and provider
-const ethers = new Ethers.providers.JsonRpcProvider(httpsUrl);
-const wallet = new Ethers.Wallet(privateKey);
  
 //Address details
 const tokenAddress = "0x365f844477D3b2AE1174306DC36AEbA73818b1e7";
-const walletAddress = "0x743937C03780c9490FF93B9c9937591d48017167";
-     
+const ownerAddress = "0x743937C03780c9490FF93B9c9937591d48017167";
+const spenderAddress = "0x6cb767C924433b3705B66ba117A84eB972B3611D";     
 //Instantiating a contract
 var getTokenContract = new web3.eth.Contract(genTokenABI, tokenAddress);
 
 //Getting the latest blockNumber
 async function getBlockNumber(){
-//const blockNumber = await web3.eth.getBlockNumber();
-const blockNumber = await ethers.getBlockNumber();
+const blockNumber = await web3.eth.getBlockNumber();
 console.log("Latest Ethereum Block is ",blockNumber);
 }
+
 async function getGasPrice(){
 let gasPrice = await web3.eth.getGasPrice();
 console.log('Gas price using web3 :' + gasPrice);
 console.log("Gas Price in Gwei using web3:", web3.utils.fromWei(gasPrice,'gwei'));
 }
-async function getFeeData(){
-let feeData = await ethers.getFeeData(); 
-
-console.log("Fee Data:", feeData); 
-
-console.log("Gas Price in Gwei:", web3.utils.fromWei(web3.utils.hexToNumberString(feeData.gasPrice._hex),'gwei'));
-console.log("maxPriorityFeePerGas in Gwei:", web3.utils.fromWei(web3.utils.hexToNumberString(feeData.maxPriorityFeePerGas._hex),'gwei'));
-console.log("maxFeePerGas Price in Gwei:", web3.utils.fromWei(web3.utils.hexToNumberString(feeData.maxFeePerGas._hex),'gwei'));
-   
-}
 
 async function getBalance() {
-const result = await getTokenContract.methods.balanceOf(walletAddress).call(); 
+const result = await getTokenContract.methods.balanceOf(ownerAddress).call(); 
 const formattedResult = web3.utils.fromWei(result);
 console.log(formattedResult);
 }
 
+async function getApproval(){
+ 
+    const approval = await getTokenContract.methods.allowance(ownerAddress,spenderAddress).call();
+    const formattedResult = web3.utils.fromWei(approval);
+    console.log (approval);
+}
+
+
+
+
 getBlockNumber();
-getGasPrice();
-getFeeData();
 getBalance();
+getApproval();
 
 
 
