@@ -15,6 +15,7 @@ module.exports.routes = {
   'POST  /api/v1/erc20/getNameSymbol': { action: "erc-20/get-name-symbol" },
   'POST  /api/v1/erc20/getBalance': { action: "erc-20/get-balance" },
   'POST  /api/v1/erc20/getApproval': { action: "erc-20/get-approval" },
+  'POST  /api/v1/erc20/approve': { action: "erc-20/approve" },
   'POST  /api/v1/erc20/transfer': { action: "erc-20/transfer" },
 
   'POST  /api/v1/erc721/getNameSymbol': { action: "erc-721/get-name-symbol" },
@@ -26,4 +27,5 @@ module.exports.routes = {
 
   'POST  /api/v1/erc721/approve': { action: "erc-721/approve" },
   'POST  /api/v1/erc721/approveOperator': { action: "erc-721/approve-operator" },
+  'POST  /api/v1/erc721/transfer': { action: "erc-721/transfer" },
 };

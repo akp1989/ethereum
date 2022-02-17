@@ -10,7 +10,7 @@ const runNFT = new Ethers.Contract(config.goerli.erc721, runNFTABI, ethers)
 module.exports = {
 
 
-  friendlyName: 'Get balance',
+  friendlyName: 'Get the universal resource idenfier for the given token',
 
 
   description: '',

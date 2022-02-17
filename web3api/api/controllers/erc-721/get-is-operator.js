@@ -10,7 +10,7 @@ const runNFT = new Ethers.Contract(config.goerli.erc721, runNFTABI, ethers)
 module.exports = {
 
 
-  friendlyName: 'Get IsOperator',
+  friendlyName: 'Get if the given operator is approved for the owner',
 
 
   description: '',

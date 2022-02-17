@@ -10,13 +10,21 @@ const runNFT = new Ethers.Contract(config.goerli.erc721, runNFTABI, ethers);
 module.exports = {
 
 
-  friendlyName: 'Get approved spender for the given tokenID',
+  friendlyName: 'Transfer the asset to the new owner',
 
 
   description: '',
 
 
   inputs: {
+    sender:{
+      type: 'string',
+      required: true,
+    },
+    receiver: {
+      type: 'string',
+      required: true,
+    },
     tokenID: {
       type: 'string',
       required: true,
@@ -32,9 +40,10 @@ module.exports = {
 
 
   fn: async function (inputs,exits) {
-    const approvedUser = await runNFT.getApproved(inputs.tokenID);
-    return exits.success ({ 'tokenID':inputs.tokenID,'approved for ':approvedUser});
+    const signer = new Ethers.Wallet(config.wallet[inputs.sender].privateKey,ethers);
+    const transferFrom = await runNFT.connect(signer).transferFrom(await signer.getAddress(),inputs.receiver,inputs.tokenID);
+    return exits.success({'Transfer Log': transferFrom});
+    //return exits.success ({ 'tokenID': inputs.tokenID,'owner':wallet.getAddress(),'approved for ':address});
   }
-
 
 };

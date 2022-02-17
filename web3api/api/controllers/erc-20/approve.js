@@ -11,10 +11,10 @@ const genToken = new Ethers.Contract(config.polygon.erc20, genTokenABI, ethers);
 module.exports = {
 
 
-  friendlyName: 'Transfer',
+  friendlyName: 'Approve',
 
 
-  description: 'Transfer erc 20.',
+  description: 'Approve ERC20 token to the recepient on behalf of the sender',
 
 
   inputs: {
@@ -42,9 +42,9 @@ module.exports = {
 
   fn: async function (inputs,exits) {
     const signer = new Ethers.Wallet(config.wallet[inputs.sender].privateKey,ethers);
-    var transferAmount = Ethers.utils.parseUnits(inputs.amount,'ether');
-    const transfer = await genToken.connect(signer).transfer(inputs.recepient, transferAmount);
-    return exits.success({'sender': await signer.getAddress(),'receiver':inputs.recepient,'amount':inputs.amount,'hash':transfer.hash});
+    var approvedAmount = Ethers.utils.parseUnits(inputs.amount,'ether');
+    const approve = await genToken.connect(signer).approve(inputs.recepient, approvedAmount);
+    return exits.success({'sender': await signer.getAddress(),'receiver':inputs.recepient,'amount':inputs.amount,'hash':approve.hash});
 
   }
 

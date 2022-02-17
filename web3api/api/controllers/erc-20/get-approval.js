@@ -10,7 +10,7 @@ const genToken = new Ethers.Contract(config.polygon.erc20, genTokenABI, ethers);
 module.exports = {
 
 
-  friendlyName: 'Get approval',
+  friendlyName: 'Get approval status for the given spender on behalf of the owner',
 
 
   description: '',

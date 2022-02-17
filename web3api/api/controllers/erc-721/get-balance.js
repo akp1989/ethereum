@@ -3,14 +3,13 @@ var runNFTABI = require('./library/RunNFTABI');
 const config = require('./library/config');
 
 const ethers = new Ethers.providers.JsonRpcProvider(config.goerli.httpurl);
-
 //Instantiating a contract with providers for read transactions
 const runNFT = new Ethers.Contract(config.goerli.erc721, runNFTABI, ethers)
 
 module.exports = {
 
 
-  friendlyName: 'Get balance',
+  friendlyName: 'Get token count for a given owner',
 
 
   description: '',

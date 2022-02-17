@@ -11,7 +11,7 @@ const genToken = new Ethers.Contract(config.polygon.erc20, genTokenABI, ethers);
 module.exports = {
 
 
-  friendlyName: 'Get name symbol',
+  friendlyName: 'Get name and symbol',
 
 
   description: '',

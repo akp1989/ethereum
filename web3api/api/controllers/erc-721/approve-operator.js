@@ -3,22 +3,24 @@ var runNFTABI = require('./library/RunNFTABI');
 const config = require('./library/config');
 
 const ethers = new Ethers.providers.JsonRpcProvider(config.goerli.httpurl);
-const wallet = new Ethers.Wallet(config.wallet.privateKey01,ethers);
-
 
 //Instantiating a contract with providers for read transactions
-const runNFTRW = new Ethers.Contract(config.goerli.erc721, runNFTABI, wallet)
+const runNFT = new Ethers.Contract(config.goerli.erc721, runNFTABI, ethers);
 
 module.exports = {
 
 
-  friendlyName: 'Get balance',
+  friendlyName: 'Approve an operator to operate on behalf of the owner',
 
 
   description: '',
 
 
   inputs: {
+    sender:{
+      type: 'string',
+      required:true,
+    },
     address: {
       type: 'string',
       required: true,
@@ -38,7 +40,8 @@ module.exports = {
 
 
   fn: async function (inputs,exits) {
-    const approval = await runNFTRW.setApprovalForAll(inputs.address,inputs.approved);
+    const signer = new Ethers.Wallet(config.wallet[inputs.sender].privateKey,ethers);
+    const approval = await runNFT.connect(signer).setApprovalForAll(inputs.address,inputs.approved);
     return exits.success({'approvalLog': approval});
     //return exits.success ({ 'tokenID': inputs.tokenID,'owner':wallet.getAddress(),'approved for ':address});
   }

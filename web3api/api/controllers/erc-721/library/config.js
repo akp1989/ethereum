@@ -10,8 +10,18 @@ module.exports = {
         erc721  : "0x0C60862e9e44EC28A208AC99e24EA71cA9448132"
     },
     wallet:{
-        privateKey01 : ("a05ffe50146ea28df6b034213c0bd2e32b89e9606c7d90320a8a9800a0cdc593").toString('hex'),
-        privateKey02 : ("b963ab577ccdce4598a0a11538b770af47d90cf6c76f3e9a4a3c6928d063ca04").toString('hex'),
+        account1 : {
+          name: "",
+          privateKey : ("a05ffe50146ea28df6b034213c0bd2e32b89e9606c7d90320a8a9800a0cdc593").toString('hex')
+        },
+        account2 : {
+          name: "",
+          privateKey : ("b963ab577ccdce4598a0a11538b770af47d90cf6c76f3e9a4a3c6928d063ca04").toString('hex')
+        },
+        account3 : {
+          name: "",
+          privateKey : ("be9d57920a92ace157837e4945bc96150b6528f58dfb4859aa53247f115a8900").toString('hex')
+        },
         spenderAddress : "0x6cb767C924433b3705B66ba117A84eB972B3611D",
     }
 }

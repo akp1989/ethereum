@@ -4,13 +4,13 @@ const config = require('./library/config');
 
 const ethers = new Ethers.providers.JsonRpcProvider(config.polygon.httpurl);
 
-
 //Instantiating a contract with providers for read transactions
 const genToken = new Ethers.Contract(config.polygon.erc20, genTokenABI, ethers);
+
 module.exports = {
 
 
-  friendlyName: 'Get balance',
+  friendlyName: 'Get balance of the ERC20 token for the given address',
 
 
   description: '',
