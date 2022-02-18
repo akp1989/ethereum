@@ -1,0 +1,421 @@
+{
+	"info": {
+		"_postman_id": "a5dee315-a39c-4189-8789-a8103a4eebe5",
+		"name": "genera",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "erc721",
+			"item": [
+				{
+					"name": "getTokenNameAndSymbol",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:1337/api/v1/erc721/getNameSymbol",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"api",
+								"v1",
+								"erc721",
+								"getNameSymbol"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getOwner",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"tokenID\": \"0\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:1337/api/v1/erc721/getOwner",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"api",
+								"v1",
+								"erc721",
+								"getOwner"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getBalance",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"addressForBalance\": \"0x743937C03780c9490FF93B9c9937591d48017167\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:1337/api/v1/erc721/getBalance",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"api",
+								"v1",
+								"erc721",
+								"getBalance"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getURI",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"tokenID\": \"0\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:1337/api/v1/erc721/getURI",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"api",
+								"v1",
+								"erc721",
+								"getURI"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getApproval",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"tokenID\": \"0\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:1337/api/v1/erc721/getApproval",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"api",
+								"v1",
+								"erc721",
+								"getApproval"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getIsOperator",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"owner\": \"0x6cb767C924433b3705B66ba117A84eB972B3611D\",\r\n    \"operator\": \"0x743937C03780c9490FF93B9c9937591d48017167\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:1337/api/v1/erc721/getIsOperator",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"api",
+								"v1",
+								"erc721",
+								"getIsOperator"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "approve",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{   \r\n    \"sender\": \"account1\",\r\n    \"tokenID\": \"1\",\r\n    \"address\": \"0x6cb767C924433b3705B66ba117A84eB972B3611D\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:1337/api/v1/erc721/approve",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"api",
+								"v1",
+								"erc721",
+								"approve"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "approveOperator",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{   \r\n    \"sender\": \"account2\",\r\n    \"approved\": true,\r\n    \"address\": \"0x743937C03780c9490FF93B9c9937591d48017167\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:1337/api/v1/erc721/approveOperator",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"api",
+								"v1",
+								"erc721",
+								"approveOperator"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "transfer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{   \r\n    \"sender\": \"account3\",\r\n    \"tokenID\": \"0\",\r\n    \"receiver\": \"0x743937C03780c9490FF93B9c9937591d48017167\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:1337/api/v1/erc721/transfer",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"api",
+								"v1",
+								"erc721",
+								"transfer"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "erc20",
+			"item": [
+				{
+					"name": "getTokenNameAndSymbol",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:1337/api/v1/erc20/getNameSymbol",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"api",
+								"v1",
+								"erc20",
+								"getNameSymbol"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getApproval",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"owner\": \"0x743937C03780c9490FF93B9c9937591d48017167\",\r\n    \"spender\": \"0x6cb767C924433b3705B66ba117A84eB972B3611D\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:1337/api/v1/erc20/getApproval",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"api",
+								"v1",
+								"erc20",
+								"getApproval"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getBalance",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"addressForBalance\": \"0x743937C03780c9490FF93B9c9937591d48017167\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:1337/api/v1/erc20/getBalance",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"api",
+								"v1",
+								"erc20",
+								"getBalance"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "approve",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{   \r\n    \"sender\": \"account1\",\r\n    \"recepient\":\"0x6cb767C924433b3705B66ba117A84eB972B3611D\",\r\n    \"amount\":\"2.75\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:1337/api/v1/erc20/approve",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"api",
+								"v1",
+								"erc20",
+								"approve"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "tranfer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{   \r\n    \"sender\" : \"account1\",\r\n    \"recepient\":\"0xB007C0c163620356E84552bC2A5cb8D454F44bde\",\r\n    \"amount\":\"3.75\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:1337/api/v1/erc20/transfer",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"api",
+								"v1",
+								"erc20",
+								"transfer"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
