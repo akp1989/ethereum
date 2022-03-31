@@ -1,0 +1,411 @@
+{
+	"compiler": {
+		"version": "0.8.6+commit.11564f7e"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address[]",
+						"name": "_reviewers",
+						"type": "address[]"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "contractAddress",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "reviewer",
+						"type": "address"
+					}
+				],
+				"name": "ContractReviewed",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "contractAddress",
+						"type": "address"
+					}
+				],
+				"name": "CreateDocument",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "previousOwner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "OwnershipTransferred",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "reviewer",
+						"type": "address"
+					}
+				],
+				"name": "ReviewerAddition",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "reviewer",
+						"type": "address"
+					}
+				],
+				"name": "ReviewerRemoval",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_contractAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_reviewer",
+						"type": "address"
+					},
+					{
+						"internalType": "int8",
+						"name": "_reviewRank",
+						"type": "int8"
+					}
+				],
+				"name": "addReview",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_reviewer",
+						"type": "address"
+					}
+				],
+				"name": "addReviewer",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "contractMap",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "authorName",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "timeStamp",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "ipfsLink",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "checkSum",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_contractAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "_authorName",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "_timeStamp",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "_ipfsLink",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "_checksum",
+						"type": "string"
+					},
+					{
+						"internalType": "address[]",
+						"name": "_reviewers",
+						"type": "address[]"
+					}
+				],
+				"name": "createMasterDocument",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "isReviewer",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_contractAddress",
+						"type": "address"
+					}
+				],
+				"name": "readMasterDocument",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "authorName",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "timeStamp",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "ipfsLink",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "checkSum",
+								"type": "string"
+							},
+							{
+								"internalType": "address[]",
+								"name": "reviewersAssigned",
+								"type": "address[]"
+							}
+						],
+						"internalType": "struct LogicContract.ContractDetails",
+						"name": "contractDetails",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_reviewer",
+						"type": "address"
+					}
+				],
+				"name": "removeReviewer",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "renounceOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "reviewerRanking",
+				"outputs": [
+					{
+						"internalType": "int8",
+						"name": "",
+						"type": "int8"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "transferOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {
+				"owner()": {
+					"details": "Returns the address of the current owner."
+				},
+				"renounceOwnership()": {
+					"details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner."
+				},
+				"transferOwnership(address)": {
+					"details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+				}
+			},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/MasterDocumentContract.sol": "MasterDocumentContract"
+		},
+		"evmVersion": "berlin",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"@openzeppelin/contracts/access/Ownable.sol": {
+			"keccak256": "0x24e0364e503a9bbde94c715d26573a76f14cd2a202d45f96f52134ab806b67b9",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://e12cbaa7378fd9b62280e4e1d164bedcb4399ce238f5f98fc0eefb7e50577981",
+				"dweb:/ipfs/QmXRoFGUgfsaRkoPT5bxNMtSayKTQ8GZATLPXf69HcRA51"
+			]
+		},
+		"@openzeppelin/contracts/utils/Context.sol": {
+			"keccak256": "0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92",
+				"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3"
+			]
+		},
+		"contracts/LogicContract.sol": {
+			"keccak256": "0xc813822d64abbd946d9158d625bc5af3ac298da21dd2ac26a4c3c84fc365c14b",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://e809503fefaf3970b7f488a899391f1a080f036451ef31b706e65185cf3c59fe",
+				"dweb:/ipfs/QmT7fVjbfuuJfFY9Rk4vL68VrE6nKZYVW7AAjdqmsSB3RP"
+			]
+		},
+		"contracts/MasterDocumentContract.sol": {
+			"keccak256": "0x2471a6bad196b8d07ad63b8a04126a90474c9504f0e4806783c4ef2f87096f3c",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://9be9237119196085fd2fec253629f73189e9805cb339e923c082b35346725f1a",
+				"dweb:/ipfs/QmXEz1E13unhCt8YfaD3vc7Thg5fzurV5dk8bGxV5qEHLC"
+			]
+		}
+	},
+	"version": 1
+}

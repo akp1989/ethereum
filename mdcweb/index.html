@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mdcdemo</title>
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+
+    <div class="container">
+        <h3> CreateNewDocument</h3>
+        <form id="createNewDocument"> 
+            <div class="row">
+                <div class="col-25">
+                    <label for="cmd_daddress">Document address:</label>
+                </div>
+                <div class="col-50">
+                    <input type="text" id="cmd_daddress" name="cmd_daddress"><br>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-25">
+                    <label for="cmd_aname">Author's name:</label>
+                </div>
+                <div class="col-50">
+                    <input type="text" id="cmd_aname" name="cmd_aname"><br>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-25">
+                    <label for="cmd_tstamp">Time stamp</label>
+                </div>
+                <div class="col-50">
+                    <input type="text" id="cmd_tstamp" name="cmd_tstamp"><br>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-25">
+                    <label for="cmd_ipfslink">IPFS Link</label>
+                </div>
+                <div class="col-50">
+                    <input type="text" id="cmd_ipfslink" name="cmd_ipfslink"><br>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="cmd_checksum">Checksum</label>
+                </div>
+                <div class="col-50">
+                    <input type="text" id="cmd_checksum" name="cmd_checksum"><br>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-25">
+                    <label for="cmd_reviewers">Reviewers</label>
+                </div>
+                <div class="col-50">
+                    <textarea id="cmd_reviewers" name="cmd_reviewers" placeholder="['0X....,0X...']" style="height:100px"></textarea>
+                  </div>
+            </div>
+            
+            <div class="row">
+                <input type="submit" value="CreateNewDocument">
+            </div>
+        </form>
+    </div>
+
+    <div class="container">
+        <h3> ReadMasterDocument</h3>
+        <form id="readMasterDocument" onsubmit="test(document.getElementById('rmd_caddress').value)"> 
+            <div class="row">
+                <div class="col-25">
+                    <label for="cmd_daddress">Contract address:</label>
+                </div>
+                <div class="col-50">
+                    <input type="text" id="cmd_daddress" name="cmd_daddress §"><br>
+                </div>
+            </div>
+                  
+
+            <div class="row">
+                <div class="col-25">
+                    <label for="rmd_masterdocument">MasterDocumentDetails</label>
+                </div>
+                <div class="col-50">
+                    <textarea id="rmd_masterdocument" name="rmd_masterdocument"  style="height:100px" readonly></textarea>
+                  </div>
+            </div>
+            
+            <div class="row">
+                <input type="submit" value="ReadMasterDocument">
+            </div>
+        </form>
+    </div>
+
+    <script data-main = "scripts/main" src = "scripts/require.js"></script>
+    <script data-main = "scripts/app" src = "scripts/require.js"></script>
+   
+</body>
+</html>

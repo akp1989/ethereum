@@ -1,0 +1,86 @@
+// MDC contract - Read and wrute the document - Extend the open zeppalin contracts - Accept the submission from external users
+
+// Logic contract - No business logic at all - Accepts call from MDC contract alone 
+
+// Demo in the Remix environment
+
+
+
+//Test data
+
+Initiate contract with reviewers
+
+["0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2","0x4Ad1d05111ee1C69cD47CECde922d08B3E9b6044","0xb72830E8D35e3e7C918CE36154fEd566D577AdF7"]
+
+Create Master Document:
+
+Document1: 
+
+0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2
+ganache2
+01:00:00
+ipfsdoc1
+checksumdoc1
+["0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2","0x4Ad1d05111ee1C69cD47CECde922d08B3E9b6044"]
+
+
+Document2:
+
+0x4Ad1d05111ee1C69cD47CECde922d08B3E9b6044,
+ganache3
+01:00:00
+ipfsdoc2
+checksumdoc2
+["0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2","0x4Ad1d05111ee1C69cD47CECde922d08B3E9b6044"]
+
+
+Document3:
+
+0xb72830E8D35e3e7C918CE36154fEd566D577AdF7
+ganache4
+03:00:00
+ipfsdoc3
+checksumdoc3
+["0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2","0x4Ad1d05111ee1C69cD47CECde922d08B3E9b6044","0xb72830E8D35e3e7C918CE36154fEd566D577AdF7"]
+
+
+Document4:
+Fail - The assigned reviewer is invalid (The third reviewer is not a valid reviewer)
+0xF343fa8ecFbE3bB59d2cdBe9BDD54D43E234F9Df
+ganache5
+04:00:00
+ipfsdoc4
+checksumdoc4
+["0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2","0x4Ad1d05111ee1C69cD47CECde922d08B3E9b6044","0xF343fa8ecFbE3bB59d2cdBe9BDD54D43E234F9Df"]
+
+
+
+
+
+Add Review
+
+Adding review for document1 by reveiwer 1 - Pass
+0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2
+0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2
+1
+
+Adding review for document2 by reviewer 2 - Pass
+0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2
+0x4Ad1d05111ee1C69cD47CECde922d08B3E9b6044
+2
+
+Adding review for document3 by reviewer 3 - Fail - The reviewer is not authorized for given contract address
+0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2
+0xb72830E8D35e3e7C918CE36154fEd566D577AdF7
+3
+
+Adding duplicate review for document1 by reveiwer 1 - Fail - revert The reviewer already reviewed for the given contract
+0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2
+0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2
+1
+
+
+
+//Move the logic contract as separate entity. Communication should be external via api
+//Create a front end for the contract
+//Share the ssh key
