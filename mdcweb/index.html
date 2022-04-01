@@ -6,8 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>mdcdemo</title>
   <link rel="stylesheet" href="main.css">
+  <script src="./node_modules/web3/dist/web3.min.js"></script>
+  
 </head>
-<body>
+<body">
 
     <div class="container">
         <h3> CreateNewDocument</h3>
@@ -61,46 +63,52 @@
                     <label for="cmd_reviewers">Reviewers</label>
                 </div>
                 <div class="col-50">
-                    <textarea id="cmd_reviewers" name="cmd_reviewers" placeholder="['0X....,0X...']" style="height:100px"></textarea>
+                    <textarea id="cmd_reviewers" name="cmd_reviewers" placeholder="0X....,0X..." style="height:100px"></textarea>
+                  </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="cmd_transactionRes">TransactionResult</label>
+                </div>
+                <div class="col-50">
+                    <textarea id="cmd_transactionRes" name="cmd_transactionRes" style="height:100px" readonly></textarea>
                   </div>
             </div>
             
             <div class="row">
-                <input type="submit" value="CreateNewDocument">
+                <input type="button" value="CreateNewDocument" onclick="createDocument()">
             </div>
         </form>
     </div>
 
     <div class="container">
         <h3> ReadMasterDocument</h3>
-        <form id="readMasterDocument" onsubmit="test(document.getElementById('rmd_caddress').value)"> 
+        <form id="readMasterDocument" role="form"> 
             <div class="row">
                 <div class="col-25">
-                    <label for="cmd_daddress">Contract address:</label>
+                    <label for="rmd_daddress">Contract address:</label>
                 </div>
                 <div class="col-50">
-                    <input type="text" id="cmd_daddress" name="cmd_daddress §"><br>
+                    <input type="text" id="rmd_daddress" name="rmd_daddress"><br>
                 </div>
             </div>
                   
 
             <div class="row">
                 <div class="col-25">
-                    <label for="rmd_masterdocument">MasterDocumentDetails</label>
+                    <label for="rmd_document">MasterDocumentDetails</label>
                 </div>
                 <div class="col-50">
-                    <textarea id="rmd_masterdocument" name="rmd_masterdocument"  style="height:100px" readonly></textarea>
+                    <textarea id="rmd_document" name="rmd_document"  style="height:100px" readonly></textarea>
                   </div>
             </div>
             
             <div class="row">
-                <input type="submit" value="ReadMasterDocument">
+                <input type="button" value="ReadDocument" onclick="readDocument()">
             </div>
         </form>
     </div>
-
-    <script data-main = "scripts/main" src = "scripts/require.js"></script>
-    <script data-main = "scripts/app" src = "scripts/require.js"></script>
+    <script src="./index.js"></script>
    
 </body>
 </html>

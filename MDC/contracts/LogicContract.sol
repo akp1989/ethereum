@@ -28,13 +28,13 @@ abstract contract LogicContract{
 
     /********* Modifiers - Start************/ 
     //Check if the reviewer is assigned for a given contract
-    modifier reviewValidReviewer(address _contractAddress, address _reviewer){
-        require(reviewerRanking[_contractAddress][_reviewer] != 0, "The reviewer is not authorized for given contract address");
+    modifier reviewValidReviewer(address _documentAddress, address _reviewer){
+        require(reviewerRanking[_documentAddress][_reviewer] != 0, "The reviewer is not authorized for given contract address");
         _;
     }
     //Check if the reviewer has not already reviewed the contract
-    modifier reviewNew(address _contractAddress, address _reviewer){
-        require(reviewerRanking[_contractAddress][_reviewer] == -1, "The reviewer already reviewed for the given contract");
+    modifier reviewNew(address _documentAddress, address _reviewer){
+        require(reviewerRanking[_documentAddress][_reviewer] == -1, "The reviewer already reviewed for the given contract");
         _;
     }
     //Check if the review rank is a valid value
@@ -65,7 +65,7 @@ abstract contract LogicContract{
     }
 
     //Create the master document entry
-    function _createMasterDocument(address _contractAddress,string memory _authorName, string memory  _timeStamp, string memory  _ipfsLink, string memory  _checksum, address[] memory _reviewers) 
+    function _createDocument(address _documentAddress,string memory _authorName, string memory  _timeStamp, string memory  _ipfsLink, string memory  _checksum, address[] memory _reviewers) 
             internal
             returns (ContractDetails memory contractDetails)
     {       
@@ -84,7 +84,7 @@ abstract contract LogicContract{
 
         //Assign all the reviewers for the given contract Address
         for(uint8 rCount=0;rCount< _reviewers.length; rCount++){
-            reviewerRanking[_contractAddress][_reviewers[rCount]] = -1;
+            reviewerRanking[_documentAddress][_reviewers[rCount]] = -1;
         }
 
         return(contractDetails);
@@ -92,14 +92,14 @@ abstract contract LogicContract{
 
 
     //Add a review to a given contract 
-    function _addReview(address _contractAddress, address _reviewer, int8 _reviewRank)internal  
+    function _addReview(address _documentAddress, address _reviewer, int8 _reviewRank)internal  
              reviewerExists(_reviewer) // The reviewer should be a valid reviewer defined by the owner
-             reviewValidReviewer(_contractAddress,_reviewer) // The reviewer should be assigned for the contract (contractaddress(reviewer=>reviwerRank)) != 0
-             reviewNew(_contractAddress,_reviewer) // The reviewer has not added a review already (contractaddress(reviwer=>reviewerRank)) == -1
+             reviewValidReviewer(_documentAddress,_reviewer) // The reviewer should be assigned for the contract (_documentAddress(reviewer=>reviwerRank)) != 0
+             reviewNew(_documentAddress,_reviewer) // The reviewer has not added a review already (_documentAddress(reviwer=>reviewerRank)) == -1
              validRank(_reviewRank) // The review Rank should be a valid positive integer
     {   
         //update the reviewerRanking mapping with the reviwerRank
-        reviewerRanking[_contractAddress][_reviewer] = _reviewRank;
+        reviewerRanking[_documentAddress][_reviewer] = _reviewRank;
     }
 
 }

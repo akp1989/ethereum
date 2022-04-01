@@ -8,13 +8,13 @@ import "./LogicContract.sol";
 contract MasterDocumentContract is Ownable,LogicContract{
 
     /***********Events**********************/
-    event CreateDocument(address indexed contractAddress);
+    event CreateDocument(address indexed documentAddress);
   
     event ReviewerAddition(address reviewer);
 
     event ReviewerRemoval(address reviewer);
  
-    event ContractReviewed(address contractAddress, address reviewer);
+    event ContractReviewed(address documentAddress, address reviewer);
     
     /********* Storage variable  - Start************/ 
     //Map of contracts - Change to documentMap
@@ -23,8 +23,8 @@ contract MasterDocumentContract is Ownable,LogicContract{
     /********* Storage variable  - End************/
     /********* Modifiers - Start************/
     //Check if the contract address is valid
-    modifier contractExists(address _contractAddress) {
-        require(bytes(contractMap[_contractAddress].authorName).length>0, "The mentioned contract address is not valid");
+    modifier contractExists(address _documentAddress) {
+        require(bytes(contractMap[_documentAddress].authorName).length>0, "The mentioned contract address is not valid");
         _;
     }
     /********* Modifiers - End************/
@@ -43,25 +43,25 @@ contract MasterDocumentContract is Ownable,LogicContract{
     }
 
     //Create the master document entry
-    function createMasterDocument(address _contractAddress,string memory _authorName, string memory  _timeStamp, string memory  _ipfsLink, string memory  _checksum, address[] memory _reviewers) public
+    function createDocument(address _documentAddress,string memory _authorName, string memory  _timeStamp, string memory  _ipfsLink, string memory  _checksum, address[] memory _reviewers) public
     {       
-        contractMap[_contractAddress] = _createMasterDocument(_contractAddress,_authorName,_timeStamp,_ipfsLink,_checksum,_reviewers);
-        emit CreateDocument(_contractAddress);         
+        contractMap[_documentAddress] = _createDocument(_documentAddress,_authorName,_timeStamp,_ipfsLink,_checksum,_reviewers);
+        emit CreateDocument(_documentAddress);         
     }
 
     //Read the master document and return the values
-    function readMasterDocument(address _contractAddress) public view returns (ContractDetails memory contractDetails){
-        return contractMap[_contractAddress];
+    function readDocument(address _documentAddress) public view returns (ContractDetails memory contractDetails){
+        return contractMap[_documentAddress];
     }
 
 
 
     //Add a review to a given contract 
-    function addReview(address _contractAddress, address _reviewer, int8 _reviewRank)public  
-             contractExists(_contractAddress)
+    function addReview(address _documentAddress, address _reviewer, int8 _reviewRank)public  
+             contractExists(_documentAddress)
     {   
-        _addReview(_contractAddress,_reviewer,_reviewRank);
-        emit ContractReviewed(_contractAddress, _reviewer);
+        _addReview(_documentAddress,_reviewer,_reviewRank);
+        emit ContractReviewed(_documentAddress, _reviewer);
     }
 
 
