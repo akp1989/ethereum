@@ -16,10 +16,10 @@
         <form id="createNewDocument"> 
             <div class="row">
                 <div class="col-25">
-                    <label for="cmd_daddress">Document address:</label>
+                    <label for="cmd_did">Document Id:</label>
                 </div>
                 <div class="col-50">
-                    <input type="text" id="cmd_daddress" name="cmd_daddress"><br>
+                    <input type="text" id="cmd_did" name="cmd_did"><br>
                 </div>
             </div>
             
@@ -82,21 +82,21 @@
     </div>
 
     <div class="container">
-        <h3> ReadMasterDocument</h3>
-        <form id="readMasterDocument" role="form"> 
+        <h3> ReadDocument</h3>
+        <form id="readDocument" role="form"> 
             <div class="row">
                 <div class="col-25">
-                    <label for="rmd_daddress">Contract address:</label>
+                    <label for="rmd_did">Document ID:</label>
                 </div>
                 <div class="col-50">
-                    <input type="text" id="rmd_daddress" name="rmd_daddress"><br>
+                    <input type="text" id="rmd_did" name="rmd_did"><br>
                 </div>
             </div>
                   
 
             <div class="row">
                 <div class="col-25">
-                    <label for="rmd_document">MasterDocumentDetails</label>
+                    <label for="rmd_document">DocumentDetails</label>
                 </div>
                 <div class="col-50">
                     <textarea id="rmd_document" name="rmd_document"  style="height:100px" readonly></textarea>
@@ -105,6 +105,106 @@
             
             <div class="row">
                 <input type="button" value="ReadDocument" onclick="readDocument()">
+            </div>
+        </form>
+    </div>
+    <script src="./index.js"></script>
+
+    <div class="container">
+        <h3> Add Review</h3>
+        <form id="addReview" role="form"> 
+            <div class="row">
+                <div class="col-25">
+                    <label for="addrv_docid">Document ID:</label>
+                </div>
+                <div class="col-50">
+                    <input type="text" id="addrv_docid" name="addrv_docid"><br>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="addrv_rvwaddr">Reviewer address:</label>
+                </div>
+                <div class="col-50">
+                    <input type="text" id="addrv_rvwaddr" name="addrv_rvwaddr"><br>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="addrv_rvw">Review rank:</label>
+                </div>
+                <div class="col-50">
+                    <input type="text" id="addrv_rvw" name="addrv_rvw"><br>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="addrv_transactionRes">TransactionResult</label>
+                </div>
+                <div class="col-50">
+                    <textarea id="addrv_transactionRes" name="addrv_transactionRes" style="height:100px" readonly></textarea>
+                  </div>
+            </div>
+            <div class="row">
+                <input type="button" value="AddReview" onclick="addReview()">
+            </div>
+        </form>
+    </div>
+
+    <div class="container">
+        <h3> Read Review</h3>
+        <form id="readReview" role="form"> 
+            <div class="row">
+                <div class="col-25">
+                    <label for="readrv_docid">Document ID:</label>
+                </div>
+                <div class="col-50">
+                    <input type="text" id="readrv_docid" name="readrv_docid"><br>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="readrv_rvwaddr">Reviewer address:</label>
+                </div>
+                <div class="col-50">
+                    <input type="text" id="readrv_rvwaddr" name="readrv_rvwaddr"><br>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="readrv_transactionRes">TransactionResult</label>
+                </div>
+                <div class="col-50">
+                    <textarea id="readrv_transactionRes" name="readrv_transactionRes" style="height:100px" readonly></textarea>
+                  </div>
+            </div>
+            <div class="row">
+                <input type="button" value="ReadReview" onclick="readReview()">
+            </div>
+        </form>
+    </div>
+
+    <div class="container">
+        <h3> Add Reviewer</h3>
+        <form id="addReviewer" role="form"> 
+            <div class="row">
+                <div class="col-25">
+                    <label for="addrvw_rvwaddr">Reviewer address:</label>
+                </div>
+                <div class="col-50">
+                    <input type="text" id="addrvw_rvwaddr" name="addrvw_rvwaddr"><br>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="addrvw_transactionRes">TransactionResult</label>
+                </div>
+                <div class="col-50">
+                    <textarea id="addrvw_transactionRes" name="addrvw_transactionRes" style="height:100px" readonly></textarea>
+                  </div>
+            </div>
+            <div class="row">
+                <input type="button" value="AddReviewer" onclick="addReviewer()">
             </div>
         </form>
     </div>
