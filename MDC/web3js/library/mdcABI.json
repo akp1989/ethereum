@@ -2,9 +2,9 @@
     {
         "inputs": [
             {
-                "internalType": "address[]",
-                "name": "_reviewers",
-                "type": "address[]"
+                "internalType": "address",
+                "name": "_logicContractAddress",
+                "type": "address"
             }
         ],
         "stateMutability": "nonpayable",
@@ -14,16 +14,16 @@
         "anonymous": false,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": true,
                 "internalType": "address",
-                "name": "contractAddress",
+                "name": "_contractAddress",
                 "type": "address"
             },
             {
-                "indexed": false,
-                "internalType": "address",
-                "name": "reviewer",
-                "type": "address"
+                "indexed": true,
+                "internalType": "int8",
+                "name": "_reviewRanking",
+                "type": "int8"
             }
         ],
         "name": "ContractReviewed",
@@ -35,8 +35,20 @@
             {
                 "indexed": true,
                 "internalType": "address",
-                "name": "contractAddress",
+                "name": "_documentAddress",
                 "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "string",
+                "name": "_authorName",
+                "type": "string"
+            },
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "_authorNameString",
+                "type": "string"
             }
         ],
         "name": "CreateDocument",
@@ -67,7 +79,7 @@
             {
                 "indexed": false,
                 "internalType": "address",
-                "name": "reviewer",
+                "name": "_reviewer",
                 "type": "address"
             }
         ],
@@ -80,7 +92,7 @@
             {
                 "indexed": false,
                 "internalType": "address",
-                "name": "reviewer",
+                "name": "_reviewer",
                 "type": "address"
             }
         ],
@@ -90,9 +102,9 @@
     {
         "inputs": [
             {
-                "internalType": "address",
-                "name": "_contractAddress",
-                "type": "address"
+                "internalType": "string",
+                "name": "_documentID",
+                "type": "string"
             },
             {
                 "internalType": "address",
@@ -101,7 +113,7 @@
             },
             {
                 "internalType": "int8",
-                "name": "_reviewRank",
+                "name": "_reviewRanking",
                 "type": "int8"
             }
         ],
@@ -126,43 +138,9 @@
     {
         "inputs": [
             {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "name": "contractMap",
-        "outputs": [
-            {
                 "internalType": "string",
-                "name": "authorName",
+                "name": "_documentId",
                 "type": "string"
-            },
-            {
-                "internalType": "string",
-                "name": "timeStamp",
-                "type": "string"
-            },
-            {
-                "internalType": "string",
-                "name": "ipfsLink",
-                "type": "string"
-            },
-            {
-                "internalType": "string",
-                "name": "checkSum",
-                "type": "string"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "_contractAddress",
-                "type": "address"
             },
             {
                 "internalType": "string",
@@ -190,7 +168,7 @@
                 "type": "address[]"
             }
         ],
-        "name": "createMasterDocument",
+        "name": "createDocument",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -198,17 +176,30 @@
     {
         "inputs": [
             {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "name": "documentAddressMap",
+        "outputs": [
+            {
                 "internalType": "address",
                 "name": "",
                 "type": "address"
             }
         ],
-        "name": "isReviewer",
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "logicContract",
         "outputs": [
             {
-                "internalType": "bool",
+                "internalType": "contract LogicContract",
                 "name": "",
-                "type": "bool"
+                "type": "address"
             }
         ],
         "stateMutability": "view",
@@ -230,44 +221,61 @@
     {
         "inputs": [
             {
+                "internalType": "string",
+                "name": "_documentIdInput",
+                "type": "string"
+            }
+        ],
+        "name": "readDocumentByID",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "_documentId",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "_authorName",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "_timeStamp",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "_ipfsLink",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "_checksum",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_documentID",
+                "type": "string"
+            },
+            {
                 "internalType": "address",
-                "name": "_contractAddress",
+                "name": "_reviewer",
                 "type": "address"
             }
         ],
-        "name": "readMasterDocument",
+        "name": "readReview",
         "outputs": [
             {
-                "components": [
-                    {
-                        "internalType": "string",
-                        "name": "authorName",
-                        "type": "string"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "timeStamp",
-                        "type": "string"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "ipfsLink",
-                        "type": "string"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "checkSum",
-                        "type": "string"
-                    },
-                    {
-                        "internalType": "address[]",
-                        "name": "reviewersAssigned",
-                        "type": "address[]"
-                    }
-                ],
-                "internalType": "struct LogicContract.ContractDetails",
-                "name": "contractDetails",
-                "type": "tuple"
+                "internalType": "int8",
+                "name": "reviewRank",
+                "type": "int8"
             }
         ],
         "stateMutability": "view",
@@ -291,30 +299,6 @@
         "name": "renounceOwnership",
         "outputs": [],
         "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "name": "reviewerRanking",
-        "outputs": [
-            {
-                "internalType": "int8",
-                "name": "",
-                "type": "int8"
-            }
-        ],
-        "stateMutability": "view",
         "type": "function"
     },
     {

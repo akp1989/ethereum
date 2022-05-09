@@ -7,24 +7,24 @@ const ethereumAddress = ("http://127.0.0.1:8545");
 //Environment details
 const ethers = new Ethers.providers.JsonRpcProvider(ethereumAddress);
 //Signer details 
-const signer = new Ethers.Wallet('f36270af49f04db61e429c17257443f8c1c20690c5f1b1e513a28ef2fa3450cd',ethers);
+const signer = new Ethers.Wallet('ae2e4341251159be1c7bae03b9a81e56c35c0660fe14114e2d6fc0a0c8c441c6',ethers);
 
 //Contract details
-const mdcContract = new Ethers.Contract('0x8C135609C396A5D9A031d2D97726F5958A2265a3', mdcABI, ethers);
+const mdcContract = new Ethers.Contract('0xa5A11fD0E6406ADbe7fb1Fcff24DE71aE269B938', mdcABI, ethers);
 
 const test = async function(){
 
     console.log(signer.getAddress());
     console.log(await mdcContract.deployed());
 }
-const createMDC = async function (contractAddress, authorName, timeStamp, ipfsLink, checksum, reviewers) {
-    const result = await mdcContract.connect(signer).createMasterDocument(contractAddress,authorName,timeStamp,ipfsLink,checksum,reviewers);
+const createMDC = async function (documentId, authorName, timeStamp, ipfsLink, checksum, reviewers) {
+    const result = await mdcContract.connect(signer).createDocument(documentId,authorName,timeStamp,ipfsLink,checksum,reviewers);
     console.log(result);
  
 };
 
-const readMDC = async function(transactionAddress){
-    var result = await mdcContract.readMasterDocument(transactionAddress);
+const readMDC = async function(documentId){
+    var result = await mdcContract.readDocumentByID(documentId);
     console.log(Ethers.utils.parseBytes32String(result));
 }
 
@@ -38,53 +38,54 @@ const removeReviewer = async function(reviwer){
     console.log(result);
 }
 
-const addReview = async function(contractAddress, reviewer, reviewRank){
-    const result = await mdcContract.connect(signer).addReview(contractAddress, reviewer, reviewRank);
+const addReview = async function(documentId, reviewer, reviewRank){
+    const result = await mdcContract.connect(signer).addReview(documentId, reviewer, reviewRank);
     console.log(result);
 }
 
+const readReview = async function(documentId, reviewer){
+    const result = await mdcContract.readReview(documentId, reviewer);
+    console.log(result);
+}
 
+const searchByAuthor = async function(authorName){
+    let eventFilter = mdcContract.filters.CreateDocument(null,authorName,null);
+    let events = await mdcContract.queryFilter(eventFilter);
+    events.forEach((eventDetail)=>{
+        console.log(eventDetail.args._documentAddress);
+    });
+}
+const searchByRank = async function(reviewRank){
+    var reviewRankCriteria = Array.from({length:reviewRank},(_,i)=>i+1);
+    let eventFilter = mdcContract.filters.ContractReviewed(null,reviewRankCriteria);
+    let events = await mdcContract.queryFilter(eventFilter);
+    events.forEach((eventDetail)=>{
+        console.log(eventDetail.args._contractAddress);
+    });
+}
 //test();
-//createMDC('0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2',"Doc1",'18:10:05T','linktest1','checksumtest1', ["0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2","0x4Ad1d05111ee1C69cD47CECde922d08B3E9b6044"]);
-createMDC('0x4Ad1d05111ee1C69cD47CECde922d08B3E9b6044',"Doc2",'18:10:05T','linktest2','checksumtest2', ["0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2","0x4Ad1d05111ee1C69cD47CECde922d08B3E9b6044"]);
-//createMDC('0xb72830E8D35e3e7C918CE36154fEd566D577AdF7',"Doc3",'18:10:05T','linktest3','checksumtest3', ["0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2","0x4Ad1d05111ee1C69cD47CECde922d08B3E9b6044","0xb72830E8D35e3e7C918CE36154fEd566D577AdF7"]);
-//createMDC('0xF343fa8ecFbE3bB59d2cdBe9BDD54D43E234F9Df',"Doc4",'18:10:05T','linktest4','checksumtest4', ["0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2","0x4Ad1d05111ee1C69cD47CECde922d08B3E9b6044","0xF343fa8ecFbE3bB59d2cdBe9BDD54D43E234F9Df"]);
+//createMDC('document1',"Prabhakaran",'12:00:00','IPFS1','Checksum1', ["0x8FaF48F45082248D80aad06e76d942f8586E6Dcd","0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2"]);
+//createMDC('document2',"Prabhakaran",'12:02:00','IPFS2','Checksum2', ["0x8FaF48F45082248D80aad06e76d942f8586E6Dcd","0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2"]);
+//createMDC('documentx3',"Mrinmoyee",'18:02:00','IPFSx3','Checksumx3', ["0x8FaF48F45082248D80aad06e76d942f8586E6Dcd","0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2"]);
 
-//readMDC('0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2')
-//readMDC('0x4Ad1d05111ee1C69cD47CECde922d08B3E9b6044')
-//readMDC('0xb72830E8D35e3e7C918CE36154fEd566D577AdF7')
+//readMDC('document1')
+//readMDC('document2') 
 
-//addReview('0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2','0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2',7);
-//addReview('0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2','0x4Ad1d05111ee1C69cD47CECde922d08B3E9b6044',7);
+//addReview('document1','0x8FaF48F45082248D80aad06e76d942f8586E6Dcd',1);
+//addReview('document1','0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2',2); 
+//addReview('document2','0x8FaF48F45082248D80aad06e76d942f8586E6Dcd',1); 
+//addReview('documentx3','0x8FaF48F45082248D80aad06e76d942f8586E6Dcd',1); 
 
+//readReview('document1','0x8FaF48F45082248D80aad06e76d942f8586E6Dcd');
+//readReview('document1','0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2'); 
 
 /** Adding and removing a reviewer */
-//addReviewer('0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2');
-//addReviewer('0x4Ad1d05111ee1C69cD47CECde922d08B3E9b6044');
-//addReviewer('0xb72830E8D35e3e7C918CE36154fEd566D577AdF7');
+//addReviewer('0x8FaF48F45082248D80aad06e76d942f8586E6Dcd');
+//addReviewer('0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2'); 
 
+//removeReviewer('0x8FaF48F45082248D80aad06e76d942f8586E6Dcd');
 //removeReviewer('0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2');
-//removeReviewer('0x4Ad1d05111ee1C69cD47CECde922d08B3E9b6044');
-//removeReviewer('0xb72830E8D35e3e7C918CE36154fEd566D577AdF7');
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+searchByAuthor('Mrinmoyee');
+//searchByRank(2);

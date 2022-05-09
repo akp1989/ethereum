@@ -9,13 +9,13 @@ import "./LogicContract.sol";
 contract MasterDocument is Ownable{
 
     /***********Events**********************/
-    event CreateDocument(string indexed _documentId);
+    event CreateDocument(address indexed _documentAddress, string indexed _authorName, string _authorNameString);
     
-    event ReviewerAddition(address reviewer);
+    event ReviewerAddition(address _reviewer);
 
-    event ReviewerRemoval(address reviewer);
+    event ReviewerRemoval(address _reviewer);
  
-    event ContractReviewed(address contractAddress, address reviewer);
+    event ContractReviewed(address indexed _contractAddress, int8 indexed _reviewRanking );
     
     /********* Storage variable  - Start************/ 
     //Map of contracts - Change to documentMap
@@ -50,7 +50,7 @@ contract MasterDocument is Ownable{
         //documentMap.push(document);
         documentAddressMap[_documentId] = address(document);
         document._createDocument(_documentId, _authorName,  _timeStamp, _ipfsLink,  _checksum, _reviewers,address(logicContract));
-        emit CreateDocument(_documentId);         
+        emit CreateDocument(address(document), _authorName,_authorName);         
     }
 
     // function readDocumentByIndex(uint _index) external view returns(string memory _documentId ,string memory _authorName, string memory  _timeStamp, string memory  _ipfsLink, string memory  _checksum)
@@ -73,6 +73,7 @@ contract MasterDocument is Ownable{
         address _documentAddress = documentAddressMap[_documentID];
         Document document = Document(_documentAddress);
         document.addReview(_reviewer, _reviewRanking);
+        emit ContractReviewed(_documentAddress, _reviewRanking);
     }
 
     function readReview(string memory _documentID, address _reviewer) public view returns (int8 reviewRank){
@@ -91,4 +92,6 @@ contract MasterDocument is Ownable{
         logicContract._removeReviewer(_reviewer);
         emit ReviewerRemoval(_reviewer);
     }
+
+   
 }
