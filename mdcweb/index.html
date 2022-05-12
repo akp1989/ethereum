@@ -208,6 +208,39 @@
             </div>
         </form>
     </div>
+
+    <div class="container">
+        <h3> Search Document</h3>
+        <form id="searchdoc" role="form"> 
+            <div class="row">
+                <div class="col-25">
+                    <label for="srch_input">Owner Name/Review Rank:</label>
+                </div>
+                <div class="col-50">
+                    <input type="text" id="srch_input" name="srch_input"><br>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-25">
+                    <label for="srch_Result">Document Address </label>
+                </div>
+                <div class="col-50">
+                    <textarea id="srch_Result" name="srch_Result" style="height:100px" readonly></textarea>
+                  </div>
+            </div>
+            <div class="row">
+                <input type="radio" id="ownername" name="srch_input" value="ownername">
+                <label ownername="html">Owner Name</label>
+                <input type="radio" id="reviewrank" name="srch_input" value="reviewrank">
+                <label for="reviewrank">Review Rank</label>
+            </div>
+            
+            <div class="row">
+                <input type="button" value="Search Document" onclick="searchDocument()">
+            </div>
+        </form>
+    </div>
+
     <script src="./index.js"></script>
    
 </body>

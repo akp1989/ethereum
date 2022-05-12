@@ -22,8 +22,8 @@ if (window.ethereum) {
   console.log (window.web3.currentProvider)
   
   // contractAddress and abi are setted after contract deploy
-  var contractAddress = '0x2edb23D7f4801909F1155eF7F948bf5B2198CD15';
-  var abi = JSON.parse('[ { "inputs": [ { "internalType": "address", "name": "_logicContractAddress", "type": "address" } ], "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "address", "name": "contractAddress", "type": "address" }, { "indexed": false, "internalType": "address", "name": "reviewer", "type": "address" } ], "name": "ContractReviewed", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "string", "name": "_documentId", "type": "string" } ], "name": "CreateDocument", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" } ], "name": "OwnershipTransferred", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "address", "name": "reviewer", "type": "address" } ], "name": "ReviewerAddition", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "address", "name": "reviewer", "type": "address" } ], "name": "ReviewerRemoval", "type": "event" }, { "inputs": [ { "internalType": "string", "name": "_documentID", "type": "string" }, { "internalType": "address", "name": "_reviewer", "type": "address" }, { "internalType": "int8", "name": "_reviewRanking", "type": "int8" } ], "name": "addReview", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "_reviewer", "type": "address" } ], "name": "addReviewer", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "string", "name": "_documentId", "type": "string" }, { "internalType": "string", "name": "_authorName", "type": "string" }, { "internalType": "string", "name": "_timeStamp", "type": "string" }, { "internalType": "string", "name": "_ipfsLink", "type": "string" }, { "internalType": "string", "name": "_checksum", "type": "string" }, { "internalType": "address[]", "name": "_reviewers", "type": "address[]" } ], "name": "createDocument", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "string", "name": "", "type": "string" } ], "name": "documentAddressMap", "outputs": [ { "internalType": "address", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "logicContract", "outputs": [ { "internalType": "contract LogicContract", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "owner", "outputs": [ { "internalType": "address", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "string", "name": "_documentIdInput", "type": "string" } ], "name": "readDocumentByID", "outputs": [ { "internalType": "string", "name": "_documentId", "type": "string" }, { "internalType": "string", "name": "_authorName", "type": "string" }, { "internalType": "string", "name": "_timeStamp", "type": "string" }, { "internalType": "string", "name": "_ipfsLink", "type": "string" }, { "internalType": "string", "name": "_checksum", "type": "string" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "string", "name": "_documentID", "type": "string" }, { "internalType": "address", "name": "_reviewer", "type": "address" } ], "name": "readReview", "outputs": [ { "internalType": "int8", "name": "reviewRank", "type": "int8" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "_reviewer", "type": "address" } ], "name": "removeReviewer", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "renounceOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "newOwner", "type": "address" } ], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" } ]');
+  var contractAddress = '0x2adBFc7f1E69181006bc4bb8079ee054BdF9aB8A';
+  var abi = JSON.parse('[ { "inputs": [ { "internalType": "string", "name": "_documentID", "type": "string" }, { "internalType": "address", "name": "_reviewer", "type": "address" }, { "internalType": "int8", "name": "_reviewRanking", "type": "int8" } ], "name": "addReview", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "_reviewer", "type": "address" } ], "name": "addReviewer", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "string", "name": "_documentId", "type": "string" }, { "internalType": "string", "name": "_authorName", "type": "string" }, { "internalType": "string", "name": "_timeStamp", "type": "string" }, { "internalType": "string", "name": "_ipfsLink", "type": "string" }, { "internalType": "string", "name": "_checksum", "type": "string" }, { "internalType": "address[]", "name": "_reviewers", "type": "address[]" } ], "name": "createDocument", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "_reviewer", "type": "address" } ], "name": "removeReviewer", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "_logicContractAddress", "type": "address" } ], "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "_contractAddress", "type": "address" }, { "indexed": true, "internalType": "int8", "name": "_reviewRanking", "type": "int8" } ], "name": "ContractReviewed", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "_documentAddress", "type": "address" }, { "indexed": true, "internalType": "string", "name": "_authorName", "type": "string" }, { "indexed": false, "internalType": "string", "name": "_authorNameString", "type": "string" } ], "name": "CreateDocument", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" } ], "name": "OwnershipTransferred", "type": "event" }, { "inputs": [], "name": "renounceOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "address", "name": "_reviewer", "type": "address" } ], "name": "ReviewerAddition", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "address", "name": "_reviewer", "type": "address" } ], "name": "ReviewerRemoval", "type": "event" }, { "inputs": [ { "internalType": "address", "name": "newOwner", "type": "address" } ], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "string", "name": "", "type": "string" } ], "name": "documentAddressMap", "outputs": [ { "internalType": "address", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "logicContract", "outputs": [ { "internalType": "contract LogicContract", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "owner", "outputs": [ { "internalType": "address", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "string", "name": "_documentIdInput", "type": "string" } ], "name": "readDocumentByID", "outputs": [ { "internalType": "string", "name": "_documentId", "type": "string" }, { "internalType": "string", "name": "_authorName", "type": "string" }, { "internalType": "string", "name": "_timeStamp", "type": "string" }, { "internalType": "string", "name": "_ipfsLink", "type": "string" }, { "internalType": "string", "name": "_checksum", "type": "string" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "string", "name": "_documentID", "type": "string" }, { "internalType": "address", "name": "_reviewer", "type": "address" } ], "name": "readReview", "outputs": [ { "internalType": "int8", "name": "reviewRank", "type": "int8" } ], "stateMutability": "view", "type": "function" } ]');
   //contract instance
   contract = new web3.eth.Contract(abi, contractAddress);
   
@@ -92,4 +92,44 @@ if (window.ethereum) {
       document.getElementById('addrvw_transactionRes').textContent = JSON.stringify(tx);
       alert(JSON.stringify(tx));
     })
+  }
+
+  function searchDocument(){
+    var srch_input = document.getElementById("srch_input").value;
+    var srch_output = [];
+    const radioButtons = document.querySelectorAll('input[name="srch_input"]');
+    var srch_param = 'test';
+    for(const radioButton of radioButtons ){
+      if(radioButton.checked){
+        srch_param = radioButton.value;
+        break;
+      }
+    }
+    if(srch_param=="ownername"){
+      contract.getPastEvents('CreateDocument', {
+        //filter:{_authorName : Web3.utils.sha3(srch_input)},
+        topics : [,,Web3.utils.sha3(srch_input)],
+        fromBlock: 0,
+        toBlock: 'latest'
+      }).then (function(eventDetails){
+                eventDetails.forEach((eventDetail)=>{
+                  //console.log(eventDetail);
+                  srch_output.push(eventDetail.returnValues._documentAddress);
+          });
+          document.getElementById('srch_Result').textContent =srch_output;
+      });  
+    }else if(srch_param == 'reviewrank'){
+      var reviewRankCriteria = Array.from({length:srch_input},(_,i)=>i+1);
+      contract.getPastEvents('ContractReviewed', {
+        filter:{_reviewRanking : reviewRankCriteria},
+        fromBlock: 0,
+        toBlock: 'latest'
+      }).then (function(eventDetails){
+                eventDetails.forEach((eventDetail)=>{
+                  //console.log(eventDetail);
+                  srch_output.push(eventDetail.returnValues._contractAddress);
+          });
+          document.getElementById('srch_Result').textContent =srch_output;
+      });  
+    }
   }
