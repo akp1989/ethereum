@@ -133,3 +133,15 @@ if (window.ethereum) {
       });  
     }
   }
+
+  function checkIpfs(){
+    const fileName = document.getElementById('cmd_file').value;
+    console.log(fileName);
+    const IPFS= IpfsHttpClient.create("/ip4/127.0.0.1/tcp/5001");
+    IPFS.isOnline().then((isOnline)=>{
+      console.log(isOnline,);
+    });
+    IPFS.id().then((id)=>{
+      console.log(id);
+    })
+  }

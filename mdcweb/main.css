@@ -35,18 +35,23 @@
     padding: 20px;
   }
   
+  .col-20 {
+    float: left;
+    width: 20%;
+    margin-top: 6px;
+  }
+  
+  .col-30 {
+    float: left;
+    width: 30%;
+    margin-top: 6px;
+  }
   .col-25 {
-    float: left;
-    width: 25%;
-    margin-top: 6px;
+    float: left; 
+    width: 30%;
+    margin-left: 12px;
+    margin-top: 8px;
   }
-  
-  .col-50 {
-    float: left;
-    width: 50%;
-    margin-top: 6px;
-  }
-  
   /* Clear floats after the columns */
   .row:after {
     content: "";

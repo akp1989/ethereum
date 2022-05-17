@@ -1,5 +1,6 @@
 const Web3 = require('web3');
 var mdcABI = require('./library/mdcABI');
+var IPFS = require('ipfs-http-client');
 
 const ethereumAddress = ("http://127.0.0.1:8545");
 
@@ -41,6 +42,11 @@ const searchByAuthor = async function(authorName){
     });
 }
 
+ const checkIpfs = async function(){
+    const http= await IPFS.create('/ip4/127.0.0.1/tcp/5001');
+    console.log(await http.isOnline());
+  }
+
 //test();
 //createMDC('document1',"Prabhakaran",'12:00:00','IPFS1','Checksum1', ["0x8FaF48F45082248D80aad06e76d942f8586E6Dcd","0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2"]);
 //createMDC('document2',"Prabhakaran",'12:02:00','IPFS2','Checksum2', ["0x8FaF48F45082248D80aad06e76d942f8586E6Dcd","0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2"]);
@@ -66,4 +72,6 @@ const searchByAuthor = async function(authorName){
 
 
 //searchByAuthor("Prabhakaran");
-searchByRank(2);
+//searchByRank(2);
+
+checkIpfs();

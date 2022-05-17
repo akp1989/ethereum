@@ -7,6 +7,7 @@
   <title>mdcdemo</title>
   <link rel="stylesheet" href="main.css">
   <script src="./node_modules/web3/dist/web3.min.js"></script>
+  <script src="./node_modules/ipfs-http-client/index.min.js"></script>
   
 </head>
 <body">
@@ -15,62 +16,68 @@
         <h3> CreateNewDocument</h3>
         <form id="createNewDocument"> 
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="cmd_did">Document Id:</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <input type="text" id="cmd_did" name="cmd_did"><br>
+                </div>
+                <div class="col-25">
+                    <input type="file" id="cmd_file" name="cmd_file">
                 </div>
             </div>
             
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="cmd_aname">Author's name:</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <input type="text" id="cmd_aname" name="cmd_aname"><br>
+                </div>
+                <div class="col-25">
+                    <input type="button" value="UploadDocumentToIPFS" onclick="checkIpfs()">
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="cmd_tstamp">Time stamp</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <input type="text" id="cmd_tstamp" name="cmd_tstamp"><br>
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="cmd_ipfslink">IPFS Link</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <input type="text" id="cmd_ipfslink" name="cmd_ipfslink"><br>
                 </div>
             </div>
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="cmd_checksum">Checksum</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <input type="text" id="cmd_checksum" name="cmd_checksum"><br>
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="cmd_reviewers">Reviewers</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <textarea id="cmd_reviewers" name="cmd_reviewers" placeholder="0X....,0X..." style="height:100px"></textarea>
                   </div>
             </div>
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="cmd_transactionRes">TransactionResult</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <textarea id="cmd_transactionRes" name="cmd_transactionRes" style="height:100px" readonly></textarea>
                   </div>
             </div>
@@ -85,20 +92,20 @@
         <h3> ReadDocument</h3>
         <form id="readDocument" role="form"> 
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="rmd_did">Document ID:</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <input type="text" id="rmd_did" name="rmd_did"><br>
                 </div>
             </div>
                   
 
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="rmd_document">DocumentDetails</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <textarea id="rmd_document" name="rmd_document"  style="height:100px" readonly></textarea>
                   </div>
             </div>
@@ -114,34 +121,35 @@
         <h3> Add Review</h3>
         <form id="addReview" role="form"> 
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="addrv_docid">Document ID:</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <input type="text" id="addrv_docid" name="addrv_docid"><br>
                 </div>
+                
             </div>
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="addrv_rvwaddr">Reviewer address:</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <input type="text" id="addrv_rvwaddr" name="addrv_rvwaddr"><br>
                 </div>
             </div>
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="addrv_rvw">Review rank:</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <input type="text" id="addrv_rvw" name="addrv_rvw"><br>
                 </div>
             </div>
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="addrv_transactionRes">TransactionResult</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <textarea id="addrv_transactionRes" name="addrv_transactionRes" style="height:100px" readonly></textarea>
                   </div>
             </div>
@@ -155,26 +163,26 @@
         <h3> Read Review</h3>
         <form id="readReview" role="form"> 
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="readrv_docid">Document ID:</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <input type="text" id="readrv_docid" name="readrv_docid"><br>
                 </div>
             </div>
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="readrv_rvwaddr">Reviewer address:</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <input type="text" id="readrv_rvwaddr" name="readrv_rvwaddr"><br>
                 </div>
             </div>
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="readrv_transactionRes">TransactionResult</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <textarea id="readrv_transactionRes" name="readrv_transactionRes" style="height:100px" readonly></textarea>
                   </div>
             </div>
@@ -188,18 +196,18 @@
         <h3> Add Reviewer</h3>
         <form id="addReviewer" role="form"> 
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="addrvw_rvwaddr">Reviewer address:</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <input type="text" id="addrvw_rvwaddr" name="addrvw_rvwaddr"><br>
                 </div>
             </div>
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="addrvw_transactionRes">TransactionResult</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <textarea id="addrvw_transactionRes" name="addrvw_transactionRes" style="height:100px" readonly></textarea>
                   </div>
             </div>
@@ -213,18 +221,18 @@
         <h3> Search Document</h3>
         <form id="searchdoc" role="form"> 
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="srch_input">Owner Name/Review Rank:</label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <input type="text" id="srch_input" name="srch_input"><br>
                 </div>
             </div>
             <div class="row">
-                <div class="col-25">
+                <div class="col-20">
                     <label for="srch_Result">Document Address </label>
                 </div>
-                <div class="col-50">
+                <div class="col-30">
                     <textarea id="srch_Result" name="srch_Result" style="height:100px" readonly></textarea>
                   </div>
             </div>
