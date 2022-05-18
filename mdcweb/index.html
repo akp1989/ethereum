@@ -7,8 +7,6 @@
   <title>mdcdemo</title>
   <link rel="stylesheet" href="main.css">
   <script src="./node_modules/web3/dist/web3.min.js"></script>
-  <script src="./node_modules/ipfs-http-client/index.min.js"></script>
-  
 </head>
 <body">
 
@@ -35,7 +33,7 @@
                     <input type="text" id="cmd_aname" name="cmd_aname"><br>
                 </div>
                 <div class="col-25">
-                    <input type="button" value="UploadDocumentToIPFS" onclick="checkIpfs()">
+                    <input type="button" value="UploadDocumentToIPFS" onclick="uploadDocument()">
                 </div>
             </div>
 
@@ -97,6 +95,9 @@
                 </div>
                 <div class="col-30">
                     <input type="text" id="rmd_did" name="rmd_did"><br>
+                </div>
+                <div class="col-25">
+                    <a id="rmd_link" target='_blank'>Open the document</a>
                 </div>
             </div>
                   
@@ -169,6 +170,7 @@
                 <div class="col-30">
                     <input type="text" id="readrv_docid" name="readrv_docid"><br>
                 </div>
+               
             </div>
             <div class="row">
                 <div class="col-20">
@@ -248,7 +250,8 @@
             </div>
         </form>
     </div>
-
+    
+    <script src="./node_modules/ipfs-http-client/index.min.js"></script>
     <script src="./index.js"></script>
    
 </body>

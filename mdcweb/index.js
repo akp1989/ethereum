@@ -1,5 +1,6 @@
 // Source code to interact with smart contract
 
+
 // web3 provider with fallback for old version
 if (window.ethereum) {
     window.web3 = new Web3(window.ethereum)
@@ -48,8 +49,11 @@ if (window.ethereum) {
   function readDocument(){
     var rmd_docid =  document.getElementById("rmd_did").value;
     contract.methods.readDocumentByID(rmd_docid).call().then(function(rmd){
-      console.log('The read value for the document : ', rmd);
       document.getElementById('rmd_document').textContent = JSON.stringify(rmd);
+      const responseJSON = JSON.parse(JSON.stringify(rmd));
+      console.log(responseJSON._ipfsLink); 
+      document.getElementById('rmd_link').href= responseJSON._ipfsLink;
+      
     })    
   }
 
@@ -134,14 +138,25 @@ if (window.ethereum) {
     }
   }
 
-  function checkIpfs(){
-    const fileName = document.getElementById('cmd_file').value;
-    console.log(fileName);
-    const IPFS= IpfsHttpClient.create("/ip4/127.0.0.1/tcp/5001");
-    IPFS.isOnline().then((isOnline)=>{
-      console.log(isOnline,);
-    });
-    IPFS.id().then((id)=>{
-      console.log(id);
-    })
+  function uploadDocument(){
+    //const IPFS= IpfsHttpClient.create("/ip4/127.0.0.1/tcp/5001");
+    const IPFS = IpfsHttpClient.create({protocol:'http',
+                                        host:'localhost',
+                                        port:'5001',
+                                        path:'api/v0'});
+    // IPFS.isOnline().then((isOnline)=>{
+    //   console.log(isOnline,);
+    // });
+    const fileInput = document.getElementById('cmd_file').files[0];
+    
+    var fileReader= new FileReader();
+    fileReader.readAsText(fileInput);
+    fileReader.onload = function() {
+     const fileOption = {path:fileInput.name,content:fileReader.result};
+     
+     IPFS.add(fileOption).then((addResult)=>{
+        document.getElementById("cmd_ipfslink").value = 'https://ipfs.io/ipfs/'+addResult.cid.toString();
+        document.getElementById("cmd_checksum").value = addResult.cid.toString();
+      })
+    };
   }
