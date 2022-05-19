@@ -140,23 +140,26 @@ if (window.ethereum) {
 
   function uploadDocument(){
     //const IPFS= IpfsHttpClient.create("/ip4/127.0.0.1/tcp/5001");
-    const IPFS = IpfsHttpClient.create({protocol:'http',
-                                        host:'localhost',
-                                        port:'5001',
-                                        path:'api/v0'});
+    // const IPFS = IpfsHttpClient.create({protocol:'http',
+    //                                     host:'localhost',
+    //                                     port:'5001',
+    //                                     path:'api/v0'});
+
     // IPFS.isOnline().then((isOnline)=>{
     //   console.log(isOnline,);
     // });
     const fileInput = document.getElementById('cmd_file').files[0];
-    
     var fileReader= new FileReader();
     fileReader.readAsText(fileInput);
     fileReader.onload = function() {
-     const fileOption = {path:fileInput.name,content:fileReader.result};
-     
-     IPFS.add(fileOption).then((addResult)=>{
+    //  const fileOption = {path:fileInput.name,content:fileReader.result};
+    IpfsCore.create().then((IPFS)=>{
+      IPFS.add({path:fileInput.name,content:fileReader.result}).then((addResult)=>{
+        console.log(addResult);
         document.getElementById("cmd_ipfslink").value = 'https://ipfs.io/ipfs/'+addResult.cid.toString();
         document.getElementById("cmd_checksum").value = addResult.cid.toString();
       })
-    };
-  }
+      IPFS.stop();
+    })
+  };
+}
