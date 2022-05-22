@@ -45,7 +45,7 @@ if (window.ethereum) {
     web3.eth.defaultAccount = account;
   });
   
-
+  //Function to read the document using documentID
   function readDocument(){
     var rmd_docid =  document.getElementById("rmd_did").value;
     contract.methods.readDocumentByID(rmd_docid).call().then(function(rmd){
@@ -57,6 +57,7 @@ if (window.ethereum) {
     })    
   }
 
+  //Create an entry for the document
   function createDocument(){
     var cmd_docid =  document.getElementById("cmd_did").value;
     var cmd_aname =  document.getElementById("cmd_aname").value;
@@ -72,6 +73,7 @@ if (window.ethereum) {
     })    
   }
 
+  //Read the review value of a given document by the given reviewer
   function readReview(){
     var readrv_rvwaddr = document.getElementById("readrv_rvwaddr").value;
     var readrv_docid = document.getElementById("readrv_docid").value;
@@ -80,6 +82,8 @@ if (window.ethereum) {
       document.getElementById('readrv_transactionRes').textContent = JSON.stringify(rvw);
     })
   }
+
+  //Add a review for the given document ID by the given reviewer
   function addReview(){
     var addrv_rvwaddr = document.getElementById("addrv_rvwaddr").value;
     var addrv_docid = document.getElementById("addrv_docid").value;
@@ -90,6 +94,7 @@ if (window.ethereum) {
     })
   }
 
+  //Add an authorized reviewer to the logic contract through master document contract
   function addReviewer(){
     var addrvw_rvwaddr = document.getElementById("addrvw_rvwaddr").value;
     contract.methods.addReviewer(addrvw_rvwaddr).send({from:account}).then(function(tx) {
@@ -98,6 +103,8 @@ if (window.ethereum) {
     })
   }
 
+  //Function to search the document using the event logs
+  // Can only be used against indexed parameters
   function searchDocument(){
     var srch_input = document.getElementById("srch_input").value;
     var srch_output = [];
@@ -111,7 +118,11 @@ if (window.ethereum) {
     }
     if(srch_param=="ownername"){
       contract.getPastEvents('CreateDocument', {
+
+        //Use filter for non string event parameters
         //filter:{_authorName : Web3.utils.sha3(srch_input)},
+
+        //Use topics for string event parameters
         topics : [,,Web3.utils.sha3(srch_input)],
         fromBlock: 0,
         toBlock: 'latest'
@@ -138,22 +149,46 @@ if (window.ethereum) {
     }
   }
 
+  //Function to upload the file to IPFS network
   function uploadDocument(){
+
+    //Infura API for client side access.
     const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
+
+    //IPFS upload using local IPFS deamon. To be used after changing the application to server side and having a IPFS deamon in the server.
     // const IPFS = IpfsHttpClient.create({protocol:'http',
     //                                     host:'localhost',
     //                                     port:'5001',
     //                                     path:'api/v0'});
     const fileInput = document.getElementById('cmd_file').files[0];
     var fileReader= new FileReader();
-    fileReader.readAsText(fileInput);
+
+    //Read the data as base64 encoded string using readDataURL()
+    fileReader.readAsDataURL(fileInput);
+    var ipfsData = {};
+    ipfsData["fileName"]=(document.getElementById("cmd_did").value);
+    ipfsData["author"]=(document.getElementById("cmd_aname").value);
     fileReader.onload = function() {
-  
-      IPFS.add({path:fileInput.name,content:fileReader.result}).then((addResult)=>{
+      ipfsData["fileContent"]=(fileReader.result);
+      console.log(JSON.stringify(ipfsData));
+      IPFS.add({path:fileInput.name,content:JSON.stringify(ipfsData)}).then((addResult)=>{
         console.log(addResult);
         document.getElementById("cmd_ipfslink").value = 'https://ipfs.io/ipfs/'+addResult.cid.toString();
         document.getElementById("cmd_checksum").value = addResult.cid.toString();
       })
+    };
 
-  };
+}
+
+//Function to decode the base64 encoded string back to file
+function reverseDocument(dataURL,fileName){
+  var arr = dataURL.split(','),mime = arr[0].match(/:(.*?);/)[1],
+  bstr = window.atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+  while(n--){
+    u8arr[n] = bstr.charCodeAt(n);
+  } 
+  console.log(arr);
+  console.log(mime);
+  console.log(bstr);
+  return new File([u8arr], 'worddoc', {type:mime});
 }
