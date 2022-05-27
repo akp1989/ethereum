@@ -181,7 +181,9 @@ if (window.ethereum) {
 }
 
 //Function to decode the base64 encoded string back to file
-function reverseDocument(dataURL,fileName){
+function reverseDocument(){
+  var dataURL = document.getElementById("rmd_base64").value;
+  var fileName = document.getElementById("rmd_fileName").value;
   var arr = dataURL.split(','),mime = arr[0].match(/:(.*?);/)[1],
   bstr = window.atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
   while(n--){

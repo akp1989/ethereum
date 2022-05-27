@@ -109,7 +109,12 @@
                 </div>
                 <div class="col-30">
                     <textarea id="rmd_document" name="rmd_document"  style="height:100px" readonly></textarea>
-                  </div>
+                </div>
+                <div class="col-25">
+                    <input type="text" id="rmd_base64" name="rmd_base64" value="Enter the base64 text here"> <br></br>
+                    <input type="text" id="rmd_fileName" name="rmd_fileName" value="Enter the filename here"> <br></br>
+                    <input type="button" value="ReadFile" onclick="reverseDocument()">
+                </div>
             </div>
             
             <div class="row">
