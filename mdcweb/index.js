@@ -53,6 +53,7 @@ if (window.ethereum) {
       const responseJSON = JSON.parse(JSON.stringify(rmd));
       console.log(responseJSON._ipfsLink); 
       document.getElementById('rmd_link').href= responseJSON._ipfsLink;
+      downloadDocument(responseJSON._checksum);
       
     })    
   }
@@ -169,10 +170,10 @@ if (window.ethereum) {
     ipfsData["fileName"]=(document.getElementById("cmd_did").value);
     ipfsData["author"]=(document.getElementById("cmd_aname").value);
     fileReader.onload = function() {
-      ipfsData["fileContent"]=(fileReader.result);
+      ipfsData["fileContent"]=(fileReader.result);     
       console.log(JSON.stringify(ipfsData));
+      reverseDocument(ipfsData["fileContent"],ipfsData["fileName"]);
       IPFS.add({path:fileInput.name,content:JSON.stringify(ipfsData)}).then((addResult)=>{
-        console.log(addResult);
         document.getElementById("cmd_ipfslink").value = 'https://ipfs.io/ipfs/'+addResult.cid.toString();
         document.getElementById("cmd_checksum").value = addResult.cid.toString();
       })
@@ -180,17 +181,37 @@ if (window.ethereum) {
 
 }
 
+function downloadDocument(cid){
+  console.log(cid);
+  //Infura API for client side access.
+  const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
+
+  const data =  IPFS.cat(cid);
+
+  console.log(data);
+}
+
 //Function to decode the base64 encoded string back to file
-function reverseDocument(){
-  var dataURL = document.getElementById("rmd_base64").value;
-  var fileName = document.getElementById("rmd_fileName").value;
+function reverseDocument(dataURL,fileName){
+  // var dataURL = document.getElementById("rmd_base64").value;
+  // var fileName = document.getElementById("rmd_fileName").value;
   var arr = dataURL.split(','),mime = arr[0].match(/:(.*?);/)[1],
   bstr = window.atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
   while(n--){
     u8arr[n] = bstr.charCodeAt(n);
   } 
-  console.log(arr);
-  console.log(mime);
-  console.log(bstr);
-  return new File([u8arr], 'worddoc', {type:mime});
+
+  const blob = new Blob([u8arr],{type: mime});
+  if(window.navigator.msSaveOrOpenBlob){
+    window.navigator.msSaveBlob(blob,fileName);
+  }else{
+    const elem = window.document.createElement('a');
+    var url  = window.URL.createObjectURL(blob);
+    elem.href = url;
+    elem.download = fileName;        
+    document.body.appendChild(elem);
+    elem.click();        
+    document.body.removeChild(elem);
+    window.URL.revokeObjectURL(url);
+  }
 }
