@@ -173,7 +173,6 @@ if (window.ethereum) {
     fileReader.onload = function() {
       ipfsData["fileContent"]=(fileReader.result);     
       console.log(JSON.stringify(ipfsData));
-      reverseDocument(ipfsData["fileContent"],ipfsData["fileName"]);
       IPFS.add({path:fileInput.name,content:JSON.stringify(ipfsData)}).then((addResult)=>{
         document.getElementById("cmd_ipfslink").value = 'https://ipfs.io/ipfs/'+addResult.cid.toString();
         document.getElementById("cmd_checksum").value = addResult.cid.toString();
