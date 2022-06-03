@@ -2,6 +2,7 @@ const Web3 = require('web3');
 var mdcABI = require('./library/mdcABI');
 var IPFS = require('ipfs-http-client');
 
+
 const ethereumAddress = ("http://127.0.0.1:8545");
 
 const web3 = new Web3(new Web3.providers.HttpProvider(ethereumAddress));
@@ -43,8 +44,13 @@ const searchByAuthor = async function(authorName){
 }
 
  const checkIpfs = async function(){
-    const http= await IPFS.create('/ip4/127.0.0.1/tcp/5001');
-    console.log(await http.isOnline());
+    const node= IPFS.create("https://ipfs.infura.io:5001");
+    var CID = 'QmeSSNXVRyE4Ai5EVRdov4hZhrtGmDEfap52E4XXYa6fWX'; 
+    var sringBuffer = [];
+    for await(const chunkData of node.cat(CID))
+        stringBuffer = chunkData;
+    
+    console.log(stringBuffer);
   }
 
 //test();

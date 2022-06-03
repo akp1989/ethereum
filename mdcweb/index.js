@@ -45,19 +45,6 @@ if (window.ethereum) {
     web3.eth.defaultAccount = account;
   });
   
-  //Function to read the document using documentID
-  function readDocument(){
-    var rmd_docid =  document.getElementById("rmd_did").value;
-    contract.methods.readDocumentByID(rmd_docid).call().then(function(rmd){
-      document.getElementById('rmd_document').textContent = JSON.stringify(rmd);
-      const responseJSON = JSON.parse(JSON.stringify(rmd));
-      console.log(responseJSON._ipfsLink); 
-      document.getElementById('rmd_link').href= responseJSON._ipfsLink;
-      downloadDocument(responseJSON._checksum);
-      
-    })    
-  }
-
   //Create an entry for the document
   function createDocument(){
     var cmd_docid =  document.getElementById("cmd_did").value;
@@ -71,6 +58,19 @@ if (window.ethereum) {
       console.log('The transaction output is : ', tx);
       document.getElementById('cmd_transactionRes').textContent = JSON.stringify(tx);
       alert(JSON.stringify(tx));
+    })    
+  }
+
+  //Function to read the document using documentID
+  function readDocument(){
+    var rmd_docid =  document.getElementById("rmd_did").value;
+    contract.methods.readDocumentByID(rmd_docid).call().then(function(rmd){
+      document.getElementById('rmd_document').textContent = JSON.stringify(rmd);
+      const responseJSON = JSON.parse(JSON.stringify(rmd));
+      console.log(responseJSON._ipfsLink); 
+      document.getElementById('rmd_link').href= responseJSON._ipfsLink;
+      downloadDocument(responseJSON._checksum);
+      
     })    
   }
 
@@ -150,6 +150,7 @@ if (window.ethereum) {
     }
   }
 
+  /***********************IPFS Related methods ****************************/
   //Function to upload the file to IPFS network
   function uploadDocument(){
 
@@ -181,20 +182,28 @@ if (window.ethereum) {
 
 }
 
-function downloadDocument(cid){
-  console.log(cid);
+async function  downloadDocument(CID){
+ var docContent = await getDocument(CID);
+ var docContentJSON = JSON.parse(docContent);
+ reverseDocument(docContentJSON.fileContent,docContentJSON.fileName);
+
+}
+
+async function getDocument(CID){
+
   //Infura API for client side access.
   const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
-
-  const data =  IPFS.cat(cid);
-
-  console.log(data);
+  var stringBuffer='';
+  for await(const chunkData of IPFS.cat(CID))
+  { 
+      var u8arr = new Uint8Array(chunkData.toString().split(','));
+      stringBuffer+=(String.fromCharCode.apply(String,u8arr)); 
+  }
+  return (stringBuffer);
 }
 
 //Function to decode the base64 encoded string back to file
 function reverseDocument(dataURL,fileName){
-  // var dataURL = document.getElementById("rmd_base64").value;
-  // var fileName = document.getElementById("rmd_fileName").value;
   var arr = dataURL.split(','),mime = arr[0].match(/:(.*?);/)[1],
   bstr = window.atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
   while(n--){
