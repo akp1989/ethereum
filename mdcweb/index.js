@@ -150,6 +150,12 @@ if (window.ethereum) {
     }
   }
 
+
+
+
+
+
+
   /***********************IPFS Related methods ****************************/
   //Function to upload the file to IPFS network
   function uploadDocument(){
@@ -195,8 +201,12 @@ async function getDocument(CID){
   var stringBuffer='';
   for await(const chunkData of IPFS.cat(CID))
   { 
-      var u8arr = new Uint8Array(chunkData.toString().split(','));
-      stringBuffer+=(String.fromCharCode.apply(String,u8arr)); 
+      var u8arr = (chunkData.toString().split(','));
+      while(u8arr.length>0){
+        const sliceChunk = u8arr.splice(0,8224);
+        stringBuffer+=(String.fromCharCode.apply(String,sliceChunk));
+      }
+      console.log(stringBuffer.length);
   }
   return (stringBuffer);
 }
