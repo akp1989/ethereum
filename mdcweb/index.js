@@ -203,10 +203,9 @@ async function getDocument(CID){
   { 
       var u8arr = (chunkData.toString().split(','));
       while(u8arr.length>0){
-        const sliceChunk = u8arr.splice(0,8224);
+        const sliceChunk = u8arr.splice(0,65536);
         stringBuffer+=(String.fromCharCode.apply(String,sliceChunk));
       }
-      console.log(stringBuffer.length);
   }
   return (stringBuffer);
 }
