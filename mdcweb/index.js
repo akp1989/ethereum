@@ -1,8 +1,10 @@
 // Source code to interact with smart contract
+ 
+  const uploadURL = 'http://157.245.55.46/upload';
+  const downloadURL = 'http://157.245.55.46/download';
   //const uoploadURL = 'http://127.0.0.1:3100/upload';
-  const uploadURL = 'http://http://157.245.55.46/upload';
   //const downloadURL = 'http://127.0.0.1:3100/download';
-  const downloadURL = 'http://http://157.245.55.46/download';
+  
 // web3 provider with fallback for old version
 if (window.ethereum) {
     window.web3 = new Web3(window.ethereum)
