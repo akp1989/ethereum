@@ -2,7 +2,8 @@
   "dependencies": {
     "ethers": "^5.6.5",
     "ipfs": "^0.62.3",
-    "ipfs-http-client": "^56.0.3",
-    "web3": "^1.7.3"
-  }
+    "web3": "^1.7.3",
+    "ipfs-http-client": "^56.0.1"
+
+  } 
 }

@@ -1,7 +1,7 @@
 # Ignore Mac system files
 *DS_Store
 .deps
-
+**/mdcapp
 # Ignore node_modules folder
 **/node_modules
 **/artifacts

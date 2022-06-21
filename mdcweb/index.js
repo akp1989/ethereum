@@ -1,6 +1,8 @@
 // Source code to interact with smart contract
-
-
+  //const uoploadURL = 'http://127.0.0.1:3100/upload';
+  const uploadURL = 'http://http://157.245.55.46/upload';
+  //const downloadURL = 'http://127.0.0.1:3100/download';
+  const downloadURL = 'http://http://157.245.55.46/download';
 // web3 provider with fallback for old version
 if (window.ethereum) {
     window.web3 = new Web3(window.ethereum)
@@ -159,15 +161,7 @@ if (window.ethereum) {
   /***********************IPFS Related methods ****************************/
   //Function to upload the file to IPFS network
   function uploadDocument(){
-
-    //Infura API for client side access.
-    const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
-
-    //IPFS upload using local IPFS deamon. To be used after changing the application to server side and having a IPFS deamon in the server.
-    // const IPFS = IpfsHttpClient.create({protocol:'http',
-    //                                     host:'localhost',
-    //                                     port:'5001',
-    //                                     path:'api/v0'});
+    const url = 'http://127.0.0.1:3100/upload';
     const fileInput = document.getElementById('cmd_file').files[0];
     var fileReader= new FileReader();
 
@@ -177,38 +171,90 @@ if (window.ethereum) {
     ipfsData["fileName"]=(document.getElementById("cmd_did").value);
     ipfsData["author"]=(document.getElementById("cmd_aname").value);
     fileReader.onload = function() {
-      ipfsData["fileContent"]=(fileReader.result);     
-      console.log(JSON.stringify(ipfsData));
-      IPFS.add({path:fileInput.name,content:JSON.stringify(ipfsData)}).then((addResult)=>{
-        document.getElementById("cmd_ipfslink").value = 'https://ipfs.io/ipfs/'+addResult.cid.toString();
-        document.getElementById("cmd_checksum").value = addResult.cid.toString();
-      })
+      ipfsData["fileContent"]=(fileReader.result); 
+      axios({
+        method: 'post',
+        url: uploadURL,
+        data : {
+          path:fileInput.name,
+          content:JSON.stringify(ipfsData)
+        }
+      }).then((data)=>
+                      {
+                        console.log(data.data.CID)
+                        document.getElementById("cmd_ipfslink").value = 'https://ipfs.io/ipfs/'+data.data.CID;
+                        document.getElementById("cmd_checksum").value = data.data.CID;
+                      })
+        .catch(err=>console.log(err));
+      
     };
 
 }
 
+//   function uploadDocument(){
+
+//     //Infura API for client side access.
+//     const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
+
+//     //IPFS upload using local IPFS deamon. To be used after changing the application to server side and having a IPFS deamon in the server.
+//     // const IPFS = IpfsHttpClient.create({protocol:'http',
+//     //                                     host:'localhost',
+//     //                                     port:'5001',
+//     //                                     path:'api/v0'});
+//     const fileInput = document.getElementById('cmd_file').files[0];
+//     var fileReader= new FileReader();
+
+//     //Read the data as base64 encoded string using readDataURL()
+//     fileReader.readAsDataURL(fileInput);
+//     var ipfsData = {};
+//     ipfsData["fileName"]=(document.getElementById("cmd_did").value);
+//     ipfsData["author"]=(document.getElementById("cmd_aname").value);
+//     fileReader.onload = function() {
+//       ipfsData["fileContent"]=(fileReader.result);     
+//       console.log(JSON.stringify(ipfsData));
+//       IPFS.add({path:fileInput.name,content:JSON.stringify(ipfsData)}).then((addResult)=>{
+//         document.getElementById("cmd_ipfslink").value = 'https://ipfs.io/ipfs/'+addResult.cid.toString();
+//         document.getElementById("cmd_checksum").value = addResult.cid.toString();
+//       })
+//     };
+
+// }
+
 async function  downloadDocument(CID){
- var docContent = await getDocument(CID);
- var docContentJSON = JSON.parse(docContent);
- reverseDocument(docContentJSON.fileContent,docContentJSON.fileName);
+ var docContent = await getDocument(CID );
+ reverseDocument(docContent.fileContent,docContent.fileName);
 
 }
 
 async function getDocument(CID){
 
   //Infura API for client side access.
-  const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
-  var stringBuffer='';
-  for await(const chunkData of IPFS.cat(CID))
-  { 
-      var u8arr = (chunkData.toString().split(','));
-      while(u8arr.length>0){
-        const sliceChunk = u8arr.splice(0,65536);
-        stringBuffer+=(String.fromCharCode.apply(String,sliceChunk));
-      }
-  }
-  return (stringBuffer);
+
+  var response = await axios({
+    method: 'post',
+    url: downloadURL,
+    data : {
+      cid:CID
+    }
+  });
+  return response.data;
 }
+
+// async function getDocument(CID){
+
+//   //Infura API for client side access.
+//   const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
+//   var stringBuffer='';
+//   for await(const chunkData of IPFS.cat(CID))
+//   { 
+//       var u8arr = (chunkData.toString().split(','));
+//       while(u8arr.length>0){
+//         const sliceChunk = u8arr.splice(0,65536);
+//         stringBuffer+=(String.fromCharCode.apply(String,sliceChunk));
+//       }
+//   }
+//   return (stringBuffer);
+// }
 
 //Function to decode the base64 encoded string back to file
 function reverseDocument(dataURL,fileName){
