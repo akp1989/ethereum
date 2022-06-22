@@ -1,9 +1,7 @@
 // Source code to interact with smart contract
  
-  const uploadURL = 'http://157.245.55.46/upload';
-  const downloadURL = 'http://157.245.55.46/download';
-  //const uoploadURL = 'http://127.0.0.1:3100/upload';
-  //const downloadURL = 'http://127.0.0.1:3100/download';
+  const uploadURL = 'http://157.245.55.46:3100/upload';
+  const downloadURL = 'http://157.245.55.46:3100/download';
   
 // web3 provider with fallback for old version
 if (window.ethereum) {
@@ -163,7 +161,6 @@ if (window.ethereum) {
   /***********************IPFS Related methods ****************************/
   //Function to upload the file to IPFS network
   function uploadDocument(){
-    const url = 'http://127.0.0.1:3100/upload';
     const fileInput = document.getElementById('cmd_file').files[0];
     var fileReader= new FileReader();
 
