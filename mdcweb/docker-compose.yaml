@@ -1,0 +1,12 @@
+version: '2'
+
+networks:
+  ipfsdev:
+services:
+  ipfsnodeserver:
+    container_name: mdcweb
+    image: genera.mdcweb:latest
+    ports:
+     - 3300:3300
+    networks:
+     - ipfsdev

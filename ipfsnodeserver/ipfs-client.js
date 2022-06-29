@@ -18,7 +18,7 @@ app.post('/upload', async (req,res) =>{
     const path = req.body.path;
     const content = req.body.content;
     const IPFS = await IpfsHttpClient.create({protocol:'http',
-                                        host:'127.0.0.1',
+                                        host:'host.docker.internal',
                                         port:'5001',
                                         path:'api/v0'});
     const ipfsResponse = await IPFS.add({path:path,
@@ -36,7 +36,7 @@ app.post('/download', async (req,res) =>{
  
 async function getDocument(cid){
     const IPFS = await IpfsHttpClient.create({protocol:'http',
-                                                host:'127.0.0.1',
+                                                host:'host.docker.internal',
                                                 port:'5001',
                                                 path:'api/v0'});
     console.log (await IPFS.isOnline());

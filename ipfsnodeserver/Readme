@@ -1,0 +1,8 @@
+To build the docker image 
+
+docker build . -t genera.ipfsnodeserver
+
+To run the docker image
+
+docker run -p 3100:3100 -d genera.ipfsnodeserver
+docker run -p 3100:3100 -d genera.ipfsnodeserver --add-host host.docker.internal:host-gateway
