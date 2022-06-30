@@ -1,11 +1,10 @@
 version: '2'
 
-networks:
-  ipfsdev:
 services:
   ipfs.genera:
     container_name: ipfs.genera
     image: ipfs/go-ipfs:latest
+    network_mode: "host"
     environment:
      - IPFS_PROFILE=server
     volumes:
@@ -16,5 +15,3 @@ services:
      - 4001:4001/udp
      - 127.0.0.1:8080:8080
      - 127.0.0.1:5001:5001
-    networks:
-     - ipfsdev
