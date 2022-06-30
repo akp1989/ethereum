@@ -5,8 +5,9 @@ services:
     container_name: ipfsnodeserver
     image: genera.ipfsnodeserver:latest
     network_mode: "host"
-    ports:
-     - 3100:3100
+    #Commenting port mapping due to host networking mode 
+    # ports:
+    #  - 3100:3100
 # Option to be used for linux when communicating with host network
 #    extra_hosts:
 #     - "host.docker.internal:host-gateway" 
