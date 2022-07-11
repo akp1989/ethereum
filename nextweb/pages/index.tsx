@@ -2,14 +2,27 @@ import { NextPage } from "next/types";
 import Head from 'next/head' 
 import styles from '../styles/Home.module.css'
 import { Container, Grid, Tab, Tabs,Box } from '@mui/material'
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import { HeadingProp } from "./lib/HeadingProp";
 import DocumentCreation from './documentCreation';
 import DocumentRead from './documentRead';
+import { checkWallet} from './lib/web3walletcheck';
+
+
 
 const Home: NextPage = () =>{
 
     const [selectedTab, setSelectedTab] = useState(0);
+    const [currentAccount, setCurrentAccount] = useState(null);
+    
+
+   let checkWalletAndInit = () =>{
+     setCurrentAccount(checkWallet(window));
+   }
+
+    useEffect(() => {
+                      checkWalletAndInit();
+                    }, [])
 
     return (
         <div className={styles.container}>
@@ -19,9 +32,9 @@ const Home: NextPage = () =>{
             <link rel="icon" href="/favicon.ico" />
           </Head>
     
-    
+        
         <Container component="main" maxWidth="lg" style={{ background: '#E5E5E5' }}>
-            
+             
             <Grid container>
               <HeadingProp/>
             </Grid>  

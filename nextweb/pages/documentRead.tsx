@@ -2,17 +2,21 @@ import type {NextPage} from 'next'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import { TextField,Box,Container,Button,Stack } from '@mui/material'
-import { useRouter } from 'next/router'
+import {useEffect, useState} from 'react'
+import {checkWallet} from './lib/web3walletcheck'
 
-
-type documentPageModel = {
-  isFetchingLenderEscrowAccount: boolean
-  canClickNext: boolean
-
-}
 
 const Home: NextPage = () => {
-  const router = useRouter();
+  const [currentAccount, setCurrentAccount] = useState(null);
+    
+
+  let checkWalletAndInit = () =>{
+    setCurrentAccount(checkWallet(window));
+  }
+
+   useEffect(() => {
+                     checkWalletAndInit();
+                   }, [])
 
   return (
     <div className={styles.container}>
