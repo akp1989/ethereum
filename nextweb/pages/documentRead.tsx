@@ -1,22 +1,34 @@
 import type {NextPage} from 'next'
-import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import { TextField,Box,Container,Button,Stack } from '@mui/material'
-import {useEffect, useState} from 'react'
-import {checkWallet} from './lib/web3walletcheck'
+import { useState} from 'react'
+import { readDocumentContract } from './lib/contractCall'
 
+
+const documentReadPageModel = {
+  documentId: '', 
+  transactionResponse:null,
+}
 
 const Home: NextPage = () => {
-  const [currentAccount, setCurrentAccount] = useState(null);
+  let [formData, setFormData] = useState(documentReadPageModel);
     
-
-  let checkWalletAndInit = () =>{
-    setCurrentAccount(checkWallet(window));
+  const handleChange = async(event) =>{
+      formData = {
+        ...formData,
+        [event.target.name] : event.target.value.trim()
+      }
+      setFormData(formData);
   }
 
-   useEffect(() => {
-                     checkWalletAndInit();
-                   }, [])
+  const readDocument = async() =>{
+    var transactionResponse = await readDocumentContract(formData.documentId);
+    formData = {
+      ...formData,
+      transactionResponse: transactionResponse
+    }
+    setFormData(formData);
+  }
 
   return (
     <div className={styles.container}>
@@ -31,19 +43,23 @@ const Home: NextPage = () => {
               <TextField
                           type='text'
                           label='DocumentId'
+                          name='documentId'
+                          value= {formData.documentId}
+                          onChange={handleChange}
                           variant = 'outlined' 
                           >                  
               </TextField>
                 <br></br>
               
-              <Button variant="contained" sx={{width:200}}>Read Document</Button>
+              <Button variant="contained" sx={{width:200}} onClick={async() => await readDocument()}>Read Document</Button>
             </Stack>
 
             <Stack direction="column"  alignSelf="top" spacing={1}> 
                 <TextField
                       type='text'
                       label='Transaction Result'
-                      defaultValue=' '
+                      name='transactionResponse'
+                      value={formData.transactionResponse? formData.transactionResponse:''}
                       variant = 'outlined'
                       multiline
                       rows={7} 

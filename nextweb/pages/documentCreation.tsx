@@ -1,16 +1,14 @@
 import type {NextPage} from 'next'
 import Head from 'next/head'
-import {useEffect, useState} from 'react'
+import {useState} from 'react'
 import styles from '../styles/Home.module.css'
-import { Box,Grid,Container,Stack, Button,Input } from '@mui/material'
-import { useRouter } from 'next/router'
-import { TextFieldsOutlined } from '../node_modules/@mui/icons-material/index'
+import { Box,Grid,Container,Stack, Button,Input } from '@mui/material' 
 import { TextField } from '../node_modules/@mui/material/index'
 import { uploadDocument} from './lib/ipfs'
-import { createMasterDocContract } from './lib/contractCall'
+import { createDocumentContract } from './lib/contractCall'
 
 
-const documentPageModel = {
+const documentCreationPageModel = {
   documentId: '',
   authorName:'',
   timeStamp:'',
@@ -18,13 +16,12 @@ const documentPageModel = {
   checkSum:'',
   reviewers:'',
   uploadfile:null,
-  transactionResult:null,
+  transactionResponse:null,
 }
 
-const Home: NextPage = () => {
-  const router = useRouter();
+const Home: NextPage = () => { 
   
-  let [formData, setFormData] = useState(documentPageModel);
+  let [formData, setFormData] = useState(documentCreationPageModel);
 
   const dateForDisplay =  new Date().getFullYear()
                          + new Date().toLocaleString("en-US", { month: "2-digit" }) 
@@ -61,7 +58,12 @@ const Home: NextPage = () => {
   
 
   const createDocument = async() =>{
-      await createMasterDocContract(formData);
+    let transactionResponse = await createDocumentContract(formData);
+    formData = {
+      ...formData, 
+      transactionResponse: transactionResponse
+    }
+    setFormData(formData);
   }
 
   return (
@@ -157,8 +159,8 @@ const Home: NextPage = () => {
                   <TextField
                         type='text'
                         label='Transaction Result'
-                        name='transactionResult'
-                        defaultValue=' '
+                        name='transactionResponse'
+                        value = {formData.transactionResponse? formData.transactionResponse:''}
                         variant = 'outlined'
                         multiline
                         rows={8} 

@@ -36,7 +36,7 @@ const initMasterDocContract = async() =>{
     masterDocContractEthers = new ethers.Contract(masterdoccontractAddress, masterdoccontractABI, ethersProvider);
 }
 
-export const createMasterDocContract = async(documentPageModel) =>{
+export const createDocumentContract = async(documentPageModel) =>{
     await initMasterDocContract();
     // var transactionResult = await masterDocContractWeb3.methods.createDocument(documentPageModel.documentId,documentPageModel.authorName,
     //                                                                             documentPageModel.timeStamp, documentPageModel.ipfsLink,
@@ -45,7 +45,14 @@ export const createMasterDocContract = async(documentPageModel) =>{
     var transactionResult = await masterDocContractEthers.connect(ethersSigner).createDocument(documentPageModel.documentId,documentPageModel.authorName,
                                                                                                 documentPageModel.timeStamp, documentPageModel.ipfsLink,
                                                                                                 documentPageModel.checkSum, documentPageModel.reviewers.split(','));
-
-    console.log('The transaction output is : ', transactionResult);
+ 
+    return (JSON.stringify(transactionResult));
 }
 
+export const readDocumentContract = async(documentId) => {
+    await initMasterDocContract();
+    console.log(documentId);
+    //var transactionResult = await masterDocContractWeb3.methods.readDocumentByID(documentId).call();
+    var transactionResult = await masterDocContractEthers.readDocumentByID(documentId); 
+    return  (JSON.stringify(transactionResult));
+}
