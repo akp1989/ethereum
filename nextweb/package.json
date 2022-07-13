@@ -16,10 +16,13 @@
     "@mui/icons-material": "latest",
     "@mui/material": "^5.8.7",
     "@types/node": "^18.0.3",
+    "axios": "^0.27.2",
+    "ethers": "^5.6.9",
     "next": "latest",
     "prop-types": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "web3": "^1.7.4"
   },
   "devDependencies": {
     "eslint": "latest",

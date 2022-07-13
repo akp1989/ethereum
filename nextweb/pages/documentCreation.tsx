@@ -7,8 +7,10 @@ import { useRouter } from 'next/router'
 import { TextFieldsOutlined } from '../node_modules/@mui/icons-material/index'
 import { TextField } from '../node_modules/@mui/material/index'
 import { uploadDocument} from './lib/ipfs'
+import { createMasterDocContract } from './lib/contractCall'
 
- const documentPageModel = {
+
+const documentPageModel = {
   documentId: '',
   authorName:'',
   timeStamp:'',
@@ -16,6 +18,7 @@ import { uploadDocument} from './lib/ipfs'
   checkSum:'',
   reviewers:'',
   uploadfile:null,
+  transactionResult:null,
 }
 
 const Home: NextPage = () => {
@@ -46,7 +49,20 @@ const Home: NextPage = () => {
     //console.log(formData);
   }
 
+  const uploadToIPFS = async() =>{
+    let uploadResponseCID =  await uploadDocument(formData.documentId, formData.authorName, formData.uploadfile);
+    formData = {
+      ...formData, 
+      checkSum: uploadResponseCID,
+      ipfsLink : 'https://ipfs.io/ipfs/'+uploadResponseCID
+    }
+    setFormData(formData);
+  }
   
+
+  const createDocument = async() =>{
+      await createMasterDocContract(formData);
+  }
 
   return (
     <div className={styles.container}>
@@ -94,6 +110,7 @@ const Home: NextPage = () => {
                       type='text'
                       label='IPFS Link'
                       name='ipfsLink'
+                      value= {formData.ipfsLink}
                       onChange={handleChange}
                       variant = 'outlined'
                       >                  
@@ -104,6 +121,7 @@ const Home: NextPage = () => {
                       type='text'
                       label='Checksum'
                       name='checkSum'
+                      value= {formData.checkSum}
                       onChange={handleChange}
                       variant = 'outlined'
                       >                  
@@ -123,14 +141,14 @@ const Home: NextPage = () => {
                 </TextField> 
                 <br></br> 
 
-                <Button variant="contained" sx={{width:200}}>Create Document</Button>
+                <Button variant="contained" sx={{width:200}} onClick={async() => await createDocument()}>Create Document</Button>
               </Stack>
 
               <Stack direction="column"  alignSelf="top" spacing={15}> 
                 <Box container mb={15}>
                   <Input id="uploadfile" name='uploadfile' type="file" onChange={handleFileChange} />
                   <br></br>
-                  <Button variant="contained"  sx={{width:200}} onClick={async() => await uploadDocument(formData.uploadfile)}  >
+                  <Button variant="contained"  sx={{width:200}} onClick={async() => await uploadToIPFS()}  >
                     Upload
                   </Button>
                 </Box>
