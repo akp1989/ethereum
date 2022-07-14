@@ -44,9 +44,7 @@ const base64ToFile = async(fileName,dataURL) =>{
     } 
   
     const blob = new Blob([u8arr],{type: mime});
-    if(window.navigator.msSaveOrOpenBlob){
-      window.navigator.msSaveBlob(blob,fileName);
-    }else{
+    
       const elem = window.document.createElement('a');
       var url  = window.URL.createObjectURL(blob);
       elem.href = url;
@@ -55,6 +53,6 @@ const base64ToFile = async(fileName,dataURL) =>{
       elem.click();        
       document.body.removeChild(elem);
       window.URL.revokeObjectURL(url);
-    }
+    
   }
   

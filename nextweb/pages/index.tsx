@@ -3,10 +3,10 @@ import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import { Container, Grid, Tab, Tabs,Box } from '@mui/material'
 import {useEffect, useState} from 'react'
-import { HeadingProp } from "./lib/HeadingProp";
+import { HeadingProp } from "./../component/HeadingProp";
 import DocumentCreation from './documentCreation';
 import DocumentRead from './documentRead';
-import { checkWallet} from './lib/web3walletcheck';
+import { checkWallet} from './../component/web3walletcheck';
 
 
 

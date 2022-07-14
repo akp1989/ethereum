@@ -2,8 +2,8 @@ import type {NextPage} from 'next'
 import styles from '../styles/Home.module.css'
 import { TextField,Box,Container,Button,Stack } from '@mui/material'
 import { useState} from 'react'
-import { readDocumentContract } from './lib/contractCall'
-import { downloadDocument } from './lib/ipfs'
+import { readDocumentContract } from './../component/contractCall'
+import { downloadDocument } from './../component/ipfs'
 
 
 const documentReadPageModel = {
@@ -40,8 +40,8 @@ const Home: NextPage = () => {
               sx={{
                 '& .MuiTextField-root': { m: 0, width: '30ch' },
               }}> 
-          <Stack direction="row" alignself='top' spacing={5} marginLeft={2} marginTop={2} marginBottom={2}>
-            <Stack direction="column"  alignSelf="top" spacing={1} > 
+          <Stack direction="row"  spacing={5} marginLeft={2} marginTop={2} marginBottom={2}>
+            <Stack direction="column"   spacing={1} > 
               <TextField
                           type='text'
                           label='DocumentId'
@@ -56,7 +56,7 @@ const Home: NextPage = () => {
               <Button variant="contained" sx={{width:200}} onClick={async() => await readDocument()}>Read Document</Button>
             </Stack>
 
-            <Stack direction="column"  alignSelf="top" spacing={1}> 
+            <Stack direction="column" spacing={1}> 
                 <TextField
                       type='text'
                       label='Transaction Result'

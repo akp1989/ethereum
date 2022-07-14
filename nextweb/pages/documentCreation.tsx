@@ -4,8 +4,8 @@ import {useState} from 'react'
 import styles from '../styles/Home.module.css'
 import { Box,Grid,Container,Stack, Button,Input } from '@mui/material' 
 import { TextField } from '../node_modules/@mui/material/index'
-import { uploadDocument} from './lib/ipfs'
-import { createDocumentContract } from './lib/contractCall'
+import { uploadDocument} from './../component/ipfs'
+import { createDocumentContract } from './../component/contractCall'
 
 
 const documentCreationPageModel = {
@@ -75,8 +75,8 @@ const Home: NextPage = () => {
               sx={{
                 '& .MuiTextField-root': { m: 0, width: '30ch' },
               }}> 
-          <Stack direction="row" alignself='top' spacing={5} marginLeft={2} marginTop={2} marginBottom={2}>
-            <Stack direction="column"  alignSelf="top" spacing={1} > 
+          <Stack direction="row" spacing={5} marginLeft={2} marginTop={2} marginBottom={2}>
+            <Stack direction="column"  spacing={1} > 
               <TextField
                       type='text'
                       label='DocumentId'
@@ -147,7 +147,7 @@ const Home: NextPage = () => {
               </Stack>
 
               <Stack direction="column"  alignSelf="top" spacing={15}> 
-                <Box container mb={15}>
+                <Box mb={15}>
                   <Input id="uploadfile" name='uploadfile' type="file" onChange={handleFileChange} />
                   <br></br>
                   <Button variant="contained"  sx={{width:200}} onClick={async() => await uploadToIPFS()}  >
@@ -155,7 +155,7 @@ const Home: NextPage = () => {
                   </Button>
                 </Box>
                 <br></br>
-                <Box container mt={15}>
+                <Box mt={15}>
                   <TextField
                         type='text'
                         label='Transaction Result'

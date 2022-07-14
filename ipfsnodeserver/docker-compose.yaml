@@ -11,3 +11,6 @@ services:
 # Option to be used for linux when communicating with host network
 #    extra_hosts:
 #     - "host.docker.internal:host-gateway" 
+    volumes:
+     - ./:/usr/src/app
+     - ./node_modules:/usr/src/app/node_modules

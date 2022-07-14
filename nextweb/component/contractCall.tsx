@@ -13,7 +13,7 @@ var ethersSigner;
 var masterDocContractWeb3;
 var masterDocContractEthers;
 
-const initWeb3 = async() =>{
+const initWeb3 = async(window) =>{
     const { ethereum } = window;
     web3 = new Web3(ethereum);
     web3Signer = await (web3.eth.getAccounts());
@@ -21,7 +21,7 @@ const initWeb3 = async() =>{
     //return web3;
 }
 
-const initEthers = async() =>{
+const initEthers = async(window) =>{
     const{ ethereum } = window;
     ethersProvider = new ethers.providers.Web3Provider(ethereum);
     ethersSigner = ethersProvider.getSigner();
@@ -29,10 +29,10 @@ const initEthers = async() =>{
 } 
 
 const initMasterDocContract = async() =>{
-    await initWeb3();
+    await initWeb3(window);
     masterDocContractWeb3 = new web3.eth.Contract(masterdoccontractABI,masterdoccontractAddress);
 
-    await initEthers();
+    await initEthers(window);
     masterDocContractEthers = new ethers.Contract(masterdoccontractAddress, masterdoccontractABI, ethersProvider);
 }
 

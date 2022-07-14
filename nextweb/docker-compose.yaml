@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+  nextwebapp:
+    container_name: nextwebapp
+    image: nextwebapp:latest
+    network_mode: "host"
+    #Commenting port mapping due to host networking mode 
+    # ports:
+    #  - 3100:3100
+    # volumes:
+    #  - ./pages:/usr/app/pages
+    #  - ./public:/usr/app/public
+    #  - ./src:/usr/app/src
+    #  - ./styles:/usr/app/styles
+    #  - ./node_modules:/usr/app/node_modules

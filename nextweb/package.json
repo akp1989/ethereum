@@ -22,6 +22,7 @@
     "prop-types": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "typescript": "^4.7.4",
     "web3": "^1.7.4"
   },
   "devDependencies": {
