@@ -3,6 +3,7 @@ import styles from '../styles/Home.module.css'
 import { TextField,Box,Container,Button,Stack } from '@mui/material'
 import { useState} from 'react'
 import { readDocumentContract } from './lib/contractCall'
+import { downloadDocument } from './lib/ipfs'
 
 
 const documentReadPageModel = {
@@ -28,6 +29,7 @@ const Home: NextPage = () => {
       transactionResponse: transactionResponse
     }
     setFormData(formData);
+    downloadDocument(transactionResponse._checksum);
   }
 
   return (

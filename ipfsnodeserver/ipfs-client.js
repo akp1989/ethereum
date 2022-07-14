@@ -23,6 +23,7 @@ app.post('/upload', async (req,res) =>{
                                         path:'api/v0'});
     const ipfsResponse = await IPFS.add({path:path,
                                          content:content});
+    console.log('Uploaded the file with CID : ', ipfsResponse.cid.toString());
     return res.json({"CID" : ipfsResponse.cid.toString()});
 })
 
@@ -39,7 +40,8 @@ async function getDocument(cid){
                                                 host:'host.docker.internal',
                                                 port:'5001',
                                                 path:'api/v0'});
-    console.log (await IPFS.isOnline());
+    //console.log (await IPFS.isOnline());
+    console.log ('Get document request for :',cid );
     var stringBuffer='';
     for await(const chunkData of IPFS.cat(cid))
     {   

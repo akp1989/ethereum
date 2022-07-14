@@ -50,9 +50,8 @@ export const createDocumentContract = async(documentPageModel) =>{
 }
 
 export const readDocumentContract = async(documentId) => {
-    await initMasterDocContract();
-    console.log(documentId);
+    await initMasterDocContract(); 
     //var transactionResult = await masterDocContractWeb3.methods.readDocumentByID(documentId).call();
     var transactionResult = await masterDocContractEthers.readDocumentByID(documentId); 
-    return  (JSON.stringify(transactionResult));
+    return  transactionResult;
 }
