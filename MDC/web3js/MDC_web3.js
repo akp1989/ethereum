@@ -1,6 +1,6 @@
 const Web3 = require('web3');
 var mdcABI = require('./library/mdcABI');
-var IPFS = require('ipfs-http-client');
+var IPFS = require('ipfs-http-client');  
 
 
 const ethereumAddress = ("http://127.0.0.1:8545");
@@ -8,7 +8,7 @@ const ethereumAddress = ("http://127.0.0.1:8545");
 const web3 = new Web3(new Web3.providers.HttpProvider(ethereumAddress));
 
 //Contract details
-const mdcContract = new web3.eth.Contract(mdcABI, '0xa5A11fD0E6406ADbe7fb1Fcff24DE71aE269B938');
+const mdcContract = new web3.eth.Contract(mdcABI, '0xe79De80a4FEbB8122b0dFf6196fB5dA091bd6c3E');
 
 
 
@@ -19,14 +19,17 @@ const readMDC = async function(documentId){
 
 
 const searchByAuthor = async function(authorName){
-   let eventDetails = await mdcContract.getPastEvents('CreateDocument', {
-        topics :[,,Web3.utils.sha3(authorName)],
+    let eventDetails = await mdcContract.getPastEvents('CreateDocument', {
+    //    filter: {_authorName: Web3.utils.sha3(authorName) },
+        topics : [,,,Web3.utils.sha3(authorName)],
         fromBlock: 0,
         toBlock: 'latest'
     })
     eventDetails.forEach((eventDetail)=>{
-        const result = eventDetail.returnValues._documentAddress;
-        console.log(result);
+        const result = eventDetail.returnValues._documentId;
+        console.log(Web3.utils.hexToAscii(result));
+        //console.log(eventDetail);
+
     });
  }
 
@@ -77,7 +80,7 @@ const searchByAuthor = async function(authorName){
 //removeReviewer('0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2');
 
 
-//searchByAuthor("Prabhakaran");
+searchByAuthor('QmYuNae92Ta8vTj9PbnhGTVAYjgFsq9udReksmwSo5YT82');
 //searchByRank(2);
 
-checkIpfs();
+//checkIpfs();

@@ -9,19 +9,21 @@ import "./LogicContract.sol";
 contract MasterDocument is Ownable{
 
     /***********Events**********************/
-    event CreateDocument(address indexed _documentAddress, string indexed _authorName, string _authorNameString);
+    event CreateDocument(bytes32 indexed _documentId, bytes32 indexed _authorName, string indexed _checksum);
     
     event ReviewerAddition(address _reviewer);
 
     event ReviewerRemoval(address _reviewer);
  
-    event ContractReviewed(address indexed _contractAddress, int8 indexed _reviewRanking );
+    event ContractReviewed(bytes32 indexed _documentId, address indexed _contractAddress, int8 indexed _reviewRanking );
     
     /********* Storage variable  - Start************/ 
     //Map of contracts - Change to documentMap
     //Document[] public documentMap;
 
     mapping(string => address) public documentAddressMap;
+
+    mapping(string => string[]) public documentOwnershipMap;
 
     LogicContract public logicContract;
 
@@ -49,8 +51,10 @@ contract MasterDocument is Ownable{
         Document document = new Document();
         //documentMap.push(document);
         documentAddressMap[_documentId] = address(document);
+        documentOwnershipMap[_authorName].push(_documentId);
         document._createDocument(_documentId, _authorName,  _timeStamp, _ipfsLink,  _checksum, _reviewers,address(logicContract));
-        emit CreateDocument(address(document), _authorName,_authorName);         
+        //emit CreateDocument(address(document), _authorName,_authorName);  
+        emit CreateDocument(bytes32(bytes(_documentId)),bytes32(bytes(_authorName)),_checksum);       
     }
 
     // function readDocumentByIndex(uint _index) external view returns(string memory _documentId ,string memory _authorName, string memory  _timeStamp, string memory  _ipfsLink, string memory  _checksum)
@@ -69,11 +73,16 @@ contract MasterDocument is Ownable{
          return document._readDocument();
     }
 
+    function documentByOwner(string memory _authorName) external view returns(string[] memory _documentList)
+    {
+        return documentOwnershipMap[_authorName]; 
+    }
+
     function addReview(string memory _documentID, address _reviewer, int8 _reviewRanking) external {
         address _documentAddress = documentAddressMap[_documentID];
         Document document = Document(_documentAddress);
         document.addReview(_reviewer, _reviewRanking);
-        emit ContractReviewed(_documentAddress, _reviewRanking);
+        emit ContractReviewed(bytes32(bytes(_documentID)),_documentAddress, _reviewRanking);
     }
 
     function readReview(string memory _documentID, address _reviewer) public view returns (int8 reviewRank){

@@ -6,6 +6,7 @@ import {useEffect, useState} from 'react'
 import { HeadingProp } from "./../component/HeadingProp";
 import DocumentCreation from './documentCreation';
 import DocumentRead from './documentRead';
+import DocumentSearch from './documentSearch';
 import { checkWallet} from './../component/web3walletcheck';
 
 
@@ -47,10 +48,12 @@ const Home: NextPage = () =>{
     
                   <Tab label="Document Read"/>
                   
+                  <Tab label="Document Search"/>
     
                 </Tabs>
                 {selectedTab ===0 && <DocumentCreation/>}
                 {selectedTab ===1 && <DocumentRead/>}
+                {selectedTab ===2 && <DocumentSearch/>}
  
             </Box>    
      

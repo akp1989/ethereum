@@ -29,7 +29,7 @@ const Home: NextPage = () => {
       transactionResponse: transactionResponse
     }
     setFormData(formData);
-    downloadDocument(transactionResponse._checksum);
+    downloadDocument(formData.documentId,transactionResponse._checksum);
   }
 
   return (

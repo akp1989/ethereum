@@ -1,4 +1,4 @@
-const Ethers = require('ethers');
+const Ethers = require('ethers'); 
 const web3 = require('web3');
 var mdcABI = require('./library/mdcABI');
 
@@ -10,7 +10,7 @@ const ethers = new Ethers.providers.JsonRpcProvider(ethereumAddress);
 const signer = new Ethers.Wallet('ae2e4341251159be1c7bae03b9a81e56c35c0660fe14114e2d6fc0a0c8c441c6',ethers);
 
 //Contract details
-const mdcContract = new Ethers.Contract('0xa5A11fD0E6406ADbe7fb1Fcff24DE71aE269B938', mdcABI, ethers);
+const mdcContract = new Ethers.Contract('0xe79De80a4FEbB8122b0dFf6196fB5dA091bd6c3E', mdcABI, ethers);
 
 const test = async function(){
 
@@ -49,10 +49,11 @@ const readReview = async function(documentId, reviewer){
 }
 
 const searchByAuthor = async function(authorName){
-    let eventFilter = mdcContract.filters.CreateDocument(null,authorName,null);
+    let eventFilter = mdcContract.filters.CreateDocument(null,Ethers.utils.formatBytes32String(authorName),null);
     let events = await mdcContract.queryFilter(eventFilter);
     events.forEach((eventDetail)=>{
-        console.log(eventDetail.args._documentAddress);
+        const result = eventDetail.args._documentId;
+        console.log(Ethers.utils.parseBytes32String(result));
     });
 }
 const searchByRank = async function(reviewRank){
@@ -87,5 +88,5 @@ const searchByRank = async function(reviewRank){
 //removeReviewer('0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2');
 
 
-searchByAuthor('Mrinmoyee');
+searchByAuthor('bhavanimrinmoyeehariniprabhakaranariappampalayamkrishnamoorthi');
 //searchByRank(2);

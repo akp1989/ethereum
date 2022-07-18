@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { clear } from 'console';
 
 const uploadRequest = {
     fileName: '',
@@ -11,17 +10,17 @@ const uploadRequest = {
 const uploadURL = 'http://157.245.55.46:3100/upload';
 const downloadURL = 'http://157.245.55.46:3100/download';
 
-export const uploadDocument = async (documentId, authorName, fileInput)=>{
-    uploadRequest.fileName = documentId;
+export const uploadDocument = async (authorName, fileInput)=>{
+    //uploadRequest.fileName = documentId;
     uploadRequest.author = authorName;
     uploadRequest.fileContent = await toBase64(fileInput);
     let uploadResponse = await axiosCall(uploadURL,{path:fileInput.name, content:JSON.stringify(uploadRequest)});
     return uploadResponse.CID;
 }
 
-export const downloadDocument = async(CID) =>{
+export const downloadDocument = async(fileName,CID) =>{
     let downloadResponse = await axiosCall(downloadURL,{cid:CID});
-    await base64ToFile(downloadResponse.fileName,downloadResponse.fileContent);
+    await base64ToFile(fileName,downloadResponse.fileContent);
 }
 
 const toBase64 = file => new Promise((resolve,reject)=>{

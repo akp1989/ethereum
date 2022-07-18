@@ -47,9 +47,14 @@ const Home: NextPage = () => {
   }
 
   const uploadToIPFS = async() =>{
-    let uploadResponseCID =  await uploadDocument(formData.documentId, formData.authorName, formData.uploadfile);
+    var uploadResponseCID =  await uploadDocument(formData.authorName, formData.uploadfile);
+    let documentId = uploadResponseCID.substring(0,4) + uploadResponseCID.substring(uploadResponseCID.length-4)
+                      + new Date().getFullYear()
+                      + new Date().toLocaleString("en-US", { month: "2-digit" }) 
+                      + new Date().toLocaleString("en-US", { day : '2-digit'});
     formData = {
       ...formData, 
+      documentId: documentId,
       checkSum: uploadResponseCID,
       ipfsLink : 'https://ipfs.io/ipfs/'+uploadResponseCID
     }
@@ -81,7 +86,7 @@ const Home: NextPage = () => {
                       type='text'
                       label='DocumentId'
                       name='documentId'
-                      onChange={handleChange}
+                      value={formData.documentId}
                       variant = 'outlined'
                       >                  
                 </TextField>
