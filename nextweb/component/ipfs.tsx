@@ -3,19 +3,24 @@ import axios from 'axios';
 const uploadRequest = {
     fileName: '',
     author:'',
-    fileContent:null,
-    cid:''
+    fileContent:null
 }
 
 const uploadURL = 'http://157.245.55.46:3100/upload';
 const downloadURL = 'http://157.245.55.46:3100/download';
 
-export const uploadDocument = async (authorName, fileInput)=>{
+export const uploadDocument = async (authorName, fileInput, addParams)=>{
     //uploadRequest.fileName = documentId;
     uploadRequest.author = authorName;
     uploadRequest.fileContent = await toBase64(fileInput);
+ 
+    for(var param of Object.keys(addParams)){  
+        uploadRequest[param] = addParams[param];
+    }
+    
     let uploadResponse = await axiosCall(uploadURL,{path:fileInput.name, content:JSON.stringify(uploadRequest)});
     return uploadResponse.CID;
+    
 }
 
 export const downloadDocument = async(fileName,CID) =>{

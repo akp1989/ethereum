@@ -17,6 +17,10 @@ const documentCreationPageModel = {
   reviewers:'',
   uploadfile:null,
   transactionResponse:null,
+
+  addParamsKey : '',
+  addParamsValue : '',
+  addParams:{},
 }
 
 const Home: NextPage = () => { 
@@ -47,7 +51,7 @@ const Home: NextPage = () => {
   }
 
   const uploadToIPFS = async() =>{
-    var uploadResponseCID =  await uploadDocument(formData.authorName, formData.uploadfile);
+    var uploadResponseCID =  await uploadDocument(formData.authorName, formData.uploadfile, formData.addParams);
     let documentId = uploadResponseCID.substring(0,4) + uploadResponseCID.substring(uploadResponseCID.length-4)
                       + new Date().getFullYear()
                       + new Date().toLocaleString("en-US", { month: "2-digit" }) 
@@ -61,7 +65,17 @@ const Home: NextPage = () => {
     setFormData(formData);
   }
   
-
+  const updateAddParams = async() =>{
+    var addParams = formData.addParams;
+    var key = formData.addParamsKey;
+    var value = formData.addParamsValue;
+    addParams[key] = value;
+    formData = {
+       ...formData,
+       addParams : addParams
+    }
+    setFormData(formData);
+  }
   const createDocument = async() =>{
     let transactionResponse = await createDocumentContract(formData);
     formData = {
@@ -151,8 +165,8 @@ const Home: NextPage = () => {
                 <Button variant="contained" sx={{width:200}} onClick={async() => await createDocument()}>Create Document</Button>
               </Stack>
 
-              <Stack direction="column"  alignSelf="top" spacing={15}> 
-                <Box mb={15}>
+              <Stack direction="column"  alignSelf="top" spacing={1}> 
+                <Box mb={2}>
                   <Input id="uploadfile" name='uploadfile' type="file" onChange={handleFileChange} />
                   <br></br>
                   <Button variant="contained"  sx={{width:200}} onClick={async() => await uploadToIPFS()}  >
@@ -160,20 +174,60 @@ const Home: NextPage = () => {
                   </Button>
                 </Box>
                 <br></br>
-                <Box mt={15}>
-                  <TextField
+
+                <TextField
+                      type='text'
+                      label='Additional Params Key'
+                      name='addParamsKey'
+                      value= {formData.addParamsKey}
+                      onChange={handleChange}
+                      variant = 'outlined'
+                      >                  
+                </TextField> 
+                <br></br>
+
+                <TextField
+                      type='text'
+                      label='Additional Params Value'
+                      name='addParamsValue'
+                      value= {formData.addParamsValue}
+                      onChange={handleChange}
+                      variant = 'outlined'
+                      >                  
+                </TextField>
+                <br></br>
+                  <Button variant="contained"  sx={{width:200}} onClick={async() => await updateAddParams()}  >
+                    Add Params
+                  </Button>
+                <br></br>
+                <TextField
                         type='text'
-                        label='Transaction Result'
-                        name='transactionResponse'
-                        value = {formData.transactionResponse? formData.transactionResponse:''}
+                        label='Additional Params'
+                        name='addParams'
+                        value = {formData.addParams? JSON.stringify(formData.addParams) :''}
                         variant = 'outlined'
                         multiline
-                        rows={8} 
+                        rows={4} 
                         disabled
                         style={{width:'420px'}}
                         sx={{topMargin:'240px'}}
                         >                  
-                  </TextField> 
+                </TextField> 
+                <br></br>
+                <Box>
+                <TextField
+                      type='text'
+                      label='Transaction Result'
+                      name='transactionResponse'
+                      value = {formData.transactionResponse? formData.transactionResponse:''}
+                      variant = 'outlined'
+                      multiline
+                      rows={8} 
+                      disabled
+                      style={{width:'420px'}}
+                      sx={{topMargin:'240px'}}
+                      >                  
+                </TextField> 
                 </Box>
               </Stack>
           </Stack> 
