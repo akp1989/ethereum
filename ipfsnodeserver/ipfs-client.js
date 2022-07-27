@@ -17,6 +17,8 @@ app.get('/', (req,res) => {
 app.post('/upload', async (req,res) =>{
     const path = req.body.path;
     const content = req.body.content;
+    //Infura API for client side access.
+    // const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
     const IPFS = await IpfsHttpClient.create({protocol:'http',
                                         host:'host.docker.internal',
                                         port:'5001',
@@ -36,6 +38,8 @@ app.post('/download', async (req,res) =>{
 })
  
 async function getDocument(cid){
+    //Infura API for client side access.
+    //const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
     const IPFS = await IpfsHttpClient.create({protocol:'http',
                                                 host:'host.docker.internal',
                                                 port:'5001',

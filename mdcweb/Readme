@@ -1,8 +1,0 @@
-To build the docker image 
-
-docker build . -t genera.mdcweb
-
-To run the docker image
-
-docker run -p 3300:3300 -d genera.mdcweb
-docker run -p 3300:3300 -d genera.mdcweb --add-host host.docker.internal:host-gateway
