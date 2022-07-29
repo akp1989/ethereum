@@ -174,18 +174,17 @@ const Home: NextPage = () => {
                   </Button>
                 </Box>
                 <br></br>
-
+                <Stack direction="row">
                 <TextField
                       type='text'
-                      label='Additional Params Key'
+                      label='Params Key'
                       name='addParamsKey'
                       value= {formData.addParamsKey}
                       onChange={handleChange}
                       variant = 'outlined'
+                      style={{width:'180px'}}
                       >                  
                 </TextField> 
-                <br></br>
-
                 <TextField
                       type='text'
                       label='Additional Params Value'
@@ -195,6 +194,7 @@ const Home: NextPage = () => {
                       variant = 'outlined'
                       >                  
                 </TextField>
+                </Stack>
                 <br></br>
                   <Button variant="contained"  sx={{width:200}} onClick={async() => await updateAddParams()}  >
                     Add Params
