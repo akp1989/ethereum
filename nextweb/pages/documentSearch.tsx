@@ -1,7 +1,7 @@
 import type {NextPage} from 'next'
 import styles from '../styles/Home.module.css'
 import { useState} from 'react'
-import { TextField,Box,Container,Button,Stack, FormControl, FormControlLabel, RadioGroup, Radio } from '@mui/material'
+import { TextField,Box,Container,Button,Stack, FormLabel, FormControlLabel, RadioGroup, Radio } from '@mui/material'
 import { searchDocument } from '../component/contractCall'
 
 const documentSearchPageModel = {
@@ -20,6 +20,7 @@ const documentSearchPageModel = {
           [event.target.name] : event.target.value.trim()
         }
         setFormData(formData); 
+        //console.log(formData);
     }
 
     const search  = async() =>{
@@ -59,8 +60,19 @@ const documentSearchPageModel = {
                         //value={value}
                         onChange={handleChange}
                      >
-                        <FormControlLabel value="owner" control={<Radio />} label="Owner" />
-                        <FormControlLabel value="review" control={<Radio />} label="Review" />
+                      <Stack direction="row"   justifyContent="flex-start" alignItems="flex-start" spacing={1}>
+                        <Box container>
+                          <FormLabel id="searchopt-radio-buttons-group1">On chain search</FormLabel>
+                          <FormControlLabel value="ownerChain" control={<Radio />} label="Owner" />
+                        </Box>
+                        
+                        <Box container>
+                          <FormLabel id="searchopt-radio-buttons-group2">Off chain search</FormLabel><br></br>
+                          <FormControlLabel value="ownerLog" control={<Radio />} label="Owner" />
+                          <FormControlLabel value="reviewLog" control={<Radio />} label="Review" />
+                        </Box>
+
+                      </Stack>
                     </RadioGroup>
 
                   <Button variant="contained" sx={{width:200}} onClick={async() => await search()}>Search Document</Button>

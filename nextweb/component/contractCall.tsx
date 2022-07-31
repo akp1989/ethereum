@@ -65,20 +65,19 @@ export const readDocumentContract = async(documentId) => {
 export const searchDocument = async (searchKey, searchKeyOption) => {
     await initMasterDocContract(); 
     var searchResponse=[];
-
     
-    if(searchKeyOption=="owner"){
+    if(searchKeyOption=="ownerLog"){
         // Web3 method
-        // let eventDetails = await masterDocContractWeb3.getPastEvents('CreateDocument', {
-        //     filter: {_authorName: Web3.utils.asciiToHex(searchKey) },
-        //     fromBlock: 0,
-        //     toBlock: 'latest'
-        // })
-        // eventDetails.forEach((eventDetail)=>{
-        //     const result = Web3.utils.hexToAscii(eventDetail.returnValues._documentId);
-        //     searchResponse.push(result);
-    
-        // });
+        let eventDetails = await masterDocContractWeb3.getPastEvents('CreateDocument', {
+            filter: {_authorName: Web3.utils.asciiToHex(searchKey) },
+            fromBlock: 0,
+            toBlock: 'latest'
+        })
+        eventDetails.forEach((eventDetail)=>{
+            const result = Web3.utils.hexToAscii(eventDetail.returnValues._documentId);
+            searchResponse.push(result);
+            console.log(eventDetail);
+        });
 
         //Ethers method
         // let eventFilter = masterDocContractEthers.filters.CreateDocument(null,ethers.utils.formatBytes32String(searchKey),null);
@@ -88,11 +87,11 @@ export const searchDocument = async (searchKey, searchKeyOption) => {
         //     searchResponse.push(result);
         // });
 
+       
+    } else if(searchKeyOption =="ownerChain"){
         searchResponse = await masterDocContractWeb3.methods.documentByOwner(searchKey).call();
         //searchResponse = await masterDocContractEthers.documentByOwner(searchKey);  
-    } 
-
-    else if(searchKeyOption=="checkSum"){
+    } else if(searchKeyOption=="checkSum"){
         //Web3 method
         //console.log(Web3.utils.sha3(searchKey));
         //let eventDetails = await masterDocContractWeb3.getPastEvents('allEvents',{
