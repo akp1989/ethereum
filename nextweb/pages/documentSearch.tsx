@@ -61,12 +61,12 @@ const documentSearchPageModel = {
                         onChange={handleChange}
                      >
                       <Stack direction="row"   justifyContent="flex-start" alignItems="flex-start" spacing={1}>
-                        <Box container>
+                        <Box>
                           <FormLabel id="searchopt-radio-buttons-group1">On chain search</FormLabel>
                           <FormControlLabel value="ownerChain" control={<Radio />} label="Owner" />
                         </Box>
                         
-                        <Box container>
+                        <Box>
                           <FormLabel id="searchopt-radio-buttons-group2">Off chain search</FormLabel><br></br>
                           <FormControlLabel value="ownerLog" control={<Radio />} label="Owner" />
                           <FormControlLabel value="reviewLog" control={<Radio />} label="Review" />

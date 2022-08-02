@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  ipfsnodeserver:
+    container_name: ipfsnodeservertest
+    image: genera.ipfsnodeservertest:latest
+    network_mode: "host"
+    volumes:
+     - ./:/usr/src/app
+     - ./node_modules:/usr/src/app/node_modules
