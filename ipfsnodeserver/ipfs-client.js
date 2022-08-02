@@ -1,7 +1,21 @@
 const express= require('express');
 const cors = require('cors');
 var IpfsHttpClient = require('ipfs-http-client');
+const multer  = require('multer');
+const fs = require('fs');
 
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, '/tmp/')
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.originalname)
+    }
+  })
+  
+  
+const upload = multer({ storage: storage })
 
 const app = express();
 const port = 3100;
@@ -53,5 +67,24 @@ async function getDocument(cid){
     }
     return (stringBuffer);
 } 
+
+app.post('/uploadMultipart', upload.single('fileName'), async function (req, res, next){
+    const filename = req.file.originalname;
+    const filepath = '/tmp/'+filename;
+    console.log('File received for ' + filename);
+    const IPFS = await IpfsHttpClient.create({protocol:'http',
+                                        host:'host.docker.internal',
+                                        port:'5001',
+                                        path:'api/v0'});
+    const fileDetails = {path: filename, content: filepath};
+    console.log('Starting ipfs upload for ' + filename);
+    const ipfsResponse = await IPFS.add(fileDetails);
+    
+    fs.unlink(filepath, function (err) {
+      if (err) throw err;
+      console.log('File at' +filepath+'deleted!');
+    });
+    return res.json({"CID" : ipfsResponse.cid.toString()});
+  })
 
 app.listen(port, () => console.log("Application started"))
