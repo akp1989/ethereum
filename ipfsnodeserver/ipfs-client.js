@@ -34,7 +34,8 @@ app.post('/upload', async (req,res) =>{
     //Infura API for client side access.
     // const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
     const IPFS = await IpfsHttpClient.create({protocol:'http',
-                                        host:'host.docker.internal',
+                                        //host:'host.docker.internal',
+                                        host:'127.0.0.1',
                                         port:'5001',
                                         path:'api/v0'});
     const ipfsResponse = await IPFS.add({path:path,
@@ -55,7 +56,8 @@ async function getDocument(cid){
     //Infura API for client side access.
     //const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
     const IPFS = await IpfsHttpClient.create({protocol:'http',
-                                                host:'host.docker.internal',
+                                                //host:'host.docker.internal',
+                                                host:'127.0.0.1',
                                                 port:'5001',
                                                 path:'api/v0'});
     //console.log (await IPFS.isOnline());
@@ -73,7 +75,8 @@ app.post('/uploadMultipart', upload.single('fileName'), async function (req, res
     const filepath = '/tmp/'+filename;
     console.log('File received for ' + filename);
     const IPFS = await IpfsHttpClient.create({protocol:'http',
-                                        host:'host.docker.internal',
+                                        //host:'host.docker.internal',
+                                        host:'127.0.0.1',
                                         port:'5001',
                                         path:'api/v0'});
     const fileDetails = {path: filename, content: filepath};
