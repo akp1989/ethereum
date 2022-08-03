@@ -76,7 +76,6 @@ app.post('/uploadMultipart', upload.single('fileName'), async function (req, res
     var additionalParams = JSON.parse(req.body.additionalParams);
     for(var additionalParam of Object.keys(additionalParams))
     {
-      console.log(additionalParam);
       jsonData[additionalParam] = additionalParams[additionalParam];
     }
     const filename = req.file.originalname;
@@ -91,22 +90,22 @@ app.post('/uploadMultipart', upload.single('fileName'), async function (req, res
     });
     fs.unlink(filepath, function (err) {
       if (err) throw err;
-      console.log('File at' +filepath+'deleted!');
+      console.log(new Date().toUTCString()+': File at' +filepath+'deleted!');
     });
 
-    console.log('File received for ' + filename);
+    console.log(new Date().toUTCString()+': File received for ' + filename);
     const IPFS = await IpfsHttpClient.create({protocol:'http',
                                         //host:'host.docker.internal',
                                         host:'127.0.0.1',
                                         port:'5001',
                                         path:'api/v0'});
     const fileDetails = {path: filename, content: filepath};
-    console.log('Starting ipfs upload for ' + filename);
+    console.log(new Date().toUTCString()+': Starting ipfs upload for ' + filename);
     const ipfsResponse = await IPFS.add(fileDetails);
     
     fs.unlink(base64file, function (err) {
       if (err) throw err;
-      console.log('File at' +base64file+'deleted!');
+      console.log(new Date().toUTCString()+': File at' +base64file+'deleted!');
     });
     return res.json({"CID" : ipfsResponse.cid.toString()});
   })

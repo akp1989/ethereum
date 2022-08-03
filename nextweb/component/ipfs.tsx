@@ -6,7 +6,7 @@ const uploadRequest = {
     fileContent:null
 }
 
-const uploadURL = 'http://157.245.55.46:3100/upload';
+const uploadURL = 'http://157.245.55.46:3100/uploadMultipart';
 const downloadURL = 'http://157.245.55.46:3100/download';
 
 export const uploadDocument = async (authorName, fileInput, addParams)=>{
