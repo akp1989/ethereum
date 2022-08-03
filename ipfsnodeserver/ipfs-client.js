@@ -3,11 +3,14 @@ const cors = require('cors');
 var IpfsHttpClient = require('ipfs-http-client');
 const multer  = require('multer');
 const fs = require('fs');
+const path = require('path');
 
+
+const tempPath = '/tmp/';
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, '/tmp/')
+      cb(null, tempPath)
     },
     filename: function (req, file, cb) {
       cb(null, file.originalname)
@@ -72,42 +75,57 @@ async function getDocument(cid){
 
 app.post('/uploadMultipart', upload.single('fileName'), async function (req, res, next){
     var jsonData = {};
-    var fileDetailData = 'data:'+req.file.mimetype+';base64,';
     var additionalParams = JSON.parse(req.body.additionalParams);
     for(var additionalParam of Object.keys(additionalParams))
     {
       jsonData[additionalParam] = additionalParams[additionalParam];
     }
+   
     const filename = req.file.originalname;
-    const filepath = '/tmp/'+filename; 
-    const base64file = '/tmp/base64'+filename;
-    
-    fs.readFile(filepath,'base64',function(err, data){
-          jsonData['fileContent'] = fileDetailData.concat(data);
-          fs.writeFile(base64file,JSON.stringify(jsonData),function(err){
-            console.log(err);
-          })
-    });
-    fs.unlink(filepath, function (err) {
+    const filepath = path.join(tempPath,filename);
+    const b64filename = 'b64'+filename;
+    const b64filepath = path.join(tempPath,b64filename);
+    console.log(new Date().toUTCString()+': File received for ' + filename);
+
+    await convertFile(filepath,b64filepath,jsonData,req.file.mimetype);
+    console.log(new Date().toUTCString()+': File converted for ' + filename);
+   
+    await fs.unlink(filepath, function (err) {
       if (err) throw err;
       console.log(new Date().toUTCString()+': File at' +filepath+'deleted!');
     });
 
-    console.log(new Date().toUTCString()+': File received for ' + filename);
     const IPFS = await IpfsHttpClient.create({protocol:'http',
                                         //host:'host.docker.internal',
                                         host:'127.0.0.1',
                                         port:'5001',
                                         path:'api/v0'});
-    const fileDetails = {path: filename, content: base64file};
+    const fileDetails = {path: filename, content: fs.createReadStream(b64filepath)};
     console.log(new Date().toUTCString()+': Starting ipfs upload for ' + filename);
     const ipfsResponse = await IPFS.add(fileDetails);
-    
-    fs.unlink(base64file, function (err) {
+
+
+    fs.unlink(b64filepath, function (err) {
       if (err) throw err;
-      console.log(new Date().toUTCString()+': File at' +base64file+'deleted!');
+      console.log(new Date().toUTCString()+': File at' +b64filepath+'deleted!');
     });
+    
     return res.json({"CID" : ipfsResponse.cid.toString()});
   })
+
+  function convertFile(filepath,b64filepath,jsonData,mimetype){
+    var fileDetailData = 'data:'+mimetype+';base64,';
+    return new Promise((accept,reject) => {
+      fs.readFile(filepath,'base64',function(err, data){
+        jsonData['fileContent'] = fileDetailData.concat(data);
+        fs.writeFile(b64filepath,JSON.stringify(jsonData),function(err){
+          console.log(err);
+          accept();
+        })
+      });
+      
+    });
+  }
+
 
 app.listen(port, () => console.log("Application started"))
