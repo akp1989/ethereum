@@ -10,17 +10,18 @@ const uploadURL = 'http://157.245.55.46:3100/upload';
 const downloadURL = 'http://157.245.55.46:3100/download';
 
 export const uploadDocument = async (authorName, fileInput, addParams)=>{
-    //uploadRequest.fileName = documentId;
-    uploadRequest.author = authorName;
-    uploadRequest.fileContent = await toBase64(fileInput);
- 
-    for(var param of Object.keys(addParams)){  
-        uploadRequest[param] = addParams[param];
+    const formData = new FormData();
+    addParams["fileName"] = fileInput.name;
+    addParams["author"] = authorName;
+    formData.append('additionalParams',JSON.stringify(addParams));
+    formData.append('fileName',fileInput);
+    const config = {
+        headers: {
+            'content-type': 'multipart/form-data'
+        }
     }
-    
-    let uploadResponse = await axiosCall(uploadURL,{path:fileInput.name, content:JSON.stringify(uploadRequest)});
-    return uploadResponse.CID;
-    
+    let uploadResponse = await axios.post(uploadURL,formData,config);
+    return uploadResponse.data.CID;    
 }
 
 export const downloadDocument = async(fileName,CID) =>{

@@ -71,8 +71,29 @@ async function getDocument(cid){
 } 
 
 app.post('/uploadMultipart', upload.single('fileName'), async function (req, res, next){
+    var jsonData = {};
+    var fileDetailData = 'data:'+req.file.mimetype+';base64,';
+    var additionalParams = JSON.parse(req.body.additionalParams);
+    for(var additionalParam of Object.keys(additionalParams))
+    {
+      console.log(additionalParam);
+      jsonData[additionalParam] = additionalParams[additionalParam];
+    }
     const filename = req.file.originalname;
-    const filepath = '/tmp/'+filename;
+    const filepath = '/tmp/'+filename; 
+    const base64file = '/tmp/base64'+filename;
+    
+    fs.readFile(filepath,'base64',function(err, data){
+          jsonData['fileContent'] = fileDetailData.concat(data);
+          fs.writeFile(base64file,JSON.stringify(jsonData),function(err){
+            console.log(err);
+          })
+    });
+    fs.unlink(filepath, function (err) {
+      if (err) throw err;
+      console.log('File at' +filepath+'deleted!');
+    });
+
     console.log('File received for ' + filename);
     const IPFS = await IpfsHttpClient.create({protocol:'http',
                                         //host:'host.docker.internal',
@@ -83,9 +104,9 @@ app.post('/uploadMultipart', upload.single('fileName'), async function (req, res
     console.log('Starting ipfs upload for ' + filename);
     const ipfsResponse = await IPFS.add(fileDetails);
     
-    fs.unlink(filepath, function (err) {
+    fs.unlink(base64file, function (err) {
       if (err) throw err;
-      console.log('File at' +filepath+'deleted!');
+      console.log('File at' +base64file+'deleted!');
     });
     return res.json({"CID" : ipfsResponse.cid.toString()});
   })
