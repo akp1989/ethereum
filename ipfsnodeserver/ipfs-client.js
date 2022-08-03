@@ -99,7 +99,7 @@ app.post('/uploadMultipart', upload.single('fileName'), async function (req, res
                                         host:'127.0.0.1',
                                         port:'5001',
                                         path:'api/v0'});
-    const fileDetails = {path: filename, content: filepath};
+    const fileDetails = {path: filename, content: base64file};
     console.log(new Date().toUTCString()+': Starting ipfs upload for ' + filename);
     const ipfsResponse = await IPFS.add(fileDetails);
     
