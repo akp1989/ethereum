@@ -21,20 +21,13 @@ export const uploadDocument = async (authorName, fileInput, addParams)=>{
         }
     }
     let uploadResponse = await axios.post(uploadURL,formData,config);
-    return uploadResponse.data.CID;    
+    return uploadResponse.data;    
 }
 
-export const downloadDocument = async(fileName,CID) =>{
-    let downloadResponse = await axiosCall(downloadURL,{cid:CID});
-    await base64ToFile(fileName,downloadResponse.fileContent);
+export const downloadDocument = async(fileName,CID,securitykey) =>{
+    let downloadResponse = await axiosCall(downloadURL,{cid:CID,secretKey:securitykey});
+    await base64ToFile(fileName,downloadResponse);
 }
-
-const toBase64 = file => new Promise((resolve,reject)=>{
-    const fileReader = new FileReader();
-    fileReader.readAsDataURL(file);
-    fileReader.onload = () => resolve(fileReader.result);
-    fileReader.onerror = error => reject(error);
-});
 
 const axiosCall = async(url,request) => {
    let responseData = await axios.post(url,request);

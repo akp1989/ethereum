@@ -8,6 +8,7 @@ import { downloadDocument } from './../component/ipfs'
 
 const documentReadPageModel = {
   documentId: '', 
+  securitykey: '',
   transactionResponse:null,
 }
 
@@ -29,7 +30,7 @@ const Home: NextPage = () => {
       transactionResponse: transactionResponse
     }
     setFormData(formData);
-    downloadDocument(formData.documentId,transactionResponse._checksum);
+    downloadDocument(formData.documentId,transactionResponse._checksum,formData.securitykey);
   }
 
   return (
@@ -52,7 +53,16 @@ const Home: NextPage = () => {
                           >                  
               </TextField>
                 <br></br>
-              
+              <TextField
+                          type='text'
+                          label='SecurityKey'
+                          name='securitykey'
+                          value= {formData.securitykey}
+                          onChange={handleChange}
+                          variant = 'outlined' 
+                          >                  
+              </TextField>
+                <br></br>
               <Button variant="contained" sx={{width:200}} onClick={async() => await readDocument()}>Read Document</Button>
             </Stack>
 

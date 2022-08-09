@@ -51,16 +51,17 @@ const Home: NextPage = () => {
   }
 
   const uploadToIPFS = async() =>{
-    var uploadResponseCID =  await uploadDocument(formData.authorName, formData.uploadfile, formData.addParams);
-    let documentId = uploadResponseCID.substring(0,4) + uploadResponseCID.substring(uploadResponseCID.length-4)
+    var uploadResponse =  await uploadDocument(formData.authorName, formData.uploadfile, formData.addParams);
+    let documentId = uploadResponse.CID.substring(0,4) + uploadResponse.CID.substring(uploadResponse.CID.length-4)
                       + new Date().getFullYear()
                       + new Date().toLocaleString("en-US", { month: "2-digit" }) 
                       + new Date().toLocaleString("en-US", { day : '2-digit'});
     formData = {
       ...formData, 
       documentId: documentId,
-      checkSum: uploadResponseCID,
-      ipfsLink : 'https://ipfs.io/ipfs/'+uploadResponseCID
+      checkSum: uploadResponse.CID,
+      ipfsLink : 'https://ipfs.io/ipfs/'+uploadResponse.CID,
+      addParams: uploadResponse
     }
     setFormData(formData);
   }

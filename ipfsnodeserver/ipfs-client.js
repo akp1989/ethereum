@@ -2,11 +2,16 @@ const express= require('express');
 const cors = require('cors');
 var IpfsHttpClient = require('ipfs-http-client');
 const multer  = require('multer');
-const fs = require('fs');
 const path = require('path');
+const fs= require('fs');
+const { Readable } = require('stream');
+const crypto = require('crypto'); 
 
+const AppendInitStream = require ('./appendInitStream');
 
-const tempPath = '/tmp/';
+const algorithm = "aes-256-cbc";
+
+const tempPath = 'tmp/';
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -31,101 +36,267 @@ app.get('/', (req,res) => {
 	res.send("Welcome to Genera node client for IPFS");
 });
 
-app.post('/upload', async (req,res) =>{
-    const path = req.body.path;
-    const content = req.body.content;
-    //Infura API for client side access.
-    // const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
-    const IPFS = await IpfsHttpClient.create({protocol:'http',
-                                        //host:'host.docker.internal',
-                                        host:'127.0.0.1',
-                                        port:'5001',
-                                        path:'api/v0'});
-    const ipfsResponse = await IPFS.add({path:path,
-                                         content:content});
-    console.log('Uploaded the file with CID : ', ipfsResponse.cid.toString());
-    return res.json({"CID" : ipfsResponse.cid.toString()});
-})
+// app.post('/upload', async (req,res) =>{
+//     const path = req.body.path;
+    
+//     const content = req.body.content;
+//     //Infura API for client side access.
+//     // const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
+//     const IPFS = await IpfsHttpClient.create({protocol:'http',
+//                                         //host:'host.docker.internal',
+//                                         host:'127.0.0.1',
+//                                         port:'5001',
+//                                         path:'api/v0'});
+//     const ipfsResponse = await IPFS.add({path:path,
+//                                          content:content});
+//     console.log('Uploaded the file with CID : ', ipfsResponse.cid.toString());
+//     return res.json({"CID" : ipfsResponse.cid.toString()});
+// })
 
-app.post('/download', async (req,res) =>{
-    const cid = req.body.cid; 
-   
-    const responseJSON = await getDocument(cid);
 
-    return res.send(JSON.parse(responseJSON));
-})
- 
-async function getDocument(cid){
-    //Infura API for client side access.
-    //const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
-    const IPFS = await IpfsHttpClient.create({protocol:'http',
-                                                //host:'host.docker.internal',
-                                                host:'127.0.0.1',
-                                                port:'5001',
-                                                path:'api/v0'});
-    //console.log (await IPFS.isOnline());
-    console.log ('Get document request for :',cid );
-    var stringBuffer='';
-    for await(const chunkData of IPFS.cat(cid))
-    {   
-        stringBuffer += chunkData;
-    }
-    return (stringBuffer);
-} 
-
+//Handler to receive the uploaded file as multipart request
 app.post('/uploadMultipart', upload.single('fileName'), async function (req, res, next){
     var jsonData = {};
+
+    //Additional params passed with the file as json object
     var additionalParams = JSON.parse(req.body.additionalParams);
     for(var additionalParam of Object.keys(additionalParams))
     {
       jsonData[additionalParam] = additionalParams[additionalParam];
     }
-   
+
+    //Two different filepaths are defined
+    // filepath --> Actual file received from the user
+    // b64encpath --> Base64 encoded and AES encrypted file to be uploaded to the IPFS
     const filename = req.file.originalname;
     const filepath = path.join(tempPath,filename);
-    const b64filename = 'b64'+filename;
-    const b64filepath = path.join(tempPath,b64filename);
+    const b64encname = 'b64enc'+filename;
+    const b64encpath = path.join(tempPath,b64encname);
     console.log(new Date().toUTCString()+': File received for ' + filename);
 
-    await convertFile(filepath,b64filepath,jsonData,req.file.mimetype);
+    //Async method to convert the file. Returns the security key of encryption in hex encoding
+    let securitykey = await convertEncryptFile(filepath,b64encpath,jsonData,req.file.mimetype);
     console.log(new Date().toUTCString()+': File converted for ' + filename);
    
-    await fs.unlink(filepath, function (err) {
+    //Remove the actual file received from user
+    fs.unlink(filepath, function (err) {
       if (err) throw err;
       console.log(new Date().toUTCString()+': File at' +filepath+'deleted!');
     });
 
-    const IPFS = await IpfsHttpClient.create({protocol:'http',
+
+    //Initiate IPFS and upload the encrypted file
+    //Passes a readstream object in the place of file content
+    const IPFS = IpfsHttpClient.create({protocol:'http',
                                         //host:'host.docker.internal',
                                         host:'127.0.0.1',
                                         port:'5001',
                                         path:'api/v0'});
-    const fileDetails = {path: filename, content: fs.createReadStream(b64filepath)};
+    const fileDetails = {path: filename, content: fs.createReadStream(b64encpath)};
     console.log(new Date().toUTCString()+': Starting ipfs upload for ' + filename);
     const ipfsResponse = await IPFS.add(fileDetails);
+    console.log(new Date().toUTCString() + ':File uploaded to ipds with CID : '+ ipfsResponse.cid.toString());
 
-
-    fs.unlink(b64filepath, function (err) {
+    //Remove the encrypted file from the server
+    fs.unlink(b64encpath, function (err) {
       if (err) throw err;
-      console.log(new Date().toUTCString()+': File at' +b64filepath+'deleted!');
+      console.log(new Date().toUTCString()+': File at' +b64encpath+'deleted!');
     });
     
-    return res.json({"CID" : ipfsResponse.cid.toString()});
+    return res.json({"CID" : ipfsResponse.cid.toString(),"secretKey":securitykey});
+
   })
 
-  function convertFile(filepath,b64filepath,jsonData,mimetype){
-    var fileDetailData = 'data:'+mimetype+';base64,';
-    return new Promise((accept,reject) => {
-      fs.readFile(filepath,'base64',function(err, data){
-        jsonData['fileContent'] = fileDetailData.concat(data);
-        fs.writeFile(b64filepath,JSON.stringify(jsonData),function(err){
-          console.log(err);
-          accept();
-        })
+// Async function to base64 encode and encrypt the file
+  function convertEncryptFile(filepath,b64filepath,jsonData,mimetype){
+    
+    //Crypto random generated init vecotor and security key
+    const initVector = crypto.randomBytes(16);
+    const securityKey = crypto.randomBytes(32);
+    const cipher = crypto.createCipheriv(algorithm,securityKey,initVector);
+
+    //Add the init vector, cipher algorithm and file mime type to the metadata json
+    jsonData['cipherIV'] = initVector.toString("hex");
+    jsonData['cipherSecret'] = securityKey.toString("hex");
+    jsonData['cipher'] = algorithm;
+    jsonData['mime'] = mimetype;
+    var metadata = JSON.stringify(jsonData);
+
+    //Initiate a transfer stream to append the metadata before the encrypted data
+    var appendInitStream = new AppendInitStream(padLeadingZeros(metadata.length)+metadata);
+
+    //Read the actual file with encoding:base64
+    // Write stream encoding : utf-8 (default)
+    var readStream = fs.createReadStream(filepath,{encoding:'base64url'});
+    var writeStream = fs.createWriteStream(b64filepath);
+
+    return new Promise((accept,reject) =>{
+
+      // 1) Pipe the readstream through cipher and set the output encoding to hex
+      // 2) Pipe the hex encoded cipher output to the transform stream to add the metadata first
+      // 3) Pass the transform stream to the write stream to finally write the file <metadata + encrypted text>
+      readStream.pipe(cipher).setEncoding('hex').pipe(appendInitStream).pipe(writeStream);
+      readStream.on('close',()=>{
+        writeStream.on('close',()=>{
+          //Return the security key as hex via async promise 
+          accept (securityKey.toString("hex"));
+        });
       });
-      
     });
   }
+
+//Handler to download the file from IPFS for a given CID
+  app.post('/download', async (req,res) =>{
+    const cid = req.body.cid; 
+    const secretKey = req.body.secretKey;
+
+    //async function to get the document
+    const responseJSON = await getDocument(cid,secretKey);
+    
+    const b64decpath = path.join(tempPath,cid);
+    var responseStream =  fs.createReadStream(b64decpath);
+    responseStream.pipe(res);
+    
+    //return res.send(JSON.stringify(responseJSON));
+})
+
+//Async function the receives the document from IPFS 
+async function getDocument(cid,secretKey){
+    //Infura API for client side access.
+    //const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
+    const IPFS = IpfsHttpClient.create({protocol:'http',
+                                                //host:'host.docker.internal',
+                                                host:'127.0.0.1',
+                                                port:'5001',
+                                                path:'api/v0'});
+    //console.log (await IPFS.isOnline());
+    console.log (new Date().toUTCString() + ' Get document request for :',cid );
+    
+    //Define two files 1) temporary and 2) cid name 
+    const filepath = path.join(tempPath,'b64temp');
+    const b64decpath = path.join(tempPath,cid);
+
+    var writeStream =  fs.createWriteStream(b64decpath);
+    
+    //Read the file content from IPFS
+    var stringBuffer='';
+    for await(const chunkData of IPFS.cat(cid))
+    {   
+        stringBuffer += chunkData;
+    }
+
+    //Pass the string buffer from IPFS.cat to a read stream and write it to a file
+    const readStream = Readable.from(stringBuffer);
+    readStream.pipe(writeStream);
+
+    //Async method to strip metdata from the file and decrypt it back to base64 format
+    await convertDecryptFile(b64decpath,filepath,secretKey);
+   
+    
+} 
+
+ //Async method to strip metdata from the file and decrypt it back to base64 format
+  async function convertDecryptFile(originalfile,tempfile,securitykey){
+
+    //Async function to strip the metadata and convert the file back to hex encoding to feed it to cipher
+    var metadata = await readMetadata(originalfile,tempfile);
+    var filemeta = 'data:'+metadata.mime+';base64,';
+    
+    //Create the read and write streams
+    var readStream = fs.createReadStream(tempfile);
+    var writeStream = fs.createWriteStream(originalfile);
+    
+    //Read the initvector and the cipher algorithm from the metadata
+    var initvectorb = Buffer.from(metadata.cipherIV,'hex');
+    var securitykeyb = Buffer.from(securitykey,'hex');
+    const decipher = crypto.createDecipheriv(algorithm, securitykeyb, initvectorb);
+
+    //Transform stream to add the file mime type at the beginning of the base64 content
+    var appendInitStream = new AppendInitStream(filemeta);
+
+    //Return promise for the async function
+    return new Promise((accept,reject) =>{ 
+
+      // 1) Pipe the hex encoded file to the cipher 
+      // 2) Pipe the decrypted content to transfer stream to add the base64 mime conent
+      // 3) Pass the transformed stream to the write stream (base64 header + content)
+      readStream.pipe(decipher).pipe(appendInitStream).pipe(writeStream);
+      readStream.on('close',()=>{
+        writeStream.on('close',()=>{
+
+          //Delete the temporary file
+          fs.unlink(tempfile, function (err) {
+          if (err) throw err;
+          console.log(new Date().toUTCString()+': File at' +tempfile+'deleted!');
+          accept();
+          });
+        });
+      });
+    });
+ 
+}
+
+//Async function to read metadata from the envrypted file
+async function readMetadata(originalfile,tempfile) {
+  var metadatalength;
+  var metadata;
+
+  //Read the first 8 byte of the file to get the lenght of the metadata
+  var readStream = fs.createReadStream(originalfile,{end:7});
+  readStream.on("data", (chunk)=>{
+      
+    metadatalength = parseInt(chunk.toString())+8;
+      //console.log(metadatalength); 
+  });
+
+  return new Promise((accept,reject) =>{
+    readStream.on("close",()=>{
+
+      //Read the metadata off the file
+      var readStream2 = fs.createReadStream(originalfile,{start:8, end:metadatalength-1});
+      
+      readStream2.on("data", (chunk)=>{
+        metadata = JSON.parse(chunk);
+  
+        readStream2.on("close",()=>{
+
+            //Read the remaining encrypted file content and write it to a new file in a hex encoding
+            //This converts the utf-8 content back to hex, to pass to the cipher function
+            var readStream = fs.createReadStream(originalfile,{start:metadatalength,encoding:'utf-8'});
+            var writeStream = fs.createWriteStream(tempfile,{encoding:'hex'});
+                       
+            readStream.pipe(writeStream);
+            readStream.on('close',()=>{
+              writeStream.on('close',()=>{
+
+                //Delete the original file which later will be used to write the actual base64 decrypted content
+                fs.unlink(originalfile, function (err) {
+                if (err) throw err;
+                console.log(new Date().toUTCString()+': File at' +originalfile+'deleted!');
+                accept(metadata);
+                });
+              
+               
+              });
+            });
+
+        });
+
+      });
+    
+    });
+  });
+
+  
+}
+
+  //Function to return a numeric with 8 digit format 
+  //First 8 byte of the encrypted file metadata contains the length of the metadata
+  function padLeadingZeros(num) {
+    var s = num+"";
+    while (s.length < 8) s = "0" + s;
+    return s;
+}
 
 
 app.listen(port, () => console.log("Application started"))
