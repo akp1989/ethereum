@@ -11,7 +11,7 @@ const AppendInitStream = require ('./appendInitStream');
 
 const algorithm = "aes-256-cbc";
 
-const tempPath = 'tmp/';
+const tempPath = '/tmp';
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
