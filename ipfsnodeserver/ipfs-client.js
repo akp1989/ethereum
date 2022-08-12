@@ -127,7 +127,7 @@ app.post('/uploadMultipart', upload.single('fileName'), async function (req, res
 
     //Read the actual file with encoding:base64
     // Write stream encoding : utf-8 (default)
-    var readStream = fs.createReadStream(filepath,{encoding:'base64url'});
+    var readStream = fs.createReadStream(filepath,{encoding:'base64'});
     var writeStream = fs.createWriteStream(b64filepath);
 
     return new Promise((accept,reject) =>{
@@ -147,7 +147,7 @@ app.post('/uploadMultipart', upload.single('fileName'), async function (req, res
 
 //Handler to download the file from IPFS for a given CID
   app.post('/download', async (req,res) =>{
-    const cid = req.body.cid; 
+    const cid = req.body.CID; 
     const secretKey = req.body.secretKey;
 
     //async function to get the document
@@ -179,15 +179,12 @@ async function getDocument(cid,secretKey){
     var writeStream =  fs.createWriteStream(b64decpath);
     
     //Read the file content from IPFS
-    var stringBuffer='';
     for await(const chunkData of IPFS.cat(cid))
     {   
-        stringBuffer += chunkData;
+        writeStream.write(chunkData,((error) => {
+          console.log(error);
+        }))
     }
-
-    //Pass the string buffer from IPFS.cat to a read stream and write it to a file
-    const readStream = Readable.from(stringBuffer);
-    readStream.pipe(writeStream);
 
     //Async method to strip metdata from the file and decrypt it back to base64 format
     await convertDecryptFile(b64decpath,filepath,secretKey);

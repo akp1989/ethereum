@@ -24,8 +24,11 @@ export const uploadDocument = async (authorName, fileInput, addParams)=>{
     return uploadResponse.data;    
 }
 
+//temporary change
+// export const downloadDocument = async(CID,securitykey) =>{
+//     var fileName = CID;
 export const downloadDocument = async(fileName,CID,securitykey) =>{
-    let downloadResponse = await axiosCall(downloadURL,{cid:CID,secretKey:securitykey});
+    let downloadResponse = await axiosCall(downloadURL,{CID:CID,secretKey:securitykey});
     await base64ToFile(fileName,downloadResponse);
 }
 
@@ -34,9 +37,14 @@ const axiosCall = async(url,request) => {
    return responseData.data;
 };
 
-const base64ToFile = async(fileName,dataURL) =>{
-    var arr = dataURL.split(','),mime = arr[0].match(/:(.*?);/)[1],
-    bstr = window.atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+const base64ToFile = async(fileName,responseData) =>{
+    
+    var arr = responseData.toString().split(',');
+    var mime = arr[0].match(/:(.*?);/)[1];
+    var bstr = window.atob(arr[1]);
+    var n = bstr.length;
+    var u8arr = new Uint8Array(n);
+
     while(n--){
       u8arr[n] = bstr.charCodeAt(n);
     } 
