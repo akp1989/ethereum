@@ -80,7 +80,7 @@ app.post('/uploadMultipart', upload.single('fileName'), async function (req, res
    
     //Remove the actual file received from user
     fs.unlink(filepath, function (err) {
-      if (err) throw err;
+      if (err) console.log(err);
       console.log(new Date().toUTCString()+': File at' +filepath+'deleted!');
     });
 
@@ -99,7 +99,7 @@ app.post('/uploadMultipart', upload.single('fileName'), async function (req, res
 
     //Remove the encrypted file from the server
     fs.unlink(b64encpath, function (err) {
-      if (err) throw err;
+      if (err) console.log(err);
       console.log(new Date().toUTCString()+': File at' +b64encpath+'deleted!');
     });
     
@@ -182,7 +182,7 @@ async function getDocument(cid,secretKey){
     for await(const chunkData of IPFS.cat(cid))
     {   
         writeStream.write(chunkData,((error) => {
-          console.log(error);
+          if(error) throw error;
         }))
     }
 
@@ -223,9 +223,9 @@ async function getDocument(cid,secretKey){
 
           //Delete the temporary file
           fs.unlink(tempfile, function (err) {
-          if (err) throw err;
-          console.log(new Date().toUTCString()+': File at' +tempfile+'deleted!');
-          accept();
+            if (err) console.log(err);
+            console.log(new Date().toUTCString()+': File at' +tempfile+'deleted!');
+            accept();
           });
         });
       });
@@ -268,9 +268,9 @@ async function readMetadata(originalfile,tempfile) {
 
                 //Delete the original file which later will be used to write the actual base64 decrypted content
                 fs.unlink(originalfile, function (err) {
-                if (err) throw err;
-                console.log(new Date().toUTCString()+': File at' +originalfile+'deleted!');
-                accept(metadata);
+                  if (err) console.log(err);
+                  console.log(new Date().toUTCString()+': File at' +originalfile+'deleted!');
+                  accept(metadata);
                 });
               
                
