@@ -14,6 +14,8 @@ contract Document{
     string ipfsLink;
     //Checksum
     string checkSum;
+    //DocumentSecretKey
+    string documentSecret;
     //Mapping of reviewers and their ranking
     mapping(address=>int8) public reviewerRanking;
 
@@ -23,7 +25,7 @@ contract Document{
 
 
     //Create the master document entry
-    function _createDocument(string memory _documentId ,string memory _authorName, string memory  _timeStamp, string memory  _ipfsLink, string memory  _checksum, address[] memory _reviewers, address _logicContractAddress) external
+    function _createDocument(string memory _documentId ,string memory _authorName, string memory  _timeStamp, string memory  _ipfsLink, string memory  _checksum, string memory _documentSecret, address[] memory _reviewers, address _logicContractAddress) external
     {       
         logicContract = LogicContract(_logicContractAddress);
         for(uint8 rCount=0;rCount< _reviewers.length; rCount++){
@@ -34,7 +36,7 @@ contract Document{
         timeStamp = _timeStamp;
         ipfsLink = _ipfsLink;
         checkSum = _checksum;
-
+        documentSecret = _documentSecret;
         //Assign all the reviewers for the given contract Address
         for(uint8 rCount=0;rCount< _reviewers.length; rCount++){
             reviewerRanking[_reviewers[rCount]] = -1;
@@ -42,8 +44,8 @@ contract Document{
 
     }
 
-    function _readDocument() public view returns(string memory _documentId ,string memory _authorName, string memory  _timeStamp, string memory  _ipfsLink, string memory  _checksum){
-        return (documentId,authorName,timeStamp,ipfsLink,checkSum);
+    function _readDocument() public view returns(string memory _documentId ,string memory _authorName, string memory  _timeStamp, string memory  _ipfsLink, string memory  _checksum, string memory _documentSecret){
+        return (documentId,authorName,timeStamp,ipfsLink,checkSum,documentSecret);
     }
 
     function addReview(address _reviewer, int8 _ranking) external{       

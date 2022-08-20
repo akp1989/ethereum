@@ -7,6 +7,7 @@ import { HeadingProp } from "./../component/HeadingProp";
 import DocumentCreation from './documentCreation';
 import DocumentRead from './documentRead';
 import DocumentSearch from './documentSearch';
+import KeyGeneration from './generateSecurityKey';
 import { checkWallet} from './../component/web3walletcheck';
 
 
@@ -49,11 +50,14 @@ const Home: NextPage = () =>{
                   <Tab label="Document Read"/>
                   
                   <Tab label="Document Search"/>
+
+                  <Tab label="Key Gen"/>
     
-                </Tabs>
-                {selectedTab ===0 && <DocumentCreation/>}
-                {selectedTab ===1 && <DocumentRead/>}
-                {selectedTab ===2 && <DocumentSearch/>}
+            </Tabs>
+            {selectedTab ===0 && <DocumentCreation/>}
+            {selectedTab ===1 && <DocumentRead/>}
+            {selectedTab ===2 && <DocumentSearch/>}
+            {selectedTab ===3 && <KeyGeneration/>}
  
             </Box>    
      

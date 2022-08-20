@@ -19,6 +19,8 @@ const readMDC = async function(documentId){
 
 
 const searchByAuthor = async function(authorName){
+    var fromBlockNumber = await web3.eth.getBlockNumber()-990;
+    console.log(fromBlockNumber);
     let eventDetails = await mdcContract.getPastEvents('CreateDocument', {
     //    filter: {_authorName: Web3.utils.sha3(authorName) },
         topics : [,,,Web3.utils.sha3(authorName)],
@@ -57,9 +59,6 @@ const searchByAuthor = async function(authorName){
   }
 
 //test();
-//createMDC('document1',"Prabhakaran",'12:00:00','IPFS1','Checksum1', ["0x8FaF48F45082248D80aad06e76d942f8586E6Dcd","0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2"]);
-//createMDC('document2',"Prabhakaran",'12:02:00','IPFS2','Checksum2', ["0x8FaF48F45082248D80aad06e76d942f8586E6Dcd","0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2"]);
-//createMDC('documentx3',"Mrinmoyee",'18:02:00','IPFSx3','Checksumx3', ["0x8FaF48F45082248D80aad06e76d942f8586E6Dcd","0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2"]);
 
 //readMDC('document1')
 //readMDC('document2') 

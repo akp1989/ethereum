@@ -46,13 +46,13 @@ contract MasterDocument is Ownable{
     }
 
     //Create the master document entry
-    function createDocument(string memory _documentId,string memory _authorName, string memory  _timeStamp, string memory  _ipfsLink, string memory  _checksum, address[] memory _reviewers) public
+    function createDocument(string memory _documentId,string memory _authorName, string memory  _timeStamp, string memory  _ipfsLink, string memory  _checksum, string memory _documentSecret, address[] memory _reviewers) public
     {       
         Document document = new Document();
         //documentMap.push(document);
         documentAddressMap[_documentId] = address(document);
         documentOwnershipMap[_authorName].push(_documentId);
-        document._createDocument(_documentId, _authorName,  _timeStamp, _ipfsLink,  _checksum, _reviewers,address(logicContract));
+        document._createDocument(_documentId, _authorName,  _timeStamp, _ipfsLink,  _checksum, _documentSecret,_reviewers,address(logicContract));
         //emit CreateDocument(address(document), _authorName,_authorName);  
         emit CreateDocument(bytes32(bytes(_documentId)),bytes32(bytes(_authorName)),_checksum);       
     }
@@ -62,12 +62,12 @@ contract MasterDocument is Ownable{
     //      return readDocument(address(documentMap[_index]));
     // }
 
-    function readDocumentByID(string memory _documentIdInput) external view returns(string memory _documentId ,string memory _authorName, string memory  _timeStamp, string memory  _ipfsLink, string memory  _checksum)
+    function readDocumentByID(string memory _documentIdInput) external view returns(string memory _documentId ,string memory _authorName, string memory  _timeStamp, string memory  _ipfsLink, string memory  _checksum, string memory _documentSecret)
     {
          return readDocument(documentAddressMap[_documentIdInput]);
     }
 
-    function readDocument(address _documentAddress) internal view returns(string memory _documentId ,string memory _authorName, string memory  _timeStamp, string memory  _ipfsLink, string memory  _checksum)
+    function readDocument(address _documentAddress) internal view returns(string memory _documentId ,string memory _authorName, string memory  _timeStamp, string memory  _ipfsLink, string memory  _checksum, string memory _documentSecret)
     {
          Document document = Document(_documentAddress);
          return document._readDocument();

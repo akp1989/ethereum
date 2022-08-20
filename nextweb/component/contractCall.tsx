@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 
 //ABI and address for Master document Contract
 const masterdoccontractABI = require('./contractABI/masterdoccontractABI.json')
-const masterdoccontractAddress = '0xd07354101b2ef33B83378365Fbb9c6bc114A640D';
+const masterdoccontractAddress = '0xa3cD937a5825e27FD7e88E32dCAf1A2e047d86f7';
 
 var web3;
 var web3Signer;
@@ -46,7 +46,8 @@ export const createDocumentContract = async(documentPageModel) =>{
 
         var transactionResult = await masterDocContractEthers.connect(ethersSigner).createDocument(documentPageModel.documentId,documentPageModel.authorName,
                                                                                                     documentPageModel.timeStamp, documentPageModel.ipfsLink,
-                                                                                                    documentPageModel.checkSum, documentPageModel.reviewers.split(','));
+                                                                                                    documentPageModel.checkSum, documentPageModel.secretKey,
+                                                                                                    documentPageModel.reviewers.split(','));
         
         return (JSON.stringify(transactionResult));
     }
@@ -65,12 +66,15 @@ export const readDocumentContract = async(documentId) => {
 export const searchDocument = async (searchKey, searchKeyOption) => {
     await initMasterDocContract(); 
     var searchResponse=[];
+
+    //Polygon only allows searching of last 1000 blocks
+    var fromBlock = await web3.eth.getBlockNumber()-990;
     
     if(searchKeyOption=="ownerLog"){
         // Web3 method
         let eventDetails = await masterDocContractWeb3.getPastEvents('CreateDocument', {
             filter: {_authorName: Web3.utils.asciiToHex(searchKey) },
-            fromBlock: 0,
+            fromBlock: fromBlock,
             toBlock: 'latest'
         })
         eventDetails.forEach((eventDetail)=>{
@@ -97,7 +101,7 @@ export const searchDocument = async (searchKey, searchKeyOption) => {
         //let eventDetails = await masterDocContractWeb3.getPastEvents('allEvents',{
         let eventDetails = await masterDocContractWeb3.getPastEvents('CreateDocument', {
             topics : [,,,Web3.utils.sha3(searchKey)],
-            fromBlock: 0,
+            fromBlock: fromBlock,
             toBlock: 'latest'
         })
         eventDetails.forEach((eventDetail)=>{

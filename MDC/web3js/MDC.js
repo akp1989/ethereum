@@ -17,15 +17,16 @@ const test = async function(){
     console.log(signer.getAddress());
     console.log(await mdcContract.deployed());
 }
-const createMDC = async function (documentId, authorName, timeStamp, ipfsLink, checksum, reviewers) {
-    const result = await mdcContract.connect(signer).createDocument(documentId,authorName,timeStamp,ipfsLink,checksum,reviewers);
+const createMDC = async function (documentId, authorName, timeStamp, ipfsLink, checksum, secretKey, reviewers) {
+    const result = await mdcContract.connect(signer).createDocument(documentId,authorName,timeStamp,ipfsLink,checksum,secretKey,reviewers);
     console.log(result);
  
 };
 
 const readMDC = async function(documentId){
     var result = await mdcContract.readDocumentByID(documentId);
-    console.log(Ethers.utils.parseBytes32String(result));
+    //console.log(Ethers.utils.parseBytes32String(result));
+    console.log(result);
 }
 
 const addReviewer = async function(reviwer){
@@ -65,9 +66,9 @@ const searchByRank = async function(reviewRank){
     });
 }
 //test();
-//createMDC('document1',"Prabhakaran",'12:00:00','IPFS1','Checksum1', ["0x8FaF48F45082248D80aad06e76d942f8586E6Dcd","0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2"]);
-//createMDC('document2',"Prabhakaran",'12:02:00','IPFS2','Checksum2', ["0x8FaF48F45082248D80aad06e76d942f8586E6Dcd","0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2"]);
-//createMDC('documentx3',"Mrinmoyee",'18:02:00','IPFSx3','Checksumx3', ["0x8FaF48F45082248D80aad06e76d942f8586E6Dcd","0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2"]);
+//createMDC('document1',"Prabhakaran",'12:00:00','IPFS1','Checksum1','secretkey1', ["0x8FaF48F45082248D80aad06e76d942f8586E6Dcd","0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2"]);
+//createMDC('document2',"Prabhakaran",'12:02:00','IPFS2','Checksum2', 'secretkey2', ["0x8FaF48F45082248D80aad06e76d942f8586E6Dcd","0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2"]);
+//createMDC('documentx3',"Mrinmoyee",'18:02:00','IPFSx3','Checksumx3', 'secretkey3', ["0x8FaF48F45082248D80aad06e76d942f8586E6Dcd","0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2"]);
 
 //readMDC('document1')
 //readMDC('document2') 

@@ -2,6 +2,85 @@
 	{
 		"inputs": [
 			{
+				"internalType": "string",
+				"name": "_documentID",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "_reviewer",
+				"type": "address"
+			},
+			{
+				"internalType": "int8",
+				"name": "_reviewRanking",
+				"type": "int8"
+			}
+		],
+		"name": "addReview",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_reviewer",
+				"type": "address"
+			}
+		],
+		"name": "addReviewer",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_documentId",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_authorName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_timeStamp",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_ipfsLink",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_checksum",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_documentSecret",
+				"type": "string"
+			},
+			{
+				"internalType": "address[]",
+				"name": "_reviewers",
+				"type": "address[]"
+			}
+		],
+		"name": "createDocument",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "address",
 				"name": "_logicContractAddress",
 				"type": "address"
@@ -80,6 +159,26 @@
 		"type": "event"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_reviewer",
+				"type": "address"
+			}
+		],
+		"name": "removeReviewer",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -108,73 +207,12 @@
 	{
 		"inputs": [
 			{
-				"internalType": "string",
-				"name": "_documentID",
-				"type": "string"
-			},
-			{
 				"internalType": "address",
-				"name": "_reviewer",
-				"type": "address"
-			},
-			{
-				"internalType": "int8",
-				"name": "_reviewRanking",
-				"type": "int8"
-			}
-		],
-		"name": "addReview",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_reviewer",
+				"name": "newOwner",
 				"type": "address"
 			}
 		],
-		"name": "addReviewer",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_documentId",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_authorName",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_timeStamp",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_ipfsLink",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_checksum",
-				"type": "string"
-			},
-			{
-				"internalType": "address[]",
-				"name": "_reviewers",
-				"type": "address[]"
-			}
-		],
-		"name": "createDocument",
+		"name": "transferOwnership",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -301,6 +339,11 @@
 				"internalType": "string",
 				"name": "_checksum",
 				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_documentSecret",
+				"type": "string"
 			}
 		],
 		"stateMutability": "view",
@@ -328,39 +371,6 @@
 			}
 		],
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_reviewer",
-				"type": "address"
-			}
-		],
-		"name": "removeReviewer",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "renounceOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
 		"type": "function"
 	}
 ]

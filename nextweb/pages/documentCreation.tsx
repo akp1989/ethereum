@@ -6,7 +6,7 @@ import { Box,Grid,Container,Stack, Button,Input } from '@mui/material'
 import { TextField } from '../node_modules/@mui/material/index'
 import { uploadDocument} from './../component/ipfs'
 import { createDocumentContract } from './../component/contractCall'
-
+import { encryptDocumentKey } from '../component/keyGen'
 
 const documentCreationPageModel = {
   documentId: '',
@@ -15,6 +15,7 @@ const documentCreationPageModel = {
   ipfsLink:'',
   checkSum:'',
   reviewers:'',
+  secretKey: '',
   uploadfile:null,
   transactionResponse:null,
 
@@ -51,7 +52,9 @@ const Home: NextPage = () => {
   }
 
   const uploadToIPFS = async() =>{
+    var masterSecret = formData.secretKey;
     var uploadResponse =  await uploadDocument(formData.authorName, formData.uploadfile, formData.addParams);
+    var documentSecret = await encryptDocumentKey(uploadResponse.secretKey,masterSecret);
     let documentId = uploadResponse.CID.substring(0,4) + uploadResponse.CID.substring(uploadResponse.CID.length-4)
                       + new Date().getFullYear()
                       + new Date().toLocaleString("en-US", { month: "2-digit" }) 
@@ -61,7 +64,8 @@ const Home: NextPage = () => {
       documentId: documentId,
       checkSum: uploadResponse.CID,
       ipfsLink : 'https://ipfs.io/ipfs/'+uploadResponse.CID,
-      addParams: uploadResponse
+      addParams: uploadResponse,
+      secretKey: documentSecret
     }
     setFormData(formData);
   }
@@ -159,6 +163,17 @@ const Home: NextPage = () => {
                       multiline
                       rows={5} 
                       helperText='Enter as 0x...,0x...'
+                      >                  
+                </TextField> 
+                <br></br> 
+
+                <TextField
+                      type='password'
+                      label='MasterSecret'
+                      name='secretKey'
+                      value= {formData.secretKey}
+                      onChange={handleChange}
+                      variant = 'outlined'
                       >                  
                 </TextField> 
                 <br></br> 

@@ -4,11 +4,11 @@ import { TextField,Box,Container,Button,Stack } from '@mui/material'
 import { useState} from 'react'
 import { readDocumentContract } from './../component/contractCall'
 import { downloadDocument } from './../component/ipfs'
-
+import { decryptDocumentKey } from '../component/keyGen'
 
 const documentReadPageModel = {
   documentId: '', 
-  securitykey: '',
+  secretKey: '',
   transactionResponse:null,
 }
 
@@ -30,7 +30,8 @@ const Home: NextPage = () => {
       transactionResponse: transactionResponse
     }
     setFormData(formData);
-    downloadDocument(formData.documentId,transactionResponse._checksum,formData.securitykey);
+    var documentKey = await decryptDocumentKey(transactionResponse._documentSecret,formData.secretKey);
+    downloadDocument(formData.documentId,transactionResponse._checksum,documentKey);
   }
 
   return (
@@ -54,10 +55,10 @@ const Home: NextPage = () => {
               </TextField>
                 <br></br>
               <TextField
-                          type='text'
-                          label='SecurityKey'
-                          name='securitykey'
-                          value= {formData.securitykey}
+                          type='password'
+                          label='MasterSecret'
+                          name='secretKey'
+                          value= {formData.secretKey}
                           onChange={handleChange}
                           variant = 'outlined' 
                           >                  
