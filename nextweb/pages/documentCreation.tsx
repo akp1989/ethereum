@@ -8,10 +8,16 @@ import { uploadDocument} from './../component/ipfs'
 import { createDocumentContract } from './../component/contractCall'
 import { encryptDocumentKey } from '../component/keyGen'
 
+
+const dateForDisplay =  new Date().getFullYear()
+                        + new Date().toLocaleString("en-US", { month: "2-digit" }) 
+                        + new Date().toLocaleString("en-US", { day : '2-digit'})
+                        +'T' + new Date().toLocaleTimeString();
+
 const documentCreationPageModel = {
   documentId: '',
   authorName:'',
-  timeStamp:'',
+  timeStamp:dateForDisplay,
   ipfsLink:'',
   checkSum:'',
   reviewers:'',
@@ -27,11 +33,6 @@ const documentCreationPageModel = {
 const Home: NextPage = () => { 
   
   let [formData, setFormData] = useState(documentCreationPageModel);
-
-  const dateForDisplay =  new Date().getFullYear()
-                         + new Date().toLocaleString("en-US", { month: "2-digit" }) 
-                         + new Date().toLocaleString("en-US", { day : '2-digit'})
-                         +'T' + new Date().toLocaleTimeString();
 
   const handleChange = (event) =>{
     formData = {
