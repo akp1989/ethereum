@@ -5,5 +5,6 @@
 # Ignore node_modules folder
 **/node_modules
 **/artifacts
+**/build
 
 *package-lock.json 
