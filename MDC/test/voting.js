@@ -22,16 +22,16 @@ const deploymentConfig = {
     'GRACE_DURATON_IN_PERIODS': 2,
     'ABORT_WINDOW_IN_PERIODS': 1,
     'PROPOSAL_DEPOSIT': 100, 
+    'TOKEN_TRIBUTE' : 10,
     'PROCESSING_REWARD': 1,
   }
   
   async function advanceTime (seconds) {
-    const timeNow = await time.latest();
-    await timeNow.increase(time.duration.seconds(seconds));
+    await time.increase(time.duration.seconds(seconds));
   }
   
   async function advanceTimeInPeriods (periods) {
-    await advanceTime(periods * PERIOD_DURATION_IN_SECONDS)
+    await advanceTime(periods * deploymentConfig.PERIOD_DURATION_IN_SECONDS)
   }
 
  
@@ -46,7 +46,9 @@ const deploymentConfig = {
 
     var snapshotimage;
 
-
+    /****************************************************************************
+     * Verfication functions - Start
+     ****************************************************************************/
     const verifySubmitProposal = async (
       proposal,
       proposalIndex,
@@ -92,7 +94,6 @@ const deploymentConfig = {
       assert.equal(proposalData.processed, false)
       assert.equal(proposalData.didPass, false)
       assert.equal(proposalData.aborted, false)
-      assert.equal(proposalData.tokenTribute, proposal.tokenTribute)
       assert.equal(proposalData.details, proposal.details)
       assert.equal(proposalData.maxTotalSharesAtYesVote, 0)
   
@@ -120,13 +121,13 @@ const deploymentConfig = {
       const votingBalance = await token.balanceOf(treasury.address)
       assert.equal(
         votingBalance,
-        initialVotingBalance + proposal.tokenTribute + deploymentConfig.PROPOSAL_DEPOSIT
+        initialVotingBalance + (deploymentConfig.TOKEN_TRIBUTE * proposal.sharesRequested) + deploymentConfig.PROPOSAL_DEPOSIT
       )
   
       const applicantBalance = await token.balanceOf(proposal.applicant)
       assert.equal(
         applicantBalance,
-        initialApplicantBalance - proposal.tokenTribute
+        initialApplicantBalance - (deploymentConfig.TOKEN_TRIBUTE * proposal.sharesRequested)
       )
   
       const proposerBalance = await token.balanceOf(proposer)
@@ -135,9 +136,35 @@ const deploymentConfig = {
         initialProposerBalance - deploymentConfig.PROPOSAL_DEPOSIT
       )
     }
-  
+    
+    // VERIFY SUBMIT VOTE
+    const verifySubmitVote = async (
+      proposal,
+      proposalIndex,
+      memberAddress,
+      expectedVote,
+      options
+    ) => {
+
+      const MemberVote = await voting.getMemberProposalVote.call(summoner, proposalIndex)
+    
+      assert.equal(MemberVote[0], 1)    //Value of single vote
+      assert.equal(MemberVote[1], 0)    //Value of quadratic vote
+      assert.equal(MemberVote[2], proposal1.applicant)    //Address of voted candidate
+    }
+    /****************************************************************************
+     * Verfication functions - End
+     ****************************************************************************/
 
     
+
+
+
+
+
+    /****************************************************************************
+     * Before initialization
+     ****************************************************************************/
     before('Deploy contracts', async () => {
       token = await Token.new(TOKEN_SUPPLY)
       voting = await Voting.new(
@@ -147,6 +174,7 @@ const deploymentConfig = {
                                 deploymentConfig.GRACE_DURATON_IN_PERIODS,
                                 deploymentConfig.ABORT_WINDOW_IN_PERIODS,
                                 deploymentConfig.PROPOSAL_DEPOSIT, 
+                                deploymentConfig.TOKEN_TRIBUTE,
                                 deploymentConfig.PROCESSING_REWARD,
                                 false,
                                 token.address,)
@@ -155,22 +183,24 @@ const deploymentConfig = {
       treasury = await TreasuryAccount.at(treasuryAddress)
 
     })  
-    
+
+    /****************************************************************************
+     * Before Each and After Each initialization
+     ****************************************************************************/
     beforeEach(async() =>{
       snapshotimage = await snapshot()
 
       proposal1 = {
         objectiveProposal : true,
         applicant: applicant1,
-        tokenTribute: 10,
         sharesRequested: 1,
         details: 'Sample Proposal for testing',
       }
 
       proposal2 = {
         objectiveProposal : false,
-        applicant: [applicant1,applicant2],
-        tokenTribute: 10,
+        applicant1: applicant1,
+        applicant2: applicant2,
         sharesRequested: 1,
         details: 'Sample Proposal for testing',
       }
@@ -181,10 +211,12 @@ const deploymentConfig = {
       await snapshotimage.restore()
     })
 
+
+    /****************************************************************************
+     * Verify deployment parameters
+     ****************************************************************************/
     it('verify deployment parameters', async () => {
-      // eslint-disable-next-line no-unused-vars
-      //const now = await blockTime()
-      
+     
       const daoTokenAddress = await voting.daoToken()
       assert.equal(daoTokenAddress, token.address)
 
@@ -211,6 +243,9 @@ const deploymentConfig = {
 
       const proposalDeposit = await voting.proposalDeposit()
       assert.equal(+proposalDeposit, deploymentConfig.PROPOSAL_DEPOSIT)
+
+      const tokenTribute = await voting.tokenTribute()
+      assert.equal(+tokenTribute, deploymentConfig.TOKEN_TRIBUTE)
 
       const processingReward = await voting.processingReward()
       assert.equal(+processingReward, deploymentConfig.PROCESSING_REWARD)
@@ -243,18 +278,22 @@ const deploymentConfig = {
 
     })
 
+
+
+    /****************************************************************************
+    * Submit proposal
+    ****************************************************************************/
     describe('Submit Proposal',() =>{
 
       beforeEach(async()=>{
-        await token.transfer(proposal1.applicant, proposal1.tokenTribute, {from: deployer})
+        await token.transfer(proposal1.applicant, new BN(proposal1.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)), {from: deployer})
         await token.approve(voting.address, deploymentConfig.PROPOSAL_DEPOSIT, { from: summoner })
-        await token.approve(voting.address, proposal1.tokenTribute, {from: proposal1.applicant})
+        await token.approve(voting.address, new BN(proposal1.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)), {from: proposal1.applicant})
       })
 
       it('Submit proposal- objective',async() =>{
         await voting.submitProposal(proposal1.objectiveProposal,
                                     [proposal1.applicant],
-                                    proposal1.tokenTribute,
                                     proposal1.sharesRequested,
                                     proposal1.details,
                                     {from:summoner}
@@ -262,12 +301,49 @@ const deploymentConfig = {
 
         await verifySubmitProposal(proposal1, 0, summoner, {
           initialTotalShares: 1,
-          initialApplicantBalance: proposal1.tokenTribute,
+          initialApplicantBalance: new BN(proposal1.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)),
           initialProposerBalance: initSummonerBalance
         })
       })
     
     })
 
-  })
+    /****************************************************************************
+    * Submit vote
+    ****************************************************************************/
+    describe('Submit vote - objective', () => {
+      beforeEach(async () => {
+        await token.transfer(proposal1.applicant, new BN(proposal1.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)), {from: deployer})
+        await token.approve(voting.address, deploymentConfig.PROPOSAL_DEPOSIT, { from: summoner })
+        await token.approve(voting.address, new BN(proposal1.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)), {from: proposal1.applicant})
+  
+        await voting.submitProposal(proposal1.objectiveProposal,
+                                    [proposal1.applicant],
+                                    proposal1.sharesRequested,
+                                    proposal1.details,
+                                    { from: summoner }
+                                    )
+
+        await voting.submitProposal(proposal2.objectiveProposal,
+                                    new address()[proposal2.applicant1,proposal2.applicant2],
+                                    proposal2.sharesRequested,
+                                    proposal2.details,
+                                    { from: summoner }
+                                    )
+      })
+      
+      it('Happy case - submit normal vote', async () => {
+        await advanceTimeInPeriods(1)
+        
+        await voting.submitVote(0, proposal1.applicant, 1, { from: summoner })
+  
+        await verifySubmitVote(proposal1, 0, summoner, 1, {expectedMaxSharesAtYesVote: 0})
+
+      })
+  
+  
+        
+    })
+
+})
  

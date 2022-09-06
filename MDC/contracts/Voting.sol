@@ -17,6 +17,7 @@ contract Voting {
     uint256 public gracePeriodLength; // default = 35 periods (7 days)
     uint256 public abortWindow; // default = 5 periods (1 day)
     uint256 public proposalDeposit; // default = 10 ETH (~$1,000 worth of ETH at contract deployment)
+    uint256 public tokenTribute; //defauly = 1 Eth
     uint256 public processingReward; // default = 0.1 - amount of ETH to give to whoever processes a proposal
     uint256 public summoningTime; // needed to determine the current period
     bool public quadraticMode; // if it will computed quadratic votes over traditional ones
@@ -110,24 +111,25 @@ contract Voting {
         uint256 _gracePeriodLength,
         uint256 _abortWindow,
         uint256 _proposalDeposit,
-
+        uint256 _tokenTribute,
         uint256 _processingReward,
         bool _quadraticMode,
         address _daoTokenAddress
         )  
     {
-        require(summoner != address(0), "Moloch::constructor - summoner cannot be 0");
-        require(_periodDuration > 0, "Moloch::constructor - _periodDuration cannot be 0");
+        require(summoner != address(0), "Voting::constructor - summoner cannot be 0");
+        require(_periodDuration > 0, "Voting::constructor - _periodDuration cannot be 0");
         
-        require(_votingPeriodLength > 0, "Moloch::constructor - _votingPeriodLength cannot be 0");
-        require(_votingPeriodLength <= MAX_VOTING_PERIOD_LENGTH, "Moloch::constructor - _votingPeriodLength exceeds limit");
-        require(_gracePeriodLength <= MAX_GRACE_PERIOD_LENGTH, "Moloch::constructor - _gracePeriodLength exceeds limit");
+        require(_votingPeriodLength > 0, "Voting::constructor - _votingPeriodLength cannot be 0");
+        require(_votingPeriodLength <= MAX_VOTING_PERIOD_LENGTH, "Voting::constructor - _votingPeriodLength exceeds limit");
+        require(_gracePeriodLength <= MAX_GRACE_PERIOD_LENGTH, "Voting::constructor - _gracePeriodLength exceeds limit");
         
-        require(_abortWindow > 0, "Moloch::constructor - _abortWindow cannot be 0");
-        require(_abortWindow <= _votingPeriodLength, "Moloch::constructor - _abortWindow must be smaller than or equal to _votingPeriodLength");
+        require(_abortWindow > 0, "Voting::constructor - _abortWindow cannot be 0");
+        require(_abortWindow <= _votingPeriodLength, "Voting::constructor - _abortWindow must be smaller than or equal to _votingPeriodLength");
         
-        require(_proposalDeposit >= _processingReward, "Moloch::constructor - _proposalDeposit cannot be smaller than _processingReward");
+        require(_proposalDeposit >= _processingReward, "Voting::constructor - _proposalDeposit cannot be smaller than _processingReward");
 
+        require(_tokenTribute >= 0, "Voting::constructor - Token tribute cannot be 0");
         require(_daoTokenAddress != address(0), "The dao token address cannot be zero address" );
 
         daoToken = IERC20(_daoTokenAddress);
@@ -138,6 +140,7 @@ contract Voting {
         gracePeriodLength = _gracePeriodLength;
         abortWindow = _abortWindow;
         proposalDeposit = _proposalDeposit;
+        tokenTribute = _tokenTribute;
         processingReward = _processingReward;
         quadraticMode = _quadraticMode;
         summoningTime = block.timestamp;
@@ -154,7 +157,7 @@ contract Voting {
             noone[nooneadd] = true;
         }
     }
-    function submitProposal(bool objectiveProposal ,address[] memory candidates, uint256 tokenTribute,
+    function submitProposal(bool objectiveProposal ,address[] memory candidates,
                             uint256 sharesRequested, string memory details)
         public onlyDelegate{
 
@@ -184,9 +187,9 @@ contract Voting {
         //Collect the proposal deposit and store in the treasury
         require(daoToken.transferFrom(msg.sender, address(treasuryAccount),proposalDeposit),"Voting:: submitProposal - deposit transfer failed for the proposal");
 
-        //Collect the processing fees from each candidate
+        //Collect the token tribute from each candidate
         for (uint j=0; j < candidates.length; j++) {
-            require(daoToken.transferFrom(candidates[j], address(treasuryAccount), tokenTribute), "Voting::submitProposal- processing fee transfer failed ");
+            require(daoToken.transferFrom(candidates[j], address(treasuryAccount), tokenTribute.mul(sharesRequested)), "Voting::submitProposal- processing fee transfer failed ");
         }
         
         // compute startingPeriod for proposal
@@ -413,5 +416,15 @@ contract Voting {
 
     function hasVotingPeriodExpired(uint256 startingPeriod) public view  returns (bool) {
         return getCurrentPeriod() >= startingPeriod.add(votingPeriodLength);
+    }
+
+    function getMemberProposalVote(address memberAddress, uint256 proposalIndex) public view returns (uint256[] memory, uint256[] memory, address[] memory) {
+    require(members[memberAddress].exists, "Voting::getMemberProposalVote - member doesn't exist");
+    require(proposalIndex < proposalQueue.length, "Voting::getMemberProposalVote - proposal doesn't exist");
+    
+    uint256[] memory _votes = proposalQueue[proposalIndex].votesByMember[memberAddress].votes;
+    uint256[] memory _quadorNoVotes = proposalQueue[proposalIndex].votesByMember[memberAddress].quadorNoVotes;
+    address[] memory _candidate = proposalQueue[proposalIndex].votesByMember[memberAddress].candidate;
+    return (_votes, _quadorNoVotes, _candidate);
     }
 }
