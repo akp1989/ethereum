@@ -1,5 +1,13 @@
 // SPDX-License-Identifier: Open Software License 1.0
 
+
+/**********************************************************
+/Make the following changes for testing 
+/ 1) Constructor - Change the member initialization to have 4 shares instead of 1 share 
+/ 2) sqrt() - Change the scope of the function to public pure view
+/ 3) Uncomment the function to add new members
+***********************************************************/
+
 pragma solidity >=0.4.22 <0.9.0;
 
 import "./oz/SafeMath.sol";
@@ -82,13 +90,13 @@ contract Voting {
     ********/
     //Check if the message sender is a member 
     modifier onlyMember {
-        require(members[msg.sender].shares > 0, "Moloch::onlyMember - not a member");
+        require(members[msg.sender].shares > 0, "Voting::onlyMember - not a member");
         _;
     }
 
     //Check if the message sender is delegated by a member
     modifier onlyDelegate {
-        require(members[memberAddressByDelegateKey[msg.sender]].shares > 0, "Moloch::onlyDelegate - not a delegate");
+        require(members[memberAddressByDelegateKey[msg.sender]].shares > 0, "Voting::onlyDelegate - not a delegate");
         _;
     }
 
@@ -103,7 +111,7 @@ contract Voting {
     event Abort(uint256 indexed proposalIndex, address applicantAddress);
     event UpdateDelegateKey(address indexed memberAddress, address newDelegateKey);
     event SummonComplete(address indexed summoner, uint256 shares);
-    event testEvemt(uint256 summoningTime, uint256 currentTime);
+    event testEvemt(uint256 var1, uint256 var2, uint256 var3);
     constructor(
         address summoner,
         uint256 _periodDuration,
@@ -144,19 +152,13 @@ contract Voting {
         processingReward = _processingReward;
         quadraticMode = _quadraticMode;
         summoningTime = block.timestamp;
-        members[summoner] = Member(summoner, 1, true, 0);
+        members[summoner] = Member(summoner, 4, true, 0);
         memberAddressByDelegateKey[summoner] = summoner;
         totalShares = 1;
 
         emit SummonComplete(summoner, 1);
     }
-    function submitNothing(address nooneadd)public{
-        if(noone[nooneadd]){
-            noone[nooneadd] = false;
-        }else{
-            noone[nooneadd] = true;
-        }
-    }
+
     function submitProposal(bool objectiveProposal ,address[] memory candidates,
                             uint256 sharesRequested, string memory details)
         public onlyDelegate{
@@ -185,10 +187,17 @@ contract Voting {
 
 
         //Collect the proposal deposit and store in the treasury
+       
+        require( daoToken.balanceOf(msg.sender) >= proposalDeposit,"Voting:: submitProposal - proposer does not have enough token for deposit");
+        require( daoToken.allowance(msg.sender, address(this)) >= proposalDeposit, "Voting:: submitProposal - deposit transfer not authorized by proposer");
+        
         require(daoToken.transferFrom(msg.sender, address(treasuryAccount),proposalDeposit),"Voting:: submitProposal - deposit transfer failed for the proposal");
 
         //Collect the token tribute from each candidate
         for (uint j=0; j < candidates.length; j++) {
+            require(daoToken.balanceOf(candidates[j]) >= tokenTribute.mul(sharesRequested), "Voting:: submitProposal - candidate does not have enough token for deposit");
+            require(daoToken.allowance(candidates[j], address(this)) >= tokenTribute.mul(sharesRequested), "Voting:: submitProposal - processing fee transfer not authorized by candidate");
+        
             require(daoToken.transferFrom(candidates[j], address(treasuryAccount), tokenTribute.mul(sharesRequested)), "Voting::submitProposal- processing fee transfer failed ");
         }
         
@@ -222,7 +231,7 @@ contract Voting {
 
 
 
-    function submitVote(uint256 proposalIndex, address candidate, uint256 votes) public onlyDelegate {
+    function submitVote(uint256 proposalIndex, address candidate, uint256 votes) public onlyMember    {
         
         address memberAddress = memberAddressByDelegateKey[msg.sender];
         Member storage member = members[memberAddress];
@@ -326,7 +335,7 @@ contract Voting {
 
             }else{
                 if (quadraticMode) {
-                    require(proposal.totalQuadorNoVotes[i] != largest, "QuadraticMoloch::processProposal - this proposal has no winner" );
+                    require(proposal.totalQuadorNoVotes[i] != largest, "Voting::processProposal - this proposal has no winner" );
                     if (proposal.totalQuadorNoVotes[i] > largest) {
                         largest = proposal.totalQuadorNoVotes[i];
                         elected = i;
@@ -397,7 +406,7 @@ contract Voting {
         return x >= y ? x : y;
     }
 
-    function sqrt(uint256 x) internal pure returns (uint256 y) {
+    function sqrt(uint256 x) public pure returns (uint256 y) {
         uint256 z = (x + 1) / 2;
         y = x;
         while (z < y) {
@@ -427,4 +436,11 @@ contract Voting {
     address[] memory _candidate = proposalQueue[proposalIndex].votesByMember[memberAddress].candidate;
     return (_votes, _quadorNoVotes, _candidate);
     }
+
+    function addMember(address memberAddress, uint256 shares) public onlyMember {
+         members [memberAddress] = Member(memberAddress, shares, true, 0);
+         memberAddressByDelegateKey [memberAddress] = memberAddress;
+         totalShares = totalShares + shares;
+    }
+
 }
