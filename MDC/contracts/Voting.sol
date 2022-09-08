@@ -154,7 +154,7 @@ contract Voting {
         summoningTime = block.timestamp;
         members[summoner] = Member(summoner, 4, true, 0);
         memberAddressByDelegateKey[summoner] = summoner;
-        totalShares = 1;
+        totalShares = 4;
 
         emit SummonComplete(summoner, 1);
     }
@@ -355,15 +355,22 @@ contract Voting {
             proposal.didPass = true;
             proposal.electedCandidate = electedCandidate;
 
-            if (members[memberAddressByDelegateKey[electedCandidate]].exists) {
-                address memberToOverride = memberAddressByDelegateKey[electedCandidate];
-                memberAddressByDelegateKey[memberToOverride] = memberToOverride;
-                members[memberToOverride].delegateKey = memberToOverride;
-            }
-            // use elected candidate address as delegateKey by default
-            members[electedCandidate] = Member(electedCandidate, proposal.sharesRequested, true, 0);
-            memberAddressByDelegateKey[electedCandidate] = electedCandidate;
+            // Applicant is an existing member, create a new record for them
+            if (members[electedCandidate].exists) {
+                    members[electedCandidate].shares = members[electedCandidate].shares.add(proposal.sharesRequested);
 
+            // Applicant is a new member, create a new record for them
+            }else{
+                if (members[memberAddressByDelegateKey[electedCandidate]].exists) 
+                {
+                    address memberToOverride = memberAddressByDelegateKey[electedCandidate]; // Take out the delegator(candidate -> delegator)
+                    memberAddressByDelegateKey[memberToOverride] = memberToOverride; // (candidate -> delegator) set (delegator -> delegator)
+                    members[memberToOverride].delegateKey = memberToOverride; //change memberData for delegator (delegateKey:delegateKey)
+                }
+                // use elected candidate address as delegateKey by default
+                members[electedCandidate] = Member(electedCandidate, proposal.sharesRequested, true, 0);
+                memberAddressByDelegateKey[electedCandidate] = electedCandidate; //set (candidate -> candidate)
+            }
             // mint new shares
             totalShares = totalShares.add(proposal.sharesRequested);
 
@@ -440,7 +447,7 @@ contract Voting {
     function addMember(address memberAddress, uint256 shares) public onlyMember {
          members [memberAddress] = Member(memberAddress, shares, true, 0);
          memberAddressByDelegateKey [memberAddress] = memberAddress;
-         totalShares = totalShares + shares;
+         totalShares = totalShares.add(shares);
     }
 
 }
