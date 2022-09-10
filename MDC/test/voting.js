@@ -1,6 +1,7 @@
 const chai = require('chai')
 const { assert } = chai
 const { ether, constants, expectEvent, shouldFail, time, snapshot } = require('@openzeppelin/test-helpers');
+const { advanceBlockTo } = require('@openzeppelin/test-helpers/src/time');
 
 const BN = web3.utils.BN
 const _1e18 = new BN('1000000000000000000') 
@@ -724,10 +725,35 @@ const deploymentConfig = {
         })
       })
 
+      it('Fail - Voting periond not completed', async() =>{
+        await voting.processProposal(0,{from:processor}).should.be.rejectedWith("Voting::processProposal - proposal is not ready to be processed");
+      })
+
+      it('Fail - Invalid index for proposal queue', async() =>{
+        await voting.processProposal(99,{from:processor}).should.be.rejectedWith("Voting::processProposal - proposal does not exist");
+      })
+
+      it('Fail - Already processes proposal', async () => {
+        await advanceTimeInPeriods(1)
+
+        await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner });
+
+        await advanceTimeInPeriods(deploymentConfig.VOTING_DURATON_IN_PERIODS)
+        await advanceTimeInPeriods(deploymentConfig.GRACE_DURATON_IN_PERIODS)
+        await voting.processProposal(0, { from: processor })
+        await voting.processProposal(0, { from: processor }).should.be.rejectedWith("Voting::processProposal - proposal has already been processed")
+
+      })
+
+      it('Fail - Proposal with  no votes', async() =>{
+        await advanceTimeInPeriods(1)
+        await advanceTimeInPeriods(deploymentConfig.VOTING_DURATON_IN_PERIODS)
+        await advanceTimeInPeriods(deploymentConfig.GRACE_DURATON_IN_PERIODS)
+        const proposalData = await voting.proposalQueue.call(0)
+        await voting.processProposal(0,{from:processor}).should.be.rejectedWith("Voting:processProposal - Objective proposal has no votes");
+      })
 
     })
-
-
 
 
     describe('Process proposal - Elective', () => {
@@ -773,6 +799,7 @@ const deploymentConfig = {
 
         await advanceTimeInPeriods(new BN(deploymentConfig.VOTING_DURATON_IN_PERIODS).add(new BN(1)))
         await advanceTimeInPeriods(new BN(deploymentConfig.GRACE_DURATON_IN_PERIODS).add(new BN(1)))
+        
         await voting.processProposal(0, { from: processor })
        
         await voting.processProposal(1, { from: processor })
@@ -793,9 +820,254 @@ const deploymentConfig = {
           isApplicantProposer: false,
         })
       })
+
+      it('Fail - Quadratic vote - No votes', async () => {
+
+        await advanceTimeInPeriods(2)
+        await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
+        await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
+        await voting.submitVote(0, proposal1.applicant1, 0, { from: processor })
+
+
+
+        await advanceTimeInPeriods(new BN(deploymentConfig.VOTING_DURATON_IN_PERIODS).add(new BN(1)))
+        await advanceTimeInPeriods(new BN(deploymentConfig.GRACE_DURATON_IN_PERIODS).add(new BN(1)))
+        
+        await voting.processProposal(0, { from: processor })
+       
+        await voting.processProposal(1, { from: processor }).should.be.rejectedWith( "Voting::processProposal - this proposal has no winner")
+        
+      })
+
+      it('Fail - Quadratic vote - Equal votes', async () => {
+
+        await advanceTimeInPeriods(2)
+        await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
+        await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
+        await voting.submitVote(0, proposal1.applicant1, 0, { from: processor })
+
+        await voting.submitVote(1, proposal2.applicant1, 4, { from: summoner });
+        await voting.submitVote(1, proposal2.applicant2, 1, { from: deployer });
+        await voting.submitVote(1, proposal2.applicant2, 1, { from: processor })
+
+        await advanceTimeInPeriods(new BN(deploymentConfig.VOTING_DURATON_IN_PERIODS).add(new BN(1)))
+        await advanceTimeInPeriods(new BN(deploymentConfig.GRACE_DURATON_IN_PERIODS).add(new BN(1)))
+        
+        await voting.processProposal(0, { from: processor })
+       
+        await voting.processProposal(1, { from: processor }).should.be.rejectedWith( "Voting::processProposal - this proposal has no winner")
+        
+      })
+
+      it('Fail - Skipping a proposal for processing from queue', async () => {
+        await advanceTimeInPeriods(2)
+        await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
+        await voting.submitVote(1, proposal2.applicant1, 4, { from: summoner });
+        
+        await advanceTimeInPeriods(new BN(deploymentConfig.VOTING_DURATON_IN_PERIODS).add(new BN(1)))
+        await advanceTimeInPeriods(new BN(deploymentConfig.GRACE_DURATON_IN_PERIODS).add(new BN(1)))
+        
+        await voting.processProposal(1, {from:processor}).should.be.rejectedWith("Voting::processProposal - previous proposal must be processed")
+
+      })
  
  
     })
 
+
+
+    describe('Process proposal - Testing delegeate key upgrade', () => {
+      
+      beforeEach(async () => {
+        // console.log('Summoner', summoner);
+        // console.log('Applicant1', applicant1);
+        // console.log('Applicant2', applicant2);
+        await voting.updateDelegateKey(proposal1.applicant1, {from:summoner})
+
+        assert.equal(zeroAddress,await voting.memberAddressByDelegateKey.call(summoner));
+        assert.equal(summoner,await voting.memberAddressByDelegateKey.call(applicant1));
+
+
+        await token.transfer(proposal1.applicant1, 
+          new BN (deploymentConfig.PROPOSAL_DEPOSIT)
+          .add( new BN(proposal1.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)) ), 
+          {from: deployer})
+        await token.approve(voting.address, 
+          new BN (deploymentConfig.PROPOSAL_DEPOSIT)
+          .add( new BN(proposal1.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)) ), 
+          {from: proposal1.applicant1})
+         
+        await voting.submitProposal(proposal1.objectiveProposal,
+                                    [proposal1.applicant1],
+                                    proposal1.sharesRequested,
+                                    proposal1.details,
+                                    { from: proposal1.applicant1 }
+                                    )
+
+        await voting.addMember(deployer,1,{from:summoner});
+        await voting.addMember(processor,1,{from:summoner});
+      })
+
+
+      it('Happy case - Delegate key updated successfully for proposal1 and the new member delegates the second proposal', async () => {
+
+        await advanceTimeInPeriods(1)
+        await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
+        await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
+        await voting.submitVote(0, proposal1.applicant1, 0, { from: processor })
+        await advanceTimeInPeriods(new BN(deploymentConfig.VOTING_DURATON_IN_PERIODS).add(new BN(1)))
+        await advanceTimeInPeriods(new BN(deploymentConfig.GRACE_DURATON_IN_PERIODS).add(new BN(1)))
+
+        await voting.processProposal(0, { from: processor })
+        await verifyProcessProposal(proposal1, 0, proposal1.applicant1, processor, {
+          initialTotalSharesRequested: 1,
+          initialTotalShares: 6,
+          initialApplicantShares : 0,
+          initialTreasuryBalance: 0,
+          initialApplicantBalance :  new BN (deploymentConfig.PROPOSAL_DEPOSIT)
+                                     .add( new BN(proposal1.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)) ), 
+          initialProposerBalance: new BN (deploymentConfig.PROPOSAL_DEPOSIT)
+                                  .add( new BN(proposal1.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)) ), 
+          initialProcessorBalance: 0,
+          expectedFinalTotalSharesRequested: 0,
+          expectedWinner : proposal1.applicant1,
+          didPass: true,
+          aborted: false,
+          isApplicantProposer: true,
+          
+        })
+
+        assert.equal(summoner,await voting.memberAddressByDelegateKey.call(summoner));
+        assert.equal(applicant1,await voting.memberAddressByDelegateKey.call(applicant1));
+
+        //Updating the proposal2.applicant2 to be delegated by previously elected candidate
+        await voting.updateDelegateKey(proposal2.applicant2, {from:proposal1.applicant1})
+        await token.transfer(proposal2.applicant1, new BN(proposal2.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)), {from: deployer})
+        await token.approve(voting.address, new BN(proposal2.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)), {from: proposal2.applicant1})
+        await token.transfer(proposal2.applicant2, 
+          new BN (deploymentConfig.PROPOSAL_DEPOSIT)
+          .add( new BN(proposal2.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)) ), 
+          {from: deployer})
+        await token.approve(voting.address, 
+          new BN (deploymentConfig.PROPOSAL_DEPOSIT)
+          .add( new BN(proposal2.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)) ), 
+          {from: proposal2.applicant2})        
+        
+        await voting.submitProposal(proposal2.objectiveProposal,
+                                    [proposal2.applicant1, proposal2.applicant2],
+                                    proposal2.sharesRequested,
+                                    proposal2.details,
+                                    { from: proposal2.applicant2 }
+                                    )
+        await advanceTimeInPeriods(1)
+        await voting.submitVote(1, proposal2.applicant1, 4, { from: summoner });
+        await voting.submitVote(1, proposal2.applicant1, 1, { from: deployer });
+        await voting.submitVote(1, proposal2.applicant2, 1, { from: processor })
+
+        await advanceTimeInPeriods(new BN(deploymentConfig.VOTING_DURATON_IN_PERIODS).add(new BN(1)))
+        await advanceTimeInPeriods(new BN(deploymentConfig.GRACE_DURATON_IN_PERIODS).add(new BN(1)))
+ 
+        await voting.processProposal(1, { from: processor })
+        
+        await verifyProcessProposal(proposal2, 1, proposal2.applicant2, processor, {
+          totalCandidates : 2,
+          initialTotalSharesRequested: 1,
+          initialTotalShares: 7, //Adding the total shares with the shares from proposal1 6+1
+          initialApplicantShares : 1, // Applicant1 already have a share from the processed proposal1
+          initialTreasuryBalance: 110, //Adding the proposal1 deposit and proposal1 applicant fees
+          initialApplicantBalance : new BN (deploymentConfig.PROPOSAL_DEPOSIT)
+                                    .add( new BN(proposal2.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)) ), 
+          initialProposerBalance: new BN (deploymentConfig.PROPOSAL_DEPOSIT)
+                                  .add( new BN(proposal2.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)) ), 
+          initialProcessorBalance: 0,
+          expectedFinalTotalSharesRequested: 0,
+          expectedWinner : proposal2.applicant1,
+          didPass: true,
+          aborted: false,
+          isApplicantProposer: true,
+        })
+      })
+ 
+    })
+
+
+    describe('Abort - Testing proposal abort', () => {
+
+      beforeEach(async () => {
+        await token.transfer(proposal1.applicant1, new BN(proposal1.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)), {from: deployer})
+        await token.approve(voting.address, deploymentConfig.PROPOSAL_DEPOSIT, { from: summoner })
+        await token.approve(voting.address, new BN(proposal1.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)), {from: proposal1.applicant1})
+  
+        await voting.submitProposal(proposal1.objectiveProposal,
+                                    [proposal1.applicant1],
+                                    proposal1.sharesRequested,
+                                    proposal1.details,
+                                    { from: summoner }
+                                    )
+        await voting.addMember(deployer,1,{from:summoner});
+        await voting.addMember(processor,1,{from:summoner});
+      })
+
+
+      it('Happy case - Abort ', async () => {
+        await advanceTimeInPeriods(1)
+
+        await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
+        await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
+        await voting.abort(0, {from:proposal1.applicant1});
+        await voting.submitVote(0, proposal1.applicant1, 0, { from: processor }).should.be.rejectedWith("Voting::submitVote - proposal has been aborted");
+      })
+
+      it('Fail - Aborting past grace period ', async () => {
+        await advanceTimeInPeriods(1)
+        
+        await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
+        await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
+        
+        await advanceTimeInPeriods(new BN(deploymentConfig.VOTING_DURATON_IN_PERIODS).add(new BN(1)))
+        await advanceTimeInPeriods(new BN(deploymentConfig.GRACE_DURATON_IN_PERIODS).add(new BN(1)))
+
+        await voting.abort(0, {from:proposal1.applicant1}).should.be.rejectedWith("Voting::abort - abort window must not have passed");
+      })
+
+      it('Fail - Abort twice ', async () => {
+        await advanceTimeInPeriods(1)
+
+        await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
+        await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
+        await voting.abort(0, {from:proposal1.applicant1});
+        await voting.abort(0, {from:proposal1.applicant1}).should.be.rejectedWith("Voting::abort - proposal must not have already been aborted");  
+      })
+
+      it('Fail - Invalid proposal abort', async() =>{
+        await voting.abort(1, {from:proposal1.applicant1}).should.be.rejectedWith("Voting::abort - proposal does not exist"); 
+      })
+
+
+      it('Fail - Message sender must be a candidate ', async () => {
+        await advanceTimeInPeriods(1)
+
+        await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
+        await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
+        await voting.abort(0, {from:summoner}).should.be.rejectedWith("Voting::abort - msg.sender must be applicant");
+      })
+
+    })
+
+
+    describe('Updating Delegate key - Testing updateDelegateKey', () => {
+
+      it('Happy case - Message sender must be a candidate ', async () => {
+        await voting.updateDelegateKey(proposal1.applicant1, {from:summoner})
+        assert.equal(zeroAddress,await voting.memberAddressByDelegateKey.call(summoner));
+        assert.equal(summoner,await voting.memberAddressByDelegateKey.call(applicant1));
+      })
+      
+      it('Fail - Non member  ', async () => {
+        await voting.updateDelegateKey(proposal1.applicant1, {from:proposal1.applicant1}).should.be.rejectedWith("Voting::onlyMember - not a member");
+      })
+
+
+    })
 
 })

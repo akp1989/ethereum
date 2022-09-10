@@ -111,7 +111,7 @@ contract Voting {
     event Abort(uint256 indexed proposalIndex, address applicantAddress);
     event UpdateDelegateKey(address indexed memberAddress, address newDelegateKey);
     event SummonComplete(address indexed summoner, uint256 shares);
-    event testEvemt(uint256 var1, uint256 var2, uint256 var3);
+    event testEvemt(uint var1, uint var2, uint var3);
     constructor(
         address summoner,
         uint256 _periodDuration,
@@ -233,12 +233,13 @@ contract Voting {
 
     function submitVote(uint256 proposalIndex, address candidate, uint256 votes) public onlyMember    {
         
-        address memberAddress = memberAddressByDelegateKey[msg.sender];
+        //address memberAddress = memberAddressByDelegateKey[msg.sender];
+        address memberAddress = msg.sender;
         Member storage member = members[memberAddress];
 
         require(proposalIndex < proposalQueue.length, "Voting::submitVote - proposal does not exist");
         Proposal storage proposal = proposalQueue[proposalIndex];
-        
+
         if(proposal.objectiveProposal)
             require(votes ==0 || votes ==1, "Voting::submitVote - A vote must be 0 or 1");
         else            
@@ -264,7 +265,7 @@ contract Voting {
         }
         for (uint i = 0; i < proposal.candidates.length; i++) {
             if (proposal.candidates[i] == candidate) {
-                 memberBallot.candidate[i] = candidate;
+                memberBallot.candidate[i] = candidate;
                 if(proposal.objectiveProposal){
                     require( memberBallot.votes[i]==0 && memberBallot.quadorNoVotes[i]==0, "Voting::submitVote - member has already voted objectively");
                     if(votes ==0){
@@ -295,7 +296,6 @@ contract Voting {
             } 
             
         }
-
         require(totalVotes <= member.shares, "Voting::submitVote - not enough shares to cast this quantity of votes");
 
         emit SubmitVote(proposalIndex, msg.sender, memberAddress, candidate, votes, quadorNoVotes);
@@ -306,7 +306,7 @@ contract Voting {
     function processProposal(uint256 proposalIndex) public {
         require(proposalIndex < proposalQueue.length, "Voting::processProposal - proposal does not exist");
         Proposal storage proposal = proposalQueue[proposalIndex];
-
+           
         require(getCurrentPeriod() >= proposal.startingPeriod.add(votingPeriodLength).add(gracePeriodLength), "Voting::processProposal - proposal is not ready to be processed");
         require(proposal.processed == false, "Voting::processProposal - proposal has already been processed");
         require(proposalIndex == 0 || proposalQueue[proposalIndex.sub(1)].processed, "Voting::processProposal - previous proposal must be processed");
@@ -317,8 +317,8 @@ contract Voting {
         // Get elected candidate
         uint256 largest = 0;
         uint elected = 0;
-
-        require(proposal.totalVotes.length > 0 || proposal.totalQuadorNoVotes.length>0, "Voting::processProposal - this proposal has not received any votes.");
+        
+      
         bool didPass = true;
 
         address electedCandidate = address(0x0);
@@ -326,7 +326,9 @@ contract Voting {
         for (uint i = 0; i < proposal.totalVotes.length; i++) {
 
             if(proposal.objectiveProposal){
- 
+                
+                require(proposal.totalVotes[i]>0 || proposal.totalQuadorNoVotes[i]>0, "Voting:processProposal - Objective proposal has no votes");
+                
                 if(proposal.totalVotes[i] > proposal.totalQuadorNoVotes[i]){
                     electedCandidate = proposal.candidates[i];
                 }else{
@@ -345,10 +347,12 @@ contract Voting {
                     largest = proposal.totalVotes[i];
                     elected = i;
                     electedCandidate = proposal.candidates[i];
+                    if( i+1 == proposal.totalVotes.length)
+                    require(largest>0, 'Voting::processProposal - This proposal received no votes');
                 }
             }
         }
-      
+               
         // PROPOSAL PASSED
         if (didPass && !proposal.aborted) {
 
@@ -400,8 +404,44 @@ contract Voting {
             proposal.sharesRequested,
             didPass
         );
-        
+    
+    }
 
+    function abort(uint256 proposalIndex) public {
+        require(proposalIndex < proposalQueue.length, "Voting::abort - proposal does not exist");
+        Proposal storage proposal = proposalQueue[proposalIndex];
+        
+        bool applicant = false;
+        for (uint i = 0; i < proposal.totalVotes.length; i++) {
+            address electedCandidate = proposal.candidates[i];  
+            if (msg.sender == electedCandidate){
+                applicant = true;
+            }
+        }
+        require(applicant == true, "Voting::abort - msg.sender must be applicant");
+        require(getCurrentPeriod() < proposal.startingPeriod.add(abortWindow), "Voting::abort - abort window must not have passed");
+        require(!proposal.aborted, "Voting::abort - proposal must not have already been aborted");
+
+        proposal.aborted = true;
+
+        emit Abort(proposalIndex, msg.sender);
+    }
+
+    function updateDelegateKey(address newDelegateKey) public onlyMember {
+        require(newDelegateKey != address(0), "Voting::updateDelegateKey - newDelegateKey cannot be 0");
+
+        // skip checks if member is setting the delegate key to their member address
+        if (newDelegateKey != msg.sender) {
+            require(!members[newDelegateKey].exists, "Voting::updateDelegateKey - cant overwrite existing members");
+            require(!members[memberAddressByDelegateKey[newDelegateKey]].exists, "Voting::updateDelegateKey - cant overwrite existing delegate keys");
+        }
+
+        Member storage member = members[msg.sender];
+        memberAddressByDelegateKey[member.delegateKey] = address(0);
+        memberAddressByDelegateKey[newDelegateKey] = msg.sender;
+        member.delegateKey = newDelegateKey;
+
+        emit UpdateDelegateKey(msg.sender, newDelegateKey);
     }
 
 
