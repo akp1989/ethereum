@@ -96,7 +96,6 @@ const deploymentConfig = {
       assert.equal(proposalData.didPass, false)
       assert.equal(proposalData.aborted, false)
       assert.equal(proposalData.details, proposal.details)
-      assert.equal(proposalData.maxTotalSharesAtYesVote, 0)
   
       const totalSharesRequested = await voting.totalSharesRequested()
       if (typeof proposal.sharesRequested === 'number') {
@@ -307,8 +306,8 @@ const deploymentConfig = {
                                 summoner,
                                 deploymentConfig.PERIOD_DURATION_IN_SECONDS,
                                 deploymentConfig.VOTING_DURATON_IN_PERIODS,
-                                deploymentConfig.GRACE_DURATON_IN_PERIODS,
-                                deploymentConfig.ABORT_WINDOW_IN_PERIODS,
+                                //deploymentConfig.GRACE_DURATON_IN_PERIODS,
+                                //deploymentConfig.ABORT_WINDOW_IN_PERIODS,
                                 deploymentConfig.PROPOSAL_DEPOSIT, 
                                 deploymentConfig.TOKEN_TRIBUTE,
                                 deploymentConfig.PROCESSING_REWARD,
@@ -370,11 +369,11 @@ const deploymentConfig = {
       const votingPeriodLength = await voting.votingPeriodLength()
       assert.equal(+votingPeriodLength, deploymentConfig.VOTING_DURATON_IN_PERIODS)
 
-      const gracePeriodLength = await voting.gracePeriodLength()
-      assert.equal(+gracePeriodLength, deploymentConfig.GRACE_DURATON_IN_PERIODS)
+      // const gracePeriodLength = await voting.gracePeriodLength()
+      // assert.equal(+gracePeriodLength, deploymentConfig.GRACE_DURATON_IN_PERIODS)
 
-      const abortWindow = await voting.abortWindow()
-      assert.equal(+abortWindow, deploymentConfig.ABORT_WINDOW_IN_PERIODS)
+      // const abortWindow = await voting.abortWindow()
+      // assert.equal(+abortWindow, deploymentConfig.ABORT_WINDOW_IN_PERIODS)
 
       const proposalDeposit = await voting.proposalDeposit()
       assert.equal(+proposalDeposit, deploymentConfig.PROPOSAL_DEPOSIT)
@@ -393,7 +392,6 @@ const deploymentConfig = {
       //assert.equal(summonerData.shares, 1)
       assert.equal(summonerData.shares, 4)
       assert.equal(summonerData.exists, true)
-      assert.equal(summonerData.highestIndexVote, 0)
       
       const summonerAddressByDelegateKey = await voting.memberAddressByDelegateKey(
         summoner
@@ -449,7 +447,7 @@ const deploymentConfig = {
                                     proposal1.sharesRequested,
                                     proposal1.details,
                                     {from:summoner}
-                                  ).should.be.rejectedWith('Voting::submitProposal - at least 1 candidate is required');
+                                  ).should.be.rejectedWith('V:submitProposal - at least 1 candidate is required');
       })
 
       it('Fail - Objective proposal with multiple candidates', async() =>{
@@ -458,7 +456,7 @@ const deploymentConfig = {
                                     proposal1.sharesRequested,
                                     proposal1.details,
                                     {from:summoner}
-                                  ).should.be.rejectedWith('Voting::submitProposal - objectiveProposal needs only one candidate');
+                                  ).should.be.rejectedWith('V:submitProposal - objectiveProposal needs only one candidate');
       })
 
       it('Fail - Insufficient proposal deposit', async () => {
@@ -469,7 +467,7 @@ const deploymentConfig = {
                                     proposal1.sharesRequested,
                                     proposal1.details,
                                     {from:summoner}
-                                  ).should.be.rejectedWith('Voting:: submitProposal - proposer does not have enough token for deposit');
+                                  ).should.be.rejectedWith('V: submitProposal - proposer does not have enough token for deposit');
       })
 
       it('Fail - Insufficient authorized proposal deposit', async () => {
@@ -480,7 +478,7 @@ const deploymentConfig = {
                                     proposal1.sharesRequested,
                                     proposal1.details,
                                     {from:summoner}
-                                  ).should.be.rejectedWith('Voting:: submitProposal - deposit transfer not authorized by proposer');
+                                  ).should.be.rejectedWith('V: submitProposal - deposit transfer not authorized by proposer');
       })
   
       it('Fail - Insufficient applicant tokens', async () => {
@@ -492,7 +490,7 @@ const deploymentConfig = {
                                     proposal1.sharesRequested,
                                     proposal1.details,
                                     {from:summoner}
-                                  ).should.be.rejectedWith("Voting:: submitProposal - candidate does not have enough token for deposit")
+                                  ).should.be.rejectedWith("V: submitProposal - candidate does not have enough token for deposit")
       })
 
       it('Fail - Insufficient authorized applicant tokens', async () => {
@@ -504,7 +502,7 @@ const deploymentConfig = {
                                     proposal1.sharesRequested,
                                     proposal1.details,
                                     {from:summoner}
-                                  ).should.be.rejectedWith("Voting:: submitProposal - processing fee transfer not authorized by candidate")
+                                  ).should.be.rejectedWith("V: submitProposal - processing fee transfer not authorized by candidate")
       })
   
       it('Fail - Proposal by non-delegator', async () => {
@@ -513,7 +511,7 @@ const deploymentConfig = {
                                     proposal1.sharesRequested,
                                     proposal1.details,
                                     { from: applicant1 }
-                                  ).should.be.rejectedWith('Voting::onlyDelegate - not a delegate')
+                                  ).should.be.rejectedWith('V:onlyDelegate - not a delegate')
       })
     
     })
@@ -545,11 +543,11 @@ const deploymentConfig = {
       it('Fail - member has already voted', async () => {
         await advanceTimeInPeriods(1)
         await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner })
-        await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner }).should.be.rejectedWith('Voting::submitVote - member has already voted objectively')
+        await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner }).should.be.rejectedWith('V:submitVote - member has already voted objectively')
       })
       it('Fail - objective vote should be zero or one', async () => {
         await advanceTimeInPeriods(1) 
-        await voting.submitVote(0, proposal1.applicant1, 2, { from: summoner }).should.be.rejectedWith( "Voting::submitVote - A vote must be 0 or 1")
+        await voting.submitVote(0, proposal1.applicant1, 2, { from: summoner }).should.be.rejectedWith( "V:submitVote - A vote must be 0 or 1")
       })
      
     })
@@ -579,12 +577,12 @@ const deploymentConfig = {
       })
 
       it('Fail - voting period not started', async () => { 
-        await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner }).should.be.rejectedWith('Voting::submitVote - voting period has not started')
+        await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner }).should.be.rejectedWith('V:submitVote - voting period has not started')
       })
 
       it('Fail - voting period closed', async () => {
         await advanceTimeInPeriods(3) 
-        await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner }).should.be.rejectedWith('Voting::submitVote - proposal voting period has expired')
+        await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner }).should.be.rejectedWith('V:submitVote - proposal voting period has expired')
       })
 
       
@@ -616,7 +614,7 @@ const deploymentConfig = {
       })
       it('Fail - objective vote should be zero or one', async () => {
         await advanceTimeInPeriods(1) 
-        await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner }).should.be.rejectedWith( "Voting::submitVote - For non objective voting atleast vote should be cast")
+        await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner }).should.be.rejectedWith( "V:submitVote - For non objective voting atleast vote should be cast")
       })
 
       //To test this change the initial share of summoner to 4
@@ -629,17 +627,17 @@ const deploymentConfig = {
 
       it('Fail - member has already voted', async () => {
         await advanceTimeInPeriods(1)
-        await voting.submitVote(0, proposal1.applicant1, 5, { from: summoner }).should.be.rejectedWith('Voting::submitVote - not enough shares to cast this quantity of votes')
+        await voting.submitVote(0, proposal1.applicant1, 5, { from: summoner }).should.be.rejectedWith('V:submitVote - not enough shares to cast this quantity of votes')
       })
       
       it('Fail - member has already voted', async () => {
         await advanceTimeInPeriods(1)
-        await voting.submitVote(0, proposal1.applicant1, 5, { from: summoner }).should.be.rejectedWith('Voting::submitVote - not enough shares to cast this quantity of votes')
+        await voting.submitVote(0, proposal1.applicant1, 5, { from: summoner }).should.be.rejectedWith('V:submitVote - not enough shares to cast this quantity of votes')
       })
 
       it('Fail - voter not a member', async () => {
         await advanceTimeInPeriods(1)
-        await voting.submitVote(0, proposal1.applicant1, 5, { from: applicant1 }).should.be.rejectedWith('Voting::onlyMember - not a member')
+        await voting.submitVote(0, proposal1.applicant1, 5, { from: applicant1 }).should.be.rejectedWith('V:onlyMember - not a member')
       })
 
       
@@ -726,11 +724,11 @@ const deploymentConfig = {
       })
 
       it('Fail - Voting periond not completed', async() =>{
-        await voting.processProposal(0,{from:processor}).should.be.rejectedWith("Voting::processProposal - proposal is not ready to be processed");
+        await voting.processProposal(0,{from:processor}).should.be.rejectedWith("V:processProposal - proposal is not ready to be processed");
       })
 
       it('Fail - Invalid index for proposal queue', async() =>{
-        await voting.processProposal(99,{from:processor}).should.be.rejectedWith("Voting::processProposal - proposal does not exist");
+        await voting.processProposal(99,{from:processor}).should.be.rejectedWith("V:proposal does not exist");
       })
 
       it('Fail - Already processes proposal', async () => {
@@ -741,7 +739,7 @@ const deploymentConfig = {
         await advanceTimeInPeriods(deploymentConfig.VOTING_DURATON_IN_PERIODS)
         await advanceTimeInPeriods(deploymentConfig.GRACE_DURATON_IN_PERIODS)
         await voting.processProposal(0, { from: processor })
-        await voting.processProposal(0, { from: processor }).should.be.rejectedWith("Voting::processProposal - proposal has already been processed")
+        await voting.processProposal(0, { from: processor }).should.be.rejectedWith("V:processProposal - proposal has already been processed")
 
       })
 
@@ -835,7 +833,7 @@ const deploymentConfig = {
         
         await voting.processProposal(0, { from: processor })
        
-        await voting.processProposal(1, { from: processor }).should.be.rejectedWith( "Voting::processProposal - this proposal has no winner")
+        await voting.processProposal(1, { from: processor }).should.be.rejectedWith( "V:processProposal - this proposal has no winner")
         
       })
 
@@ -855,7 +853,7 @@ const deploymentConfig = {
         
         await voting.processProposal(0, { from: processor })
        
-        await voting.processProposal(1, { from: processor }).should.be.rejectedWith( "Voting::processProposal - this proposal has no winner")
+        await voting.processProposal(1, { from: processor }).should.be.rejectedWith( "V:processProposal - this proposal has no winner")
         
       })
 
@@ -867,7 +865,7 @@ const deploymentConfig = {
         await advanceTimeInPeriods(new BN(deploymentConfig.VOTING_DURATON_IN_PERIODS).add(new BN(1)))
         await advanceTimeInPeriods(new BN(deploymentConfig.GRACE_DURATON_IN_PERIODS).add(new BN(1)))
         
-        await voting.processProposal(1, {from:processor}).should.be.rejectedWith("Voting::processProposal - previous proposal must be processed")
+        await voting.processProposal(1, {from:processor}).should.be.rejectedWith("V:processProposal - previous proposal must be processed")
 
       })
  
@@ -1015,7 +1013,7 @@ const deploymentConfig = {
         await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
         await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
         await voting.abort(0, {from:proposal1.applicant1});
-        await voting.submitVote(0, proposal1.applicant1, 0, { from: processor }).should.be.rejectedWith("Voting::submitVote - proposal has been aborted");
+        await voting.submitVote(0, proposal1.applicant1, 0, { from: processor }).should.be.rejectedWith("V:submitVote - proposal has been aborted");
       })
 
       it('Fail - Aborting past grace period ', async () => {
@@ -1027,7 +1025,7 @@ const deploymentConfig = {
         await advanceTimeInPeriods(new BN(deploymentConfig.VOTING_DURATON_IN_PERIODS).add(new BN(1)))
         await advanceTimeInPeriods(new BN(deploymentConfig.GRACE_DURATON_IN_PERIODS).add(new BN(1)))
 
-        await voting.abort(0, {from:proposal1.applicant1}).should.be.rejectedWith("Voting::abort - abort window must not have passed");
+        await voting.abort(0, {from:proposal1.applicant1}).should.be.rejectedWith("V:abort - abort window must not have passed");
       })
 
       it('Fail - Abort twice ', async () => {
@@ -1036,11 +1034,11 @@ const deploymentConfig = {
         await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
         await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
         await voting.abort(0, {from:proposal1.applicant1});
-        await voting.abort(0, {from:proposal1.applicant1}).should.be.rejectedWith("Voting::abort - proposal must not have already been aborted");  
+        await voting.abort(0, {from:proposal1.applicant1}).should.be.rejectedWith("V:abort - proposal must not have already been aborted");  
       })
 
       it('Fail - Invalid proposal abort', async() =>{
-        await voting.abort(1, {from:proposal1.applicant1}).should.be.rejectedWith("Voting::abort - proposal does not exist"); 
+        await voting.abort(1, {from:proposal1.applicant1}).should.be.rejectedWith("V:proposal does not exist"); 
       })
 
 
@@ -1049,7 +1047,7 @@ const deploymentConfig = {
 
         await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
         await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
-        await voting.abort(0, {from:summoner}).should.be.rejectedWith("Voting::abort - msg.sender must be applicant");
+        await voting.abort(0, {from:summoner}).should.be.rejectedWith("V:abort - msg.sender must be applicant");
       })
 
     })
@@ -1064,7 +1062,7 @@ const deploymentConfig = {
       })
       
       it('Fail - Non member  ', async () => {
-        await voting.updateDelegateKey(proposal1.applicant1, {from:proposal1.applicant1}).should.be.rejectedWith("Voting::onlyMember - not a member");
+        await voting.updateDelegateKey(proposal1.applicant1, {from:proposal1.applicant1}).should.be.rejectedWith("V:onlyMember - not a member");
       })
 
 
