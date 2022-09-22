@@ -21,8 +21,6 @@ contract Voting {
     ***************/
     uint256 public periodDuration; // default = 17280 = 4.8 hours in seconds (5 periods per day)
     uint256 public votingPeriodLength; // default = 35 periods (7 days)
-    // uint256 public gracePeriodLength; // default = 35 periods (7 days)
-    // uint256 public abortWindow; // default = 5 periods (1 day)
     uint256 public proposalDeposit; // default = 10 ETH (~$1,000 worth of ETH at contract deployment)
     uint256 public tokenTribute; //defauly = 1 Eth
     uint256 public processingReward; // default = 0.1 - amount of ETH to give to whoever processes a proposal
@@ -54,10 +52,9 @@ contract Voting {
         address delegateKey; // the key responsible for submitting proposals and voting - defaults to member address unless updated
         uint256 shares; // the # of shares assigned to this member
         bool exists; // always true once a member has been created
-        //uint256 highestIndexVote; // highest proposal index # on which the member voted YES
     }
     
-    // mapping(address => bool) public noone;
+    mapping(address => bool) public noone;
     mapping (address => Member) public members;
     mapping (address => address) public memberAddressByDelegateKey;  //mapping (delegateKey => memberAddress)
 
@@ -77,7 +74,6 @@ contract Voting {
         bool objectiveProposal;
 
         uint256 tokenTribute; // amount of tokens offered as tribute
-        //uint256 maxTotalSharesAtYesVote; // the maximum # of total shares encountered at a yes vote on this proposal
         mapping (address => Ballot) votesByMember; // list of candidates and corresponding votes
     }
     Proposal[] public proposalQueue;
@@ -110,19 +106,16 @@ contract Voting {
     event SubmitProposal(uint256 proposalIndex, address indexed delegateKey, address indexed memberAddress, address[] candidates, uint256 tokenTribute, uint256 sharesRequested);
     event SubmitVote(uint256 indexed proposalIndex, address indexed delegateKey, address indexed memberAddress, address candidate, uint256 votes, uint256 quadraticVotes);
     event ProcessProposal(uint256 indexed proposalIndex, address indexed electedCandidate, address indexed memberAddress, uint256 tokenTribute, uint256 sharesRequested, bool didPass);
-    event Ragequit(address indexed memberAddress, uint256 sharesToBurn);
     event Abort(uint256 indexed proposalIndex, address applicantAddress);
     event UpdateDelegateKey(address indexed memberAddress, address newDelegateKey);
     event SummonComplete(address indexed summoner, uint256 shares);
     event VotingParamUpdated(uint256 indexed proposalIndex,address indexed paramContract);
 
-    event testEvemt(uint var1, uint var2, uint var3);
+    //event testEvemt(uint var1, uint var2, uint var3);
     constructor(
         address summoner,
         uint256 _periodDuration,
         uint256 _votingPeriodLength,
-        //uint256 _gracePeriodLength,
-        //uint256 _abortWindow,
         uint256 _proposalDeposit,
         uint256 _tokenTribute,
         uint256 _processingReward,
@@ -130,28 +123,22 @@ contract Voting {
         address _daoTokenAddress
         )  
     {
-        require(summoner != address(0), "V:constructor - summoner cannot be 0");
-        require(_periodDuration > 0, "V:constructor - _periodDuration cannot be 0");
+        require(summoner != address(0), "V:const summoner cannot be 0");
+        require(_periodDuration > 0, "V:const periodDuration cannot be 0");
         
-        require(_votingPeriodLength > 0, "V:constructor - _votingPeriodLength cannot be 0");
-        require(_votingPeriodLength <= MAX_LENGTH, "V:constructor - _votingPeriodLength exceeds limit");
-        //require(_gracePeriodLength <= MAX_LENGTH, "V:constructor - _gracePeriodLength exceeds limit");
+        require(_votingPeriodLength > 0, "V:const votingPeriodLength cannot be 0");
+        require(_votingPeriodLength <= MAX_LENGTH, "V:const votingPeriodLength exceeds limit");
         
-        // require(_abortWindow > 0, "V:constructor - _abortWindow cannot be 0");
-        // require(_abortWindow <= _votingPeriodLength, "V:constructor - _abortWindow must be smaller than or equal to _votingPeriodLength");
-        
-        require(_proposalDeposit >= _processingReward, "V:constructor - _proposalDeposit cannot be smaller than _processingReward");
+        require(_proposalDeposit >= _processingReward, "V:const proposalDeposit cannot be smaller than _processingReward");
 
-        require(_tokenTribute >= 0, "V:constructor - Token tribute cannot be 0");
-        require(_daoTokenAddress != address(0), "The dao token address cannot be zero address" );
+        require(_tokenTribute >= 0, "V:const Token tribute cannot be 0");
+        require(_daoTokenAddress != address(0), "V:const The dao token address cannot be zero address" );
 
         daoToken = IERC20(_daoTokenAddress);
         treasuryAccount = new Treasury(_daoTokenAddress);
 
         periodDuration = _periodDuration;
         votingPeriodLength = _votingPeriodLength;
-        //gracePeriodLength = _gracePeriodLength;
-        //abortWindow = _abortWindow;
         proposalDeposit = _proposalDeposit;
         tokenTribute = _tokenTribute;
         processingReward = _processingReward;
@@ -221,7 +208,6 @@ contract Voting {
         proposal.objectiveProposal = objectiveProposal;
         proposal.tokenTribute= tokenTribute;
         proposal.details= details;
-        //proposal.maxTotalSharesAtYesVote= 0;
    
         uint256 proposalIndex = proposalQueue.length.sub(1);  
         emit SubmitProposal(proposalIndex, msg.sender, memberAddress, candidates, tokenTribute, sharesRequested);
@@ -230,25 +216,18 @@ contract Voting {
 
 
     function submitVote(uint256 proposalIndex, address candidate, uint256 votes) public onlyMember    {
-        
-        //address memberAddress = memberAddressByDelegateKey[msg.sender];
-        address memberAddress = msg.sender;
-        Member storage member = members[memberAddress];
-
         require(proposalIndex < proposalQueue.length, "V:submitVote - proposal does not exist");
         Proposal storage proposal = proposalQueue[proposalIndex];
-
         if(proposal.objectiveProposal)
             require(votes ==0 || votes ==1, "V:submitVote - A vote must be 0 or 1");
         else            
             require(votes>0,"V:submitVote - For non objective voting atleast vote should be cast");
-        
-        
+ 
         require(getCurrentPeriod() >= proposal.startingPeriod, "V:submitVote - voting period has not started");
         require(!hasVotingPeriodExpired(proposal.startingPeriod), "V:submitVote - proposal voting period has expired");
         require(!proposal.aborted, "V:submitVote - proposal has been aborted");
 
-        Ballot storage memberBallot = proposal.votesByMember[memberAddress];
+        Ballot storage memberBallot = proposal.votesByMember[msg.sender];
 
         // store vote
         uint256 totalVotes;
@@ -287,16 +266,13 @@ contract Voting {
 
                     totalVotes = newVotes;
                 }
- 
-                // if (proposalIndex > member.highestIndexVote) {
-                //     member.highestIndexVote = proposalIndex;
-                // }           
+     
             } 
             
         }
-        require(totalVotes <= member.shares, "V:submitVote - not enough shares to cast this quantity of votes");
+        require(totalVotes <= members[msg.sender].shares, "V:submitVote - not enough shares to cast this quantity of votes");
 
-        emit SubmitVote(proposalIndex, msg.sender, memberAddress, candidate, votes, quadorNoVotes);
+        emit SubmitVote(proposalIndex, msg.sender, msg.sender, candidate, votes, quadorNoVotes);
 
     }
 
@@ -304,7 +280,6 @@ contract Voting {
     function processProposal(uint256 proposalIndex) public proposalExists(proposalIndex) {
         Proposal storage proposal = proposalQueue[proposalIndex];
            
-        //require(getCurrentPeriod() >= proposal.startingPeriod.add(votingPeriodLength).add(gracePeriodLength), "V:processProposal - proposal is not ready to be processed");
         require(getCurrentPeriod() >= proposal.startingPeriod.add(votingPeriodLength), "V:processProposal - proposal is not ready to be processed");
         
         require(proposal.processed == false, "V:processProposal - proposal has already been processed");
@@ -377,10 +352,6 @@ contract Voting {
             // mint new shares
             totalShares = totalShares.add(proposal.sharesRequested);
 
-          
-        // PROPOSAL FAILED OR ABORTED
-        } else {
-             
         }
 
         emit ProcessProposal(
@@ -394,21 +365,19 @@ contract Voting {
     
     }
 
-    function abort(uint256 proposalIndex) public proposalExists(proposalIndex) {
-        Proposal storage proposal = proposalQueue[proposalIndex];
-        
+    function abort(uint256 proposalIndex) public proposalExists(proposalIndex) { 
         bool applicant = false;
-        for (uint i = 0; i < proposal.totalVotes.length; i++) {
-            address electedCandidate = proposal.candidates[i];  
+        for (uint i = 0; i < proposalQueue[proposalIndex].totalVotes.length; i++) {
+            address electedCandidate = proposalQueue[proposalIndex].candidates[i];  
             if (msg.sender == electedCandidate){
                 applicant = true;
             }
         }
         require(applicant == true, "V:abort - msg.sender must be applicant");
-        require(getCurrentPeriod() < proposal.startingPeriod.add(votingPeriodLength), "V:abort - abort window must not have passed");
-        require(!proposal.aborted, "V:abort - proposal must not have already been aborted");
+        require(getCurrentPeriod() < proposalQueue[proposalIndex].startingPeriod.add(votingPeriodLength), "V:abort - abort window must not have passed");
+        require(!proposalQueue[proposalIndex].aborted, "V:abort - proposal must not have already been aborted");
 
-        proposal.aborted = true;
+        proposalQueue[proposalIndex].aborted = true;
 
         emit Abort(proposalIndex, msg.sender);
     }
@@ -444,7 +413,12 @@ contract Voting {
     }
 
 
-
+    // function donothing()public onlyMember{
+    //     if(noone[msg.sender])
+    //         noone[msg.sender] = false;
+    //     else
+    //         noone[msg.sender] = true;
+    // }
 
     function getCurrentPeriod() public  view returns (uint256) {
       return block.timestamp.sub(summoningTime).div(periodDuration);
@@ -460,18 +434,10 @@ contract Voting {
         return proposalQueue.length;
     }
 
-    function sqrt(uint256 x) public  pure returns (uint256 y) {
-       return x.sqrt();
-    }
-
     function getMemberProposalVote(address memberAddress, uint256 proposalIndex) public view returns (uint256[] memory, uint256[] memory, address[] memory) {
-    require(members[memberAddress].exists, "V:getMemberProposalVote - member doesn't exist");
-    require(proposalIndex < proposalQueue.length, "V:getMemberProposalVote - proposal doesn't exist");
-    
-    uint256[] memory _votes = proposalQueue[proposalIndex].votesByMember[memberAddress].votes;
-    uint256[] memory _quadorNoVotes = proposalQueue[proposalIndex].votesByMember[memberAddress].quadorNoVotes;
-    address[] memory _candidate = proposalQueue[proposalIndex].votesByMember[memberAddress].candidate;
-    return (_votes, _quadorNoVotes, _candidate);
+    return (proposalQueue[proposalIndex].votesByMember[memberAddress].votes, 
+            proposalQueue[proposalIndex].votesByMember[memberAddress].quadorNoVotes,
+            proposalQueue[proposalIndex].votesByMember[memberAddress].candidate);
     }
 
     function addMember(address memberAddress, uint256 shares) public onlyMember {

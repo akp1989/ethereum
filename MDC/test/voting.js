@@ -12,6 +12,7 @@ chai.use(require('chai-as-promised')).should()
 const Voting = artifacts.require('./Voting.sol')
 const TreasuryAccount = artifacts.require('./Treasury.sol')
 const Token = artifacts.require('./GenToken.sol')
+const VotingParam = artifacts.require('./VotingParam.sol')
 
 const TOKEN_SUPPLY = new BN(10).pow(new BN(18)).mul(new BN(1000000000))
 
@@ -45,6 +46,7 @@ const deploymentConfig = {
     let voting
     let token
     let treasury
+    let votingParam
 
     var snapshotimage;
 
@@ -158,7 +160,7 @@ const deploymentConfig = {
         }
         
       }else{
-        const quadVote = await voting.sqrt(vote);
+        const quadVote = new BN(Math.sqrt(vote));
         assert.equal(MemberVote[0][0], vote)    //Value of vote
         assert.equal(MemberVote[1][0].toString, quadVote.toString)    //Value of quadratic vote
         assert.equal(MemberVote[2][0], options.applicant)    //Address of voted candidate
@@ -1032,7 +1034,7 @@ const deploymentConfig = {
         await advanceTimeInPeriods(1)
 
         await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
-        await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
+        await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer }); 
         await voting.abort(0, {from:proposal1.applicant1});
         await voting.abort(0, {from:proposal1.applicant1}).should.be.rejectedWith("V:abort - proposal must not have already been aborted");  
       })
@@ -1065,6 +1067,56 @@ const deploymentConfig = {
         await voting.updateDelegateKey(proposal1.applicant1, {from:proposal1.applicant1}).should.be.rejectedWith("V:onlyMember - not a member");
       })
 
+
+    })
+
+    describe('Updating Voting Parameters - Testing updateVotingParameters', () => {
+      
+      var newProposalDeposit = new BN(20);
+      var newTokenTribute = new BN(10);
+      var newProcessingReward = new BN(5);
+      beforeEach(async () => {
+
+        votingParam = await VotingParam.new(newProposalDeposit, newTokenTribute, newProcessingReward,token.address);
+        
+        proposal3 = {
+          objectiveProposal : true,
+          applicant1: votingParam.address,
+          sharesRequested: 1,
+          details: 'Sample Proposal for updating voting parameters',
+        }
+
+        await token.transfer(proposal3.applicant1, new BN(proposal3.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)), {from: deployer})
+        await token.approve(voting.address, deploymentConfig.PROPOSAL_DEPOSIT, { from: summoner })
+        await votingParam.approve(voting.address, new BN(proposal3.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)), {from: deployer})
+  
+        await voting.submitProposal(proposal3.objectiveProposal,
+                                    [proposal3.applicant1],
+                                    proposal3.sharesRequested,
+                                    proposal3.details,
+                                    { from: summoner }
+                                    )
+        await voting.addMember(deployer,1,{from:summoner});
+        await voting.addMember(processor,1,{from:summoner});
+
+        await advanceTimeInPeriods(1)
+
+        await voting.submitVote(0, proposal3.applicant1, 1, { from: summoner });
+        await voting.submitVote(0, proposal3.applicant1, 1, { from: deployer });
+        await voting.submitVote(0, proposal3.applicant1, 0, { from: processor })
+
+        await advanceTimeInPeriods(deploymentConfig.VOTING_DURATON_IN_PERIODS)
+        await advanceTimeInPeriods(deploymentConfig.GRACE_DURATON_IN_PERIODS)
+        await voting.processProposal(0, { from: processor })
+      })
+
+      it('Happy case - Voting parameters updated from proposal ', async () => {
+        await voting.updateVotingParams(0);
+        assert.equal(newTokenTribute, + await voting.tokenTribute());
+        assert.equal(newProposalDeposit, +  await voting.proposalDeposit());
+        assert.equal(newProcessingReward, +  await voting.processingReward());
+      })
+      
 
     })
 

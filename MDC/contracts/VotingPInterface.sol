@@ -8,4 +8,11 @@ interface VotingPInterface {
     function getTokenTribute() external returns (uint256);
 
     function getProcessingReward() external returns (uint256);
+
+    function balanceOf() external view returns (uint256);
+
+    function allowance(address spender) external view returns (uint256);
+
+    function approve(address spender, uint256 value) external returns (bool);
+
 }
