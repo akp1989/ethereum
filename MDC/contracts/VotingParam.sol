@@ -13,7 +13,7 @@ contract VotingParam is VotingPInterface{
     IERC20 public daoToken;
 
 
-    constructor(uint256 _proposalDeposit, uint256 _tokenTribute, uint256 _processingReward,address _daoTokenAddress){
+    function initialize(uint256 _proposalDeposit, uint256 _tokenTribute, uint256 _processingReward,address _daoTokenAddress) public {
         require(_daoTokenAddress != address(0), "VotingParam::Constructor - The dao token address cannot be zero address" );
         require(_proposalDeposit > 0, "VotingParam::Constructor - The proposal deposit should be a positive value");
         require(_tokenTribute > 0, "VotingParam::Constructor - The token tribute should be a positive value");
