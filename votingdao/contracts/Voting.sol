@@ -10,9 +10,9 @@ pragma solidity >=0.4.22 <0.9.0;
 
 import "./oz/SafeMath.sol";
 import "./Treasury.sol";
-import "./VotingParam.sol";
+import "./VotingParams.sol";
 
-contract Voting {
+contract Voting{
     
     using SafeMath for uint256;
 
@@ -69,8 +69,6 @@ contract Voting {
         uint256 startingPeriod; // the period in which voting can start for this proposal
         bool processed; // true only if the proposal has been processed
         bool didPass; // true only if the proposal has elected a candidate
-        bool aborted; // true only if applicant calls "abort" fn before end of voting period
-
         bool objectiveProposal;
 
         uint256 tokenTribute; // amount of tokens offered as tribute
@@ -82,23 +80,31 @@ contract Voting {
     MODIFIERS
     ********/
     //Check if the message sender is a member 
-    modifier onlyMember {
+    function onlyMember() internal view  {
         require(members[msg.sender].shares > 0, "V:onlyMember - not a member");
-        _;
     }
 
     //Check if the message sender is delegated by a member
-    modifier onlyDelegate {
+    function onlyDelegate() internal view {
         require(members[memberAddressByDelegateKey[msg.sender]].shares > 0, "V:onlyDelegate - not a delegate");
-        _;
     }
 
     //Check if the proposal is a valid proposal
-    modifier proposalExists(uint256 proposalIndex){
+    function proposalExists(uint256 proposalIndex)internal view{
         require(proposalIndex < proposalQueue.length, "V:proposal does not exist");
-        _;
     }
 
+    function isMember (address  userAddr) public view returns (bool){
+        if(members[userAddr].shares >0)
+         return true;
+        else
+         return false;
+    }
+    
+    function getProposal (uint256 pIndex) public view returns (address){
+        Proposal storage proposal = proposalQueue[pIndex];
+        return proposal.electedCandidate;
+    }
 
     /*****************
      Events
@@ -106,7 +112,6 @@ contract Voting {
     event SubmitProposal(uint256 proposalIndex, address indexed delegateKey, address indexed memberAddress, address[] candidates, uint256 tokenTribute, uint256 sharesRequested);
     event SubmitVote(uint256 indexed proposalIndex, address indexed delegateKey, address indexed memberAddress, address candidate, uint256 votes, uint256 quadraticVotes);
     event ProcessProposal(uint256 indexed proposalIndex, address indexed electedCandidate, address indexed memberAddress, uint256 tokenTribute, uint256 sharesRequested, bool didPass);
-    event Abort(uint256 indexed proposalIndex, address applicantAddress);
     event UpdateDelegateKey(address indexed memberAddress, address newDelegateKey);
     event SummonComplete(address indexed summoner, uint256 shares);
     event VotingParamUpdated(uint256 indexed proposalIndex,address indexed paramContract);
@@ -153,7 +158,9 @@ contract Voting {
 
     function submitProposal(bool objectiveProposal ,address[] memory candidates,
                             uint256 sharesRequested, string memory details)
-        public onlyDelegate{
+        public {
+        //Check if proposal submitted by delegator
+        onlyDelegate();
 
         //Check if candidate list is empty or candidate is null address
         require(candidates.length > 0, "V:submitProposal - at least 1 candidate is required.");
@@ -204,7 +211,6 @@ contract Voting {
         proposal.processed= false;
         proposal.didPass= false;
         proposal.electedCandidate= address(0x0);
-        proposal.aborted= false;
         proposal.objectiveProposal = objectiveProposal;
         proposal.tokenTribute= tokenTribute;
         proposal.details= details;
@@ -215,7 +221,10 @@ contract Voting {
 
 
 
-    function submitVote(uint256 proposalIndex, address candidate, uint256 votes) public onlyMember    {
+    function submitVote(uint256 proposalIndex, address candidate, uint256 votes) public  {
+
+        //Check if proposal is by member
+        onlyMember();
         require(proposalIndex < proposalQueue.length, "V:submitVote - proposal does not exist");
         Proposal storage proposal = proposalQueue[proposalIndex];
         if(proposal.objectiveProposal)
@@ -225,7 +234,6 @@ contract Voting {
  
         require(getCurrentPeriod() >= proposal.startingPeriod, "V:submitVote - voting period has not started");
         require(!hasVotingPeriodExpired(proposal.startingPeriod), "V:submitVote - proposal voting period has expired");
-        require(!proposal.aborted, "V:submitVote - proposal has been aborted");
 
         Ballot storage memberBallot = proposal.votesByMember[msg.sender];
 
@@ -277,7 +285,11 @@ contract Voting {
     }
 
 
-    function processProposal(uint256 proposalIndex) public proposalExists(proposalIndex) {
+    function processProposal(uint256 proposalIndex) public{
+
+        //Check if proposal exists
+        proposalExists(proposalIndex);
+
         Proposal storage proposal = proposalQueue[proposalIndex];
            
         require(getCurrentPeriod() >= proposal.startingPeriod.add(votingPeriodLength), "V:processProposal - proposal is not ready to be processed");
@@ -328,7 +340,7 @@ contract Voting {
         }
                
         // PROPOSAL PASSED
-        if (didPass && !proposal.aborted) {
+        if (didPass) {
 
             proposal.didPass = true;
             proposal.electedCandidate = electedCandidate;
@@ -365,24 +377,10 @@ contract Voting {
     
     }
 
-    function abort(uint256 proposalIndex) public proposalExists(proposalIndex) { 
-        bool applicant = false;
-        for (uint i = 0; i < proposalQueue[proposalIndex].totalVotes.length; i++) {
-            address electedCandidate = proposalQueue[proposalIndex].candidates[i];  
-            if (msg.sender == electedCandidate){
-                applicant = true;
-            }
-        }
-        require(applicant == true, "V:abort - msg.sender must be applicant");
-        require(getCurrentPeriod() < proposalQueue[proposalIndex].startingPeriod.add(votingPeriodLength), "V:abort - abort window must not have passed");
-        require(!proposalQueue[proposalIndex].aborted, "V:abort - proposal must not have already been aborted");
+    function updateDelegateKey(address newDelegateKey) public {
+        //Check if proposal is by member
+        onlyMember();
 
-        proposalQueue[proposalIndex].aborted = true;
-
-        emit Abort(proposalIndex, msg.sender);
-    }
-
-    function updateDelegateKey(address newDelegateKey) public onlyMember {
         require(newDelegateKey != address(0), "V:updateDelegateKey - newDelegateKey cannot be 0");
 
         // skip checks if member is setting the delegate key to their member address
@@ -399,26 +397,37 @@ contract Voting {
         emit UpdateDelegateKey(msg.sender, newDelegateKey);
     }
 
-    function updateVotingParams(uint256 proposalIndex) public onlyMember proposalExists(proposalIndex){
-        Proposal storage proposal = proposalQueue[proposalIndex];
-        require(proposal.didPass == true, "V:updateConf - Proposal is not processed yet");
-        require(proposal.aborted == false, "V:updateConf = Proposal aborted");
-        require(proposal.electedCandidate!= address(0x0),"V:updateConf - Elected candidate is a zero address");
-
-        VotingParam votingParam = VotingParam(proposal.electedCandidate);
+    function updateVotingParams(uint256 pIndex,address eCandidate) private {
+  
+        VotingParams votingParam = VotingParams(eCandidate);
         proposalDeposit = votingParam.getProposalDeposit();
         tokenTribute = votingParam.getTokenTribute();
         processingReward = votingParam.getProcessingReward();
-        emit VotingParamUpdated(proposalIndex, proposal.electedCandidate);
+        emit VotingParamUpdated(pIndex, eCandidate);
+    }
+
+    function processVotingResult(uint256 proposalIndex, uint8 processingCode) public{
+        //Check if proposal is by member
+        onlyMember();
+        //Check if proposal exists
+        proposalExists(proposalIndex);
+        
+        Proposal storage proposal = proposalQueue[proposalIndex];
+        require(proposal.didPass == true, "V:updateConf - Proposal is not processed yet");
+        require(proposal.electedCandidate!= address(0x0),"V:updateConf - Elected candidate is a zero address");
+        
+        if(processingCode == 0)
+            updateVotingParams(proposalIndex, proposal.electedCandidate);
+
     }
 
 
-    // function donothing()public onlyMember{
-    //     if(noone[msg.sender])
-    //         noone[msg.sender] = false;
-    //     else
-    //         noone[msg.sender] = true;
-    // }
+    function donothing()public{
+        if(noone[msg.sender])
+            noone[msg.sender] = false;
+        else
+            noone[msg.sender] = true;
+    }
 
     function getCurrentPeriod() public  view returns (uint256) {
       return block.timestamp.sub(summoningTime).div(periodDuration);
@@ -426,6 +435,10 @@ contract Voting {
 
     function hasVotingPeriodExpired(uint256 startingPeriod) public view  returns (bool) {
         return getCurrentPeriod() >= startingPeriod.add(votingPeriodLength);
+    }
+
+    function getTreasuryAddress() public view returns (address){
+        return address(treasuryAccount);
     }
 
     /* Testing helpers */
@@ -440,10 +453,12 @@ contract Voting {
             proposalQueue[proposalIndex].votesByMember[memberAddress].candidate);
     }
 
-    function addMember(address memberAddress, uint256 shares) public onlyMember {
-         members [memberAddress] = Member(memberAddress, shares, true);
-         memberAddressByDelegateKey [memberAddress] = memberAddress;
-         totalShares = totalShares.add(shares);
+    function addMember(address memberAddress, uint256 shares) public  {
+        //Check if proposal is by member
+        onlyMember();
+        members [memberAddress] = Member(memberAddress, shares, true);
+        memberAddressByDelegateKey [memberAddress] = memberAddress;
+        totalShares = totalShares.add(shares);
     }
 
 

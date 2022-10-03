@@ -12,7 +12,7 @@ chai.use(require('chai-as-promised')).should()
 const Voting = artifacts.require('./Voting.sol')
 const TreasuryAccount = artifacts.require('./Treasury.sol')
 const Token = artifacts.require('./GenToken.sol')
-const VotingParam = artifacts.require('./VotingParam.sol')
+const VotingParams = artifacts.require('./VotingParams.sol')
 
 const TOKEN_SUPPLY = new BN(10).pow(new BN(18)).mul(new BN(1000000000))
 
@@ -23,7 +23,6 @@ const deploymentConfig = {
     'PERIOD_DURATION_IN_SECONDS': 120,
     'VOTING_DURATON_IN_PERIODS': 2,
     'GRACE_DURATON_IN_PERIODS': 2,
-    'ABORT_WINDOW_IN_PERIODS': 1,
     'PROPOSAL_DEPOSIT': 100, 
     'TOKEN_TRIBUTE' : 10,
     'PROCESSING_REWARD': 1,
@@ -96,7 +95,6 @@ const deploymentConfig = {
       assert.equal(proposalData.startingPeriod, expectedStartingPeriod)
       assert.equal(proposalData.processed, false)
       assert.equal(proposalData.didPass, false)
-      assert.equal(proposalData.aborted, false)
       assert.equal(proposalData.details, proposal.details)
   
       const totalSharesRequested = await voting.totalSharesRequested()
@@ -115,7 +113,6 @@ const deploymentConfig = {
       }
   
       const totalShares = await voting.totalShares()
-      //assert.equal(totalShares, initialTotalShares)
       assert.equal(totalShares, initialTotalShares)
       const proposalQueueLength = await voting.getProposalQueueLength()
       assert.equal(proposalQueueLength, initialProposalLength + 1)
@@ -210,7 +207,6 @@ const deploymentConfig = {
                             ? options.expectedWinner
                             : zeroAddress
     const didPass = typeof options.didPass === 'boolean' ? options.didPass : true
-    const aborted = typeof options.aborted === 'boolean' ? options.aborted : false
     const isApplicantProposer = typeof options.isApplicantProposer === 'boolean' ? options.isApplicantProposer : false 
 
 
@@ -219,13 +215,12 @@ const deploymentConfig = {
     
     assert.equal(proposalData.processed, true)
     assert.equal(proposalData.didPass, didPass)
-    assert.equal(proposalData.aborted, aborted)
    
     const totalSharesRequested = await voting.totalSharesRequested()
     assert.equal(totalSharesRequested, expectedFinalTotalSharesRequested)
  
     const totalShares = await voting.totalShares()
-    const expectedTotalShares =  didPass && !aborted
+    const expectedTotalShares =  didPass
                                 ? new BN(initialTotalShares).add(new BN(proposalData.sharesRequested))
                                 : new BN(initialTotalShares)
     assert.equal(totalShares.toString(),expectedTotalShares.toString())
@@ -242,19 +237,13 @@ const deploymentConfig = {
     // proposer and applicant are different
     if (isApplicantProposer) {
       const proposerBalance = await token.balanceOf(proposer)
-      const expectedBalance = !aborted
-                              ? new BN(initialProposerBalance)
-                                 .sub( new BN(deploymentConfig.PROPOSAL_DEPOSIT) )
-                                .sub( new BN(proposalData.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE) ) )
-                            : initialProposerBalance 
+      const expectedBalance = new BN(initialProposerBalance).sub( new BN(deploymentConfig.PROPOSAL_DEPOSIT) ).sub( new BN(proposalData.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE) ) )
+                           
       assert.equal(proposerBalance.toString(), expectedBalance.toString())
       // proposer is applicant
     } else {
       const applicantBalance = await token.balanceOf(proposal.applicant1)
-      const expectedApplicantBalance = !aborted
-                                        ? new BN(initialApplicantBalance)
-                                        .sub( new BN(proposalData.sharesRequested).mul( new BN(deploymentConfig.TOKEN_TRIBUTE) ) )
-                                        : new BN(initialApplicantBalance)
+      const expectedApplicantBalance =  new BN(initialApplicantBalance).sub( new BN(proposalData.sharesRequested).mul( new BN(deploymentConfig.TOKEN_TRIBUTE) ) ) 
       assert.equal(applicantBalance.toString(),expectedApplicantBalance.toString());
 
       const proposerBalance = await token.balanceOf(proposer)
@@ -267,7 +256,7 @@ const deploymentConfig = {
     assert.equal(processorBalance, initialProcessorBalance
     )
 
-    if (didPass && !aborted) {
+    if (didPass) {
 
       assert.equal(expectedWinner, proposalData.electedCandidate)
 
@@ -308,8 +297,6 @@ const deploymentConfig = {
                                 summoner,
                                 deploymentConfig.PERIOD_DURATION_IN_SECONDS,
                                 deploymentConfig.VOTING_DURATON_IN_PERIODS,
-                                //deploymentConfig.GRACE_DURATON_IN_PERIODS,
-                                //deploymentConfig.ABORT_WINDOW_IN_PERIODS,
                                 deploymentConfig.PROPOSAL_DEPOSIT, 
                                 deploymentConfig.TOKEN_TRIBUTE,
                                 deploymentConfig.PROCESSING_REWARD,
@@ -371,12 +358,6 @@ const deploymentConfig = {
       const votingPeriodLength = await voting.votingPeriodLength()
       assert.equal(+votingPeriodLength, deploymentConfig.VOTING_DURATON_IN_PERIODS)
 
-      // const gracePeriodLength = await voting.gracePeriodLength()
-      // assert.equal(+gracePeriodLength, deploymentConfig.GRACE_DURATON_IN_PERIODS)
-
-      // const abortWindow = await voting.abortWindow()
-      // assert.equal(+abortWindow, deploymentConfig.ABORT_WINDOW_IN_PERIODS)
-
       const proposalDeposit = await voting.proposalDeposit()
       assert.equal(+proposalDeposit, deploymentConfig.PROPOSAL_DEPOSIT)
 
@@ -391,7 +372,6 @@ const deploymentConfig = {
 
       const summonerData = await voting.members(summoner)
       assert.equal(summonerData.delegateKey.toLowerCase(), summoner.toLowerCase()) // delegateKey matches
-      //assert.equal(summonerData.shares, 1)
       assert.equal(summonerData.shares, 4)
       assert.equal(summonerData.exists, true)
       
@@ -414,8 +394,6 @@ const deploymentConfig = {
       assert.equal(deployerBalance, TOKEN_SUPPLY - initSummonerBalance)
 
     })
-
-
 
     /****************************************************************************
     * Submit proposal
@@ -690,7 +668,6 @@ const deploymentConfig = {
           expectedFinalTotalSharesRequested: 0,
           expectedWinner : proposal1.applicant1,
           didPass: true,
-          aborted: false,
           isApplicantProposer: false,
           
         })
@@ -719,7 +696,6 @@ const deploymentConfig = {
           expectedFinalTotalSharesRequested: 0,
           expectedWinner : zeroAddress,
           didPass: false,
-          aborted: false,
           isApplicantProposer: false,
           
         })
@@ -816,7 +792,6 @@ const deploymentConfig = {
           expectedFinalTotalSharesRequested: 0,
           expectedWinner : proposal2.applicant1,
           didPass: true,
-          aborted: false,
           isApplicantProposer: false,
         })
       })
@@ -932,7 +907,6 @@ const deploymentConfig = {
           expectedFinalTotalSharesRequested: 0,
           expectedWinner : proposal1.applicant1,
           didPass: true,
-          aborted: false,
           isApplicantProposer: true,
           
         })
@@ -983,77 +957,11 @@ const deploymentConfig = {
           expectedFinalTotalSharesRequested: 0,
           expectedWinner : proposal2.applicant1,
           didPass: true,
-          aborted: false,
           isApplicantProposer: true,
         })
       })
  
     })
-
-
-    describe('Abort - Testing proposal abort', () => {
-
-      beforeEach(async () => {
-        await token.transfer(proposal1.applicant1, new BN(proposal1.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)), {from: deployer})
-        await token.approve(voting.address, deploymentConfig.PROPOSAL_DEPOSIT, { from: summoner })
-        await token.approve(voting.address, new BN(proposal1.sharesRequested).mul(new BN(deploymentConfig.TOKEN_TRIBUTE)), {from: proposal1.applicant1})
-  
-        await voting.submitProposal(proposal1.objectiveProposal,
-                                    [proposal1.applicant1],
-                                    proposal1.sharesRequested,
-                                    proposal1.details,
-                                    { from: summoner }
-                                    )
-        await voting.addMember(deployer,1,{from:summoner});
-        await voting.addMember(processor,1,{from:summoner});
-      })
-
-
-      it('Happy case - Abort ', async () => {
-        await advanceTimeInPeriods(1)
-
-        await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
-        await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
-        await voting.abort(0, {from:proposal1.applicant1});
-        await voting.submitVote(0, proposal1.applicant1, 0, { from: processor }).should.be.rejectedWith("V:submitVote - proposal has been aborted");
-      })
-
-      it('Fail - Aborting past grace period ', async () => {
-        await advanceTimeInPeriods(1)
-        
-        await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
-        await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
-        
-        await advanceTimeInPeriods(new BN(deploymentConfig.VOTING_DURATON_IN_PERIODS).add(new BN(1)))
-        await advanceTimeInPeriods(new BN(deploymentConfig.GRACE_DURATON_IN_PERIODS).add(new BN(1)))
-
-        await voting.abort(0, {from:proposal1.applicant1}).should.be.rejectedWith("V:abort - abort window must not have passed");
-      })
-
-      it('Fail - Abort twice ', async () => {
-        await advanceTimeInPeriods(1)
-
-        await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
-        await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer }); 
-        await voting.abort(0, {from:proposal1.applicant1});
-        await voting.abort(0, {from:proposal1.applicant1}).should.be.rejectedWith("V:abort - proposal must not have already been aborted");  
-      })
-
-      it('Fail - Invalid proposal abort', async() =>{
-        await voting.abort(1, {from:proposal1.applicant1}).should.be.rejectedWith("V:proposal does not exist"); 
-      })
-
-
-      it('Fail - Message sender must be a candidate ', async () => {
-        await advanceTimeInPeriods(1)
-
-        await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
-        await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
-        await voting.abort(0, {from:summoner}).should.be.rejectedWith("V:abort - msg.sender must be applicant");
-      })
-
-    })
-
 
     describe('Updating Delegate key - Testing updateDelegateKey', () => {
 
@@ -1077,7 +985,7 @@ const deploymentConfig = {
       var newProcessingReward = new BN(5);
       beforeEach(async () => {
 
-        votingParam = await VotingParam.new(newProposalDeposit, newTokenTribute, newProcessingReward,token.address);
+        votingParam = await VotingParams.new(newProposalDeposit, newTokenTribute, newProcessingReward,token.address);
         
         proposal3 = {
           objectiveProposal : true,

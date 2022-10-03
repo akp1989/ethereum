@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: Open Software License 1.0
 pragma solidity >=0.4.22 <0.9.0;
 
-import './VotingPInterface.sol';
 import './oz/IERC20.sol';
 
-contract VotingParam is VotingPInterface{
+contract VotingParams{
 
     
     uint256 private proposalDeposit;
@@ -13,7 +12,7 @@ contract VotingParam is VotingPInterface{
     IERC20 public daoToken;
 
 
-    function initialize(uint256 _proposalDeposit, uint256 _tokenTribute, uint256 _processingReward,address _daoTokenAddress) public {
+    constructor(uint256 _proposalDeposit, uint256 _tokenTribute, uint256 _processingReward,address _daoTokenAddress){
         require(_daoTokenAddress != address(0), "VotingParam::Constructor - The dao token address cannot be zero address" );
         require(_proposalDeposit > 0, "VotingParam::Constructor - The proposal deposit should be a positive value");
         require(_tokenTribute > 0, "VotingParam::Constructor - The token tribute should be a positive value");
@@ -25,25 +24,25 @@ contract VotingParam is VotingPInterface{
         daoToken = IERC20(_daoTokenAddress); 
     }
     
-    function getProposalDeposit() public override view returns(uint256){
+    function getProposalDeposit() public  view returns(uint256){
         return proposalDeposit;
     }
-    function getTokenTribute() public override view returns(uint256){
+    function getTokenTribute() public  view returns(uint256){
         return tokenTribute;
     }
-    function getProcessingReward() public override view returns(uint256){
+    function getProcessingReward() public  view returns(uint256){
         return processingReward;
     }
 
-    function balanceOf() public override view returns (uint256){
+    function balanceOf() public  view returns (uint256){
         return daoToken.balanceOf(address(this));
     }   
 
-    function allowance(address spender) public override view returns (uint256) {
+    function allowance(address spender) public  view returns (uint256) {
         return daoToken.allowance(address(this),spender);
     }
 
-    function approve(address spender, uint256 value)  public override returns(bool){
+    function approve(address spender, uint256 value)  public  returns(bool){
         return daoToken.approve(spender, value);
     }
     
