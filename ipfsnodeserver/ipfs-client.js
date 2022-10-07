@@ -295,5 +295,40 @@ async function readMetadata(originalfile,tempfile) {
     return s;
 }
 
+app.post('/pincheck', async (req,res) =>{
+  
+  const IPFS = IpfsHttpClient.create({protocol:'http',
+                                                //host:'host.docker.internal',
+                                                host:'127.0.0.1',
+                                                port:'5001',
+                                                path:'api/v0'});
+  var results = [];                                           
+  for await (const{cid,type} of IPFS.pin.ls({type:"recursive"}) )
+  {
+    var result = { "cid" : cid.toString(), "type": type};
+    results.push(result)
+  } 
+  return res.send(JSON.stringify(results));
+})
+
+app.post('/removepin', async (req,res) =>{
+  
+  const CID = req.body.CID;
+  const IPFS = IpfsHttpClient.create({protocol:'http',
+                                                //host:'host.docker.internal',
+                                                host:'127.0.0.1',
+                                                port:'5001',
+                                                path:'api/v0'});
+  var result;
+  try{
+    for await (const{cid,type} of IPFS.pin.ls({paths:CID,type:"recursive"}) ){
+      await IPFS.pin.rm(CID);
+      result = {"response": "success"};
+    }     
+  }catch(err){
+    result ={"response" : "CID not pinned"};
+  }
+  return res.send(JSON.stringify(result));
+})
 
 app.listen(port, () => console.log("Application started"))
