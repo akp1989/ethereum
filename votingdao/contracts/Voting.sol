@@ -54,7 +54,7 @@ contract Voting{
         bool exists; // always true once a member has been created
     }
     
-    mapping(address => bool) public noone;
+    //mapping(address => bool) public noone;
     mapping (address => Member) public members;
     mapping (address => address) public memberAddressByDelegateKey;  //mapping (delegateKey => memberAddress)
 
@@ -117,7 +117,7 @@ contract Voting{
     event VotingParamUpdated(uint256 indexed proposalIndex,address indexed paramContract);
 
     //event testEvemt(uint var1, uint var2, uint var3);
-    constructor(
+    function initialize(
         address summoner,
         uint256 _periodDuration,
         uint256 _votingPeriodLength,
@@ -126,7 +126,7 @@ contract Voting{
         uint256 _processingReward,
         bool _quadraticMode,
         address _daoTokenAddress
-        )  
+        ) public
     {
         require(summoner != address(0), "V:const summoner cannot be 0");
         require(_periodDuration > 0, "V:const periodDuration cannot be 0");
@@ -422,12 +422,12 @@ contract Voting{
     }
 
 
-    function donothing()public{
-        if(noone[msg.sender])
-            noone[msg.sender] = false;
-        else
-            noone[msg.sender] = true;
-    }
+    // function donothing()public{
+    //     if(noone[msg.sender])
+    //         noone[msg.sender] = false;
+    //     else
+    //         noone[msg.sender] = true;
+    // }
 
     function getCurrentPeriod() public  view returns (uint256) {
       return block.timestamp.sub(summoningTime).div(periodDuration);
@@ -443,23 +443,23 @@ contract Voting{
 
     /* Testing helpers */
 
-    function getProposalQueueLength() public view returns (uint256) {
-        return proposalQueue.length;
-    }
+    // function getProposalQueueLength() public view returns (uint256) {
+    //     return proposalQueue.length;
+    // }
 
-    function getMemberProposalVote(address memberAddress, uint256 proposalIndex) public view returns (uint256[] memory, uint256[] memory, address[] memory) {
-    return (proposalQueue[proposalIndex].votesByMember[memberAddress].votes, 
-            proposalQueue[proposalIndex].votesByMember[memberAddress].quadorNoVotes,
-            proposalQueue[proposalIndex].votesByMember[memberAddress].candidate);
-    }
+    // function getMemberProposalVote(address memberAddress, uint256 proposalIndex) public view returns (uint256[] memory, uint256[] memory, address[] memory) {
+    // return (proposalQueue[proposalIndex].votesByMember[memberAddress].votes, 
+    //         proposalQueue[proposalIndex].votesByMember[memberAddress].quadorNoVotes,
+    //         proposalQueue[proposalIndex].votesByMember[memberAddress].candidate);
+    // }
 
-    function addMember(address memberAddress, uint256 shares) public  {
-        //Check if proposal is by member
-        onlyMember();
-        members [memberAddress] = Member(memberAddress, shares, true);
-        memberAddressByDelegateKey [memberAddress] = memberAddress;
-        totalShares = totalShares.add(shares);
-    }
+    // function addMember(address memberAddress, uint256 shares) public  {
+    //     //Check if proposal is by member
+    //     onlyMember();
+    //     members [memberAddress] = Member(memberAddress, shares, true);
+    //     memberAddressByDelegateKey [memberAddress] = memberAddress;
+    //     totalShares = totalShares.add(shares);
+    // }
 
 
 }
