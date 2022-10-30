@@ -4,7 +4,6 @@ var IpfsHttpClient = require('ipfs-http-client');
 const multer  = require('multer');
 const path = require('path');
 const fs= require('fs');
-const { Readable } = require('stream');
 const crypto = require('crypto'); 
 
 const AppendInitStream = require ('./appendInitStream');
@@ -36,55 +35,59 @@ app.get('/', (req,res) => {
 	res.send("Welcome to Genera node client for IPFS");
 });
 
-// app.post('/upload', async (req,res) =>{
-//     const path = req.body.path;
+app.post('/add', async (req,res,next) =>{
+  var content;
+  var response;
+  //Infura API for client side access.
+  // const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
     
-//     const content = req.body.content;
-//     //Infura API for client side access.
-//     // const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
-//     const IPFS = await IpfsHttpClient.create({protocol:'http',
-//                                         //host:'host.docker.internal',
-//                                         host:'127.0.0.1',
-//                                         port:'5001',
-//                                         path:'api/v0'});
-//     const ipfsResponse = await IPFS.add({path:path,
-//                                          content:content});
-//     console.log('Uploaded the file with CID : ', ipfsResponse.cid.toString());
-//     return res.json({"CID" : ipfsResponse.cid.toString()});
-// })
+  const IPFS = await IpfsHttpClient.create({protocol:'http',
+                                            //host:'host.docker.internal',
+                                            host:'127.0.0.1',
+                                            port:'5001',
+                                            path:'api/v0'});
+  try{
+    content = JSON.stringify(req.body);
+    console.log(new Date().toUTCString()+': Contect received for adding');
+    response = await IPFS.add(content);
+    console.log(new Date().toUTCString() + 'Uploaded the file with CID : ', response.cid.toString());
+  }catch(err){
+    var errorMessage = ' Add request errored with '+ err;
+    return res.status(500).send(errorMessage);
+  }
+  return res.json({"CID" : response.cid.toString()});
+})
+
+app.get('/get/:cid', async (req,res,next) =>{
+  var cid;
+  let response = '';
+  const textDecoder = new TextDecoder();
+  //Infura API for client side access.
+  // const IPFS= IpfsHttpClient.create("https://ipfs.infura.io:5001");
+  const IPFS = await IpfsHttpClient.create({protocol:'http',
+                                      //host:'host.docker.internal',
+                                      host:'127.0.0.1',
+                                      port:'5001',
+                                      path:'api/v0'});
+  try{
+    cid = req.params.cid;
+    console.log (new Date().toUTCString() + ' Get request for :',cid );
+    for await(const chunkData of IPFS.cat(cid)){
+      response += textDecoder.decode(chunkData,{stream:true});
+      
+    }
+  }catch(err){
+    var errorMessage = ' Get request errored with '+ err;
+    return res.status(500).send(errorMessage);
+  }
+  return res.json(JSON.parse(response));
+})
 
 
 //Handler to receive the uploaded file as multipart request
 app.post('/uploadMultipart', upload.single('fileName'), async function (req, res, next){
-    var jsonData = {};
-
-    //Additional params passed with the file as json object
-    var additionalParams = JSON.parse(req.body.additionalParams);
-    for(var additionalParam of Object.keys(additionalParams))
-    {
-      jsonData[additionalParam] = additionalParams[additionalParam];
-    }
-
-    //Two different filepaths are defined
-    // filepath --> Actual file received from the user
-    // b64encpath --> Base64 encoded and AES encrypted file to be uploaded to the IPFS
-    const filename = req.file.originalname;
-    const filepath = path.join(tempPath,filename);
-    const b64encname = 'b64enc'+filename;
-    const b64encpath = path.join(tempPath,b64encname);
-    console.log(new Date().toUTCString()+': File received for ' + filename);
-
-    //Async method to convert the file. Returns the security key of encryption in hex encoding
-    let securitykey = await convertEncryptFile(filepath,b64encpath,jsonData,req.file.mimetype);
-    console.log(new Date().toUTCString()+': File converted for ' + filename);
-   
-    //Remove the actual file received from user
-    fs.unlink(filepath, function (err) {
-      if (err) console.log(err);
-      console.log(new Date().toUTCString()+': File at' +filepath+'deleted!');
-    });
-
-
+    var jsonData = {}; 
+    var ipfsResponse,securitykey;
     //Initiate IPFS and upload the encrypted file
     //Passes a readstream object in the place of file content
     const IPFS = IpfsHttpClient.create({protocol:'http',
@@ -92,17 +95,44 @@ app.post('/uploadMultipart', upload.single('fileName'), async function (req, res
                                         host:'127.0.0.1',
                                         port:'5001',
                                         path:'api/v0'});
-    const fileDetails = {path: filename, content: fs.createReadStream(b64encpath)};
-    console.log(new Date().toUTCString()+': Starting ipfs upload for ' + filename);
-    const ipfsResponse = await IPFS.add(fileDetails);
-    console.log(new Date().toUTCString() + ':File uploaded to ipds with CID : '+ ipfsResponse.cid.toString());
+    try{
+      //Additional params passed with the file as json object
+      var additionalParams = JSON.parse(req.body.additionalParams);
+      for(var additionalParam of Object.keys(additionalParams))
+      {
+        jsonData[additionalParam] = additionalParams[additionalParam];
+      }
+      //Two different filepaths are defined
+      // filepath --> Actual file received from the user
+      // b64encpath --> Base64 encoded and AES encrypted file to be uploaded to the IPFS
+      const filename = req.file.originalname;
+      const filepath = path.join(tempPath,filename);
+      const b64encname = 'b64enc'+filename;
+      const b64encpath = path.join(tempPath,b64encname);
+      console.log(new Date().toUTCString()+': File received for ' + filename);
 
-    //Remove the encrypted file from the server
-    fs.unlink(b64encpath, function (err) {
-      if (err) console.log(err);
-      console.log(new Date().toUTCString()+': File at' +b64encpath+'deleted!');
-    });
-    
+      //Async method to convert the file. Returns the security key of encryption in hex encoding
+      securitykey = await convertEncryptFile(filepath,b64encpath,jsonData,req.file.mimetype);
+      console.log(new Date().toUTCString()+': File converted for ' + filename);
+      //Remove the actual file received from user
+      fs.unlink(filepath, function (err) {
+        if (err) console.log(err);
+        console.log(new Date().toUTCString()+': File at' +filepath+'deleted!');
+      });
+      const fileDetails = {path: filename, content: fs.createReadStream(b64encpath)};
+      console.log(new Date().toUTCString()+': Starting ipfs upload for ' + filename);
+      ipfsResponse = await IPFS.add(fileDetails);
+      console.log(new Date().toUTCString() + ':File uploaded to ipds with CID : '+ ipfsResponse.cid.toString());
+  
+      //Remove the encrypted file from the server
+      fs.unlink(b64encpath, function (err) {
+        if (err) console.log(err);
+        console.log(new Date().toUTCString()+': File at' +b64encpath+'deleted!');
+      });
+    }catch(err){
+      var errorMessage = ' Upload file errored with '+ err;
+      return res.status(500).send(errorMessage);
+    }
     return res.json({"CID" : ipfsResponse.cid.toString(),"secretKey":securitykey});
 
   })
@@ -146,18 +176,39 @@ app.post('/uploadMultipart', upload.single('fileName'), async function (req, res
   }
 
 //Handler to download the file from IPFS for a given CID
-  app.post('/download', async (req,res) =>{
-    const cid = req.body.CID; 
-    const secretKey = req.body.secretKey;
-
-    //async function to get the document
-    const responseJSON = await getDocument(cid,secretKey);
-    
+app.post('/download', async (req,res) =>{
+  var cid;
+  var secretKey;
+  try{
+    cid = req.body.CID;
+    secretKey = req.body.secretKey;
+    await getDocument(cid,secretKey); 
     const b64decpath = path.join(tempPath,cid);
     var responseStream =  fs.createReadStream(b64decpath);
     responseStream.pipe(res);
-    
-    //return res.send(JSON.stringify(responseJSON));
+  }catch(err){
+    var errorMessage = ' Download file errored with '+ err;
+    return res.status(500).send(errorMessage);
+  }
+})
+
+//Handler to download the file from IPFS for a given CID
+app.get('/download/:cid/:secretKey', async (req,res) =>{
+  var cid;
+  var secretKey;
+  try{
+    cid = req.params.cid;
+    secretKey = req.params.secretKey;
+    //async function to get the document
+    await getDocument(cid,secretKey);
+    const b64decpath = path.join(tempPath,cid);
+    var responseStream =  fs.createReadStream(b64decpath);
+    responseStream.pipe(res);
+  } catch(err){
+    var errorMessage = ' Download file errored with '+ err;
+    return res.status(500).send(errorMessage);
+  }
+ 
 })
 
 //Async function the receives the document from IPFS 
