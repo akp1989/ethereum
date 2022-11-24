@@ -1,4 +1,5 @@
 import axios from 'axios';
+const config = require ('./contractABI/config');
 
 const uploadRequest = {
     fileName: '',
@@ -6,8 +7,27 @@ const uploadRequest = {
     fileContent:null
 }
 
-const uploadURL = 'http://157.245.55.46:3100/uploadMultipart';
-const downloadURL = 'http://157.245.55.46:3100/download';
+const uploadURL = config.ipfs.uploadURL;
+const downloadURL = config.ipfs.downloadURL;
+const contentuploadURL = config.ipfs.contentuploadURL;
+const contentdownloadURL = config.ipfs.contentdownloadURL;
+
+export const uploadContent = async(proposalDescription) =>{
+    var proposalJSON;
+    try{
+        proposalJSON = JSON.parse(proposalDescription);
+    }catch(err){
+        return "Unable to parse the proposal description as json";
+    }
+    
+    let uploadResponse = await axios.post(contentuploadURL,proposalJSON);
+    return uploadResponse.data;
+}
+
+export const downloadContent = async(cid) =>{
+    let ipfsContent = await axios.get(contentdownloadURL.concat(cid));
+    return ipfsContent;
+}
 
 export const uploadDocument = async (authorName, fileInput, addParams)=>{
     const formData = new FormData();

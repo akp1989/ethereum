@@ -8,6 +8,8 @@ import DocumentCreation from './documentCreation';
 import DocumentRead from './documentRead';
 import DocumentSearch from './documentSearch';
 import KeyGeneration from './generateSecurityKey';
+import SubmitProposal from './submitProposal';
+import ViewProposal from './viewProposal';
 import { checkWallet} from './../component/web3walletcheck';
 
 
@@ -52,13 +54,18 @@ const Home: NextPage = () =>{
                   <Tab label="Document Search"/>
 
                   <Tab label="Key Gen"/>
+
+                  <Tab label="Create Proposal"/>
+
+                  <Tab label="View Proposal"/>
     
             </Tabs>
             {selectedTab ===0 && <DocumentCreation/>}
             {selectedTab ===1 && <DocumentRead/>}
             {selectedTab ===2 && <DocumentSearch/>}
             {selectedTab ===3 && <KeyGeneration/>}
- 
+            {selectedTab ===4 && <SubmitProposal/>}
+            {selectedTab ===5 && <ViewProposal/>}
             </Box>    
      
           </Container>

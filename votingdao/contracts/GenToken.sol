@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
-import "./oz/ERC20.sol";
+import "./library/ERC20.sol";
 
 contract GenToken is ERC20 {
     // constructor(string memory _name, string memory _symbol) ERC20(_name,_symbol){

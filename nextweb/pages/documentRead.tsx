@@ -4,7 +4,7 @@ import { TextField,Box,Container,Button,Stack } from '@mui/material'
 import { useState} from 'react'
 import { readDocumentContract } from './../component/contractCall'
 import { downloadDocument } from './../component/ipfs'
-import { decryptDocumentKey } from '../component/keyGen'
+import { decryptDocumentKey } from './../component/keyGen'
 
 const documentReadPageModel = {
   documentId: '', 

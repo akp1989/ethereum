@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Open Software License 1.0
 pragma solidity >=0.4.22 <0.9.0;
 
-import './oz/IERC20.sol';
+import './library/IERC20.sol';
 
 contract VotingParams{
 

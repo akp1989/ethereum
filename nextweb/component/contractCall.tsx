@@ -1,9 +1,11 @@
 import Web3 from 'web3'
 import { ethers } from 'ethers';
 
+const config = require ('./contractABI/config');
+
 //ABI and address for Master document Contract
 const masterdoccontractABI = require('./contractABI/masterdoccontractABI.json')
-const masterdoccontractAddress = '0xa3cD937a5825e27FD7e88E32dCAf1A2e047d86f7';
+const masterdoccontractAddress = config.matic.masterdoccontractAddress;
 
 var web3;
 var web3Signer;

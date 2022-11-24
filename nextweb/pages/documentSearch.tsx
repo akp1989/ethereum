@@ -2,7 +2,7 @@ import type {NextPage} from 'next'
 import styles from '../styles/Home.module.css'
 import { useState} from 'react'
 import { TextField,Box,Container,Button,Stack, FormLabel, FormControlLabel, RadioGroup, Radio } from '@mui/material'
-import { searchDocument } from '../component/contractCall'
+import { searchDocument } from './../component/contractCall'
 
 const documentSearchPageModel = {
     searchKey: '', 
