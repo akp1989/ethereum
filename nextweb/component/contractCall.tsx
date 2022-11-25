@@ -40,6 +40,7 @@ const initMasterDocContract = async() =>{
 
 export const createDocumentContract = async(documentPageModel) =>{
     await initMasterDocContract();
+    var feeData = await getFeeData();
     var documentId = await searchDocument(documentPageModel.checkSum,'checkSum');
     if(documentId.length==0){
         // var transactionResult = await masterDocContractWeb3.methods.createDocument(documentPageModel.documentId,documentPageModel.authorName,
@@ -49,7 +50,11 @@ export const createDocumentContract = async(documentPageModel) =>{
         var transactionResult = await masterDocContractEthers.connect(ethersSigner).createDocument(documentPageModel.documentId,documentPageModel.authorName,
                                                                                                     documentPageModel.timeStamp, documentPageModel.ipfsLink,
                                                                                                     documentPageModel.checkSum, documentPageModel.secretKey,
-                                                                                                    documentPageModel.reviewers.split(','));
+                                                                                                    documentPageModel.reviewers.split(','),
+                                                                                                    {
+                                                                                                        gasLimit : '2000000',
+                                                                                                        maxFeePerGas : feeData.maxFeePerGas
+                                                                                                    });
         
         return (JSON.stringify(transactionResult));
     }
@@ -113,4 +118,13 @@ export const searchDocument = async (searchKey, searchKeyOption) => {
         });
     } 
    return searchResponse;
+}
+
+export const getFeeData = async() =>{
+    let feeData = await ethersProvider.getFeeData(); 
+    console.log("Fee Data:", feeData); 
+    console.log("Gas Price in Gwei:", ethers.utils.formatUnits(feeData.gasPrice,'gwei'));
+    console.log("maxPriorityFeePerGas in Gwei:", ethers.utils.formatUnits(feeData.maxPriorityFeePerGas,'gwei'));
+    console.log("maxFeePerGas Price in Gwei:", ethers.utils.formatUnits(feeData.maxFeePerGas,'gwei'));
+    return feeData;
 }

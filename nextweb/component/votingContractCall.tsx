@@ -79,7 +79,7 @@ export const getFeeData = async() =>{
     console.log("maxPriorityFeePerGas in Gwei:", ethers.utils.formatUnits(feeData.maxPriorityFeePerGas,'gwei'));
     console.log("maxFeePerGas Price in Gwei:", ethers.utils.formatUnits(feeData.maxFeePerGas,'gwei'));
     return feeData;
-    }
+}
         
 // }
 // //Getting balance for ERC20 token
