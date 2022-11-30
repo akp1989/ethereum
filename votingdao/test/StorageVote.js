@@ -23,9 +23,7 @@ const initSummonerBalance = 1000
 
 const deploymentConfig = {
     'SUMMONER': '0xD4c39eB634bEE5989cb73D1b4CEe39903B6213C2',
-    'PERIOD_DURATION_IN_SECONDS': 120,
-    'VOTING_DURATON_IN_PERIODS': 2,
-    'GRACE_DURATON_IN_PERIODS': 2,
+    'VOTING_DURATON_IN_PERIODS': 1209600,
     'PROPOSAL_DEPOSIT': 100, 
     'TOKEN_TRIBUTE' : 10,
     'PROCESSING_REWARD': 1,
@@ -36,7 +34,7 @@ const deploymentConfig = {
   }
   
   async function advanceTimeInPeriods (periods) {
-    await advanceTime(periods * deploymentConfig.PERIOD_DURATION_IN_SECONDS)
+    await advanceTime(deploymentConfig.VOTING_DURATON_IN_PERIODS)
   }
  
 
@@ -79,9 +77,7 @@ const deploymentConfig = {
       const initialProposerBalance = options.initialProposerBalance
                                       ? options.initialProposerBalance
                                       : 0
-      const expectedStartingPeriod = options.expectedStartingPeriod
-                                      ? options.expectedStartingPeriod
-                                      : 1
+
   
       const proposalData = await voting.proposalQueue.call(proposalIndex)
       assert.equal(proposalData.proposer, proposer)
@@ -94,7 +90,7 @@ const deploymentConfig = {
         assert(proposalData.sharesRequested.eq(proposal.sharesRequested))
       }
       
-      assert.equal(proposalData.startingPeriod, expectedStartingPeriod)
+      assert.equal(proposalData.endingPeriod-proposalData.startingPeriod, new BN(deploymentConfig.VOTING_DURATON_IN_PERIODS))
       assert.equal(proposalData.processed, false)
       assert.equal(proposalData.didPass, false)
       assert.equal(proposalData.details, proposal.details)
@@ -301,7 +297,6 @@ const deploymentConfig = {
 
       voting = await Voting.new(
                                 summoner,
-                                deploymentConfig.PERIOD_DURATION_IN_SECONDS,
                                 deploymentConfig.VOTING_DURATON_IN_PERIODS,
                                 deploymentConfig.PROPOSAL_DEPOSIT, 
                                 deploymentConfig.TOKEN_TRIBUTE,
@@ -363,11 +358,8 @@ const deploymentConfig = {
       const treasuryToken = await treasury.daoToken()
       assert.equal(treasuryToken, token.address)
 
-      const periodDuration = await voting.periodDuration()
-      assert.equal(+periodDuration, deploymentConfig.PERIOD_DURATION_IN_SECONDS)
-
-      const votingPeriodLength = await voting.votingPeriodLength()
-      assert.equal(+votingPeriodLength, deploymentConfig.VOTING_DURATON_IN_PERIODS)
+      const votingPeriod = await voting.votingPeriod()
+      assert.equal(+votingPeriod, deploymentConfig.VOTING_DURATON_IN_PERIODS)
 
       const proposalDeposit = await voting.proposalDeposit()
       assert.equal(+proposalDeposit, deploymentConfig.PROPOSAL_DEPOSIT)
@@ -377,9 +369,6 @@ const deploymentConfig = {
 
       const processingReward = await voting.processingReward()
       assert.equal(+processingReward, deploymentConfig.PROCESSING_REWARD)
-
-      const currentPeriod = await voting.getCurrentPeriod()
-      assert.equal(+currentPeriod, 0)
 
       const summonerData = await voting.members(summoner)
       assert.equal(summonerData.shares, 4)
@@ -521,18 +510,15 @@ const deploymentConfig = {
       })
 
       it('Happy case - Yes Vote', async () => {
-        await advanceTimeInPeriods(1)
         await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner })
         await verifySubmitVote(proposal1, 0, {objectiveProposal: proposal1.objectiveProposal, yesVote : true,applicant: proposal1.applicant1})
 
       })
       it('Fail - member has already voted', async () => {
-        await advanceTimeInPeriods(1)
         await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner })
         await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner }).should.be.rejectedWith('member already voted')
       })
       it('Fail - objective vote should be zero or one', async () => {
-        await advanceTimeInPeriods(1)
         await voting.submitVote(0, proposal1.applicant1, 2, { from: summoner }).should.be.rejectedWith( "vote to be 0/1")
       })
 
@@ -556,18 +542,13 @@ const deploymentConfig = {
       })
 
       it('Happy case - No vote', async () => {
-        await advanceTimeInPeriods(1)
         await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner })
         await verifySubmitVote(proposal1, 0, {objectiveProposal: proposal1.objectiveProposal, yesVote : false,applicant: proposal1.applicant1})
 
       })
 
-      it('Fail - voting period not started', async () => {
-        await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner }).should.be.rejectedWith('voting period not started')
-      })
-
       it('Fail - voting period closed', async () => {
-        await advanceTimeInPeriods(3)
+        await advanceTimeInPeriods(0)
         await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner }).should.be.rejectedWith('voting period expired')
       })
 
@@ -593,36 +574,30 @@ const deploymentConfig = {
       })
 
       it('Happy case - submit normal vote', async () => {
-        await advanceTimeInPeriods(1)
         await voting.submitVote(0, proposal2.applicant1, 1, { from: summoner })
         await verifySubmitVote(proposal2, 0,{objectiveProposal: proposal2.objectiveProposal, yesVote : true, applicant: proposal2.applicant1, voteCount: 1})
 
       })
       it('Fail - objective vote should be zero or one', async () => {
-        await advanceTimeInPeriods(1)
         await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner }).should.be.rejectedWith( "One vote needed")
       })
 
       //To test this change the initial share of summoner to 4
       it('Happy case - submit quadratic vote', async () => {
-        await advanceTimeInPeriods(1)
         await voting.submitVote(0, proposal2.applicant1, 4, { from: summoner })
         await verifySubmitVote(proposal2, 0,{objectiveProposal: proposal2.objectiveProposal, yesVote : true, applicant: proposal2.applicant1, voteCount: 4})
 
       })
 
       it('Fail - member has already voted', async () => {
-        await advanceTimeInPeriods(1)
         await voting.submitVote(0, proposal1.applicant1, 5, { from: summoner }).should.be.rejectedWith('insufficient shares to vote')
       })
 
       it('Fail - member has already voted', async () => {
-        await advanceTimeInPeriods(1)
         await voting.submitVote(0, proposal1.applicant1, 5, { from: summoner }).should.be.rejectedWith('insufficient shares to vote')
       })
 
       it('Fail - voter not a member', async () => {
-        await advanceTimeInPeriods(1)
         await voting.submitVote(0, proposal1.applicant1, 5, { from: applicant1 }).should.be.rejectedWith('Non-member')
       })
 
@@ -654,14 +629,11 @@ const deploymentConfig = {
 
 
       it('Happy case - Objective vote - elected', async () => {
-        await advanceTimeInPeriods(1)
-
         await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
         await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
         await voting.submitVote(0, proposal1.applicant1, 0, { from: processor })
 
-        await advanceTimeInPeriods(deploymentConfig.VOTING_DURATON_IN_PERIODS)
-        await advanceTimeInPeriods(deploymentConfig.GRACE_DURATON_IN_PERIODS)
+        await advanceTimeInPeriods(0)
         await voting.processProposal(0, { from: processor })
 
         await verifyProcessProposal(proposal1, 0, summoner, processor, {
@@ -682,14 +654,11 @@ const deploymentConfig = {
 
 
       it('Happy case - Objective vote - Not elected', async () => {
-        await advanceTimeInPeriods(1)
-
         await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner });
         await voting.submitVote(0, proposal1.applicant1, 0, { from: deployer });
         await voting.submitVote(0, proposal1.applicant1, 1, { from: processor })
 
-        await advanceTimeInPeriods(deploymentConfig.VOTING_DURATON_IN_PERIODS)
-        await advanceTimeInPeriods(deploymentConfig.GRACE_DURATON_IN_PERIODS)
+        await advanceTimeInPeriods(0)
         await voting.processProposal(0, { from: processor })
 
         await verifyProcessProposal(proposal1, 0, summoner, processor, {
@@ -709,9 +678,7 @@ const deploymentConfig = {
       })
 
       it('Happy case - Objective vote - proposal with  no votes', async() =>{
-        await advanceTimeInPeriods(1)
-        await advanceTimeInPeriods(deploymentConfig.VOTING_DURATON_IN_PERIODS)
-        await advanceTimeInPeriods(deploymentConfig.GRACE_DURATON_IN_PERIODS)
+        await advanceTimeInPeriods(0)
         const proposalData = await voting.proposalQueue.call(0)
         await voting.processProposal(0,{from:processor})
         await verifyProcessProposal(proposal1, 0, summoner, processor, {
@@ -739,12 +706,9 @@ const deploymentConfig = {
       })
 
       it('Fail - Already processes proposal', async () => {
-        await advanceTimeInPeriods(1)
-
         await voting.submitVote(0, proposal1.applicant1, 0, { from: summoner });
 
-        await advanceTimeInPeriods(deploymentConfig.VOTING_DURATON_IN_PERIODS)
-        await advanceTimeInPeriods(deploymentConfig.GRACE_DURATON_IN_PERIODS)
+        await advanceTimeInPeriods(0)
         await voting.processProposal(0, { from: processor })
         await voting.processProposal(0, { from: processor }).should.be.rejectedWith("processed already")
 
@@ -786,7 +750,6 @@ const deploymentConfig = {
 
       it('Happy case - Quadratic vote - Elected', async () => {
 
-        await advanceTimeInPeriods(2)
         await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
         await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
         await voting.submitVote(0, proposal1.applicant1, 0, { from: processor })
@@ -795,9 +758,8 @@ const deploymentConfig = {
         await voting.submitVote(1, proposal2.applicant1, 1, { from: deployer });
         await voting.submitVote(1, proposal2.applicant2, 1, { from: processor })
 
-        await advanceTimeInPeriods(new BN(deploymentConfig.VOTING_DURATON_IN_PERIODS).add(new BN(1)))
-        await advanceTimeInPeriods(new BN(deploymentConfig.GRACE_DURATON_IN_PERIODS).add(new BN(1)))
-
+        await advanceTimeInPeriods(0)
+       
         await voting.processProposal(0, { from: processor })
 
         await voting.processProposal(1, { from: processor })
@@ -820,16 +782,12 @@ const deploymentConfig = {
 
       it('Fail - Quadratic vote - No winner', async () => {
 
-        await advanceTimeInPeriods(2)
         await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
         await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
         await voting.submitVote(0, proposal1.applicant1, 0, { from: processor })
 
-
-
-        await advanceTimeInPeriods(new BN(deploymentConfig.VOTING_DURATON_IN_PERIODS).add(new BN(1)))
-        await advanceTimeInPeriods(new BN(deploymentConfig.GRACE_DURATON_IN_PERIODS).add(new BN(1)))
-
+        await advanceTimeInPeriods(1)
+        
         await voting.processProposal(0, { from: processor })
 
         await voting.processProposal(1, { from: processor }).should.be.rejectedWith( "no winner")
@@ -838,7 +796,6 @@ const deploymentConfig = {
 
       it('Fail - Quadratic vote - Equal votes', async () => {
 
-        await advanceTimeInPeriods(2)
         await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
         await voting.submitVote(0, proposal1.applicant1, 1, { from: deployer });
         await voting.submitVote(0, proposal1.applicant1, 0, { from: processor })
@@ -847,9 +804,8 @@ const deploymentConfig = {
         await voting.submitVote(1, proposal2.applicant2, 1, { from: deployer });
         await voting.submitVote(1, proposal2.applicant2, 1, { from: processor })
 
-        await advanceTimeInPeriods(new BN(deploymentConfig.VOTING_DURATON_IN_PERIODS).add(new BN(1)))
-        await advanceTimeInPeriods(new BN(deploymentConfig.GRACE_DURATON_IN_PERIODS).add(new BN(1)))
-
+        await advanceTimeInPeriods(0)
+        
         await voting.processProposal(0, { from: processor })
 
         await voting.processProposal(1, { from: processor }).should.be.rejectedWith( "no winner")
@@ -857,13 +813,11 @@ const deploymentConfig = {
       })
 
       it('Fail - Skipping a proposal for processing from queue', async () => {
-        await advanceTimeInPeriods(2)
         await voting.submitVote(0, proposal1.applicant1, 1, { from: summoner });
         await voting.submitVote(1, proposal2.applicant1, 4, { from: summoner });
 
-        await advanceTimeInPeriods(new BN(deploymentConfig.VOTING_DURATON_IN_PERIODS).add(new BN(1)))
-        await advanceTimeInPeriods(new BN(deploymentConfig.GRACE_DURATON_IN_PERIODS).add(new BN(1)))
-
+        await advanceTimeInPeriods(0)
+        
         await voting.processProposal(1, {from:processor}).should.be.rejectedWith("previous proposal unprocessed")
 
       })

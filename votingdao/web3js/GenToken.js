@@ -1,4 +1,4 @@
-const genTokenABI = require('./library/GenToken');
+const genTokenABI = require('./library/genTokenABI');
 const Ethers = require("ethers");
 const config = require('./library/config')
 

@@ -12,9 +12,8 @@ contract ProcessVotingResult{
     /***************
     GLOBAL CONSTANTS
     ***************/
-    uint256 public constant MAX_LENGTH = 10**18; 
-    uint256 public periodDuration; // default = 17280 = 4.8 hours in seconds (5 periods per day)
-    uint256 public votingPeriodLength; // default = 35 periods (7 days)
+    uint256 public constant MAX_LENGTH = 10**18;
+    uint256 public votingPeriod; // default = 35 periods (7 days)
     uint256 public proposalDeposit; // default = 10 ETH (~$1,000 worth of ETH at contract deployment)
     uint256 public tokenTribute; //defauly = 1 Eth
     uint256 public processingReward; // default = 0.1 - amount of ETH to give to whoever processes a proposal
@@ -30,7 +29,7 @@ contract ProcessVotingResult{
     uint256[] votes;
     uint256[] quadorNoVotes;                      
     address[] candidate;
-    }
+}
 
     struct Member {
         uint256 shares; // the # of shares assigned to this member
@@ -48,6 +47,7 @@ contract ProcessVotingResult{
         address electedCandidate; // address of an electeed candidate
         uint256 sharesRequested; // the # of shares the applicant is requesting
         uint256 startingPeriod; // the period in which voting can start for this proposal
+        uint256 endingPeriod;
         bool processed; // true only if the proposal has been processed
         bool didPass; // true only if the proposal has elected a candidate
         bool objectiveProposal;

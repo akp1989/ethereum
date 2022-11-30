@@ -8,13 +8,11 @@ import "./library/SafeMath.sol";
 contract SubmitVote{
     
     using SafeMath for uint256;
-
     /***************
     GLOBAL CONSTANTS
     ***************/
-    uint256 public constant MAX_LENGTH = 10**18; 
-    uint256 public periodDuration; // default = 17280 = 4.8 hours in seconds (5 periods per day)
-    uint256 public votingPeriodLength; // default = 35 periods (7 days)
+    uint256 public constant MAX_LENGTH = 10**18;
+    uint256 public votingPeriod; // default = 35 periods (7 days)
     uint256 public proposalDeposit; // default = 10 ETH (~$1,000 worth of ETH at contract deployment)
     uint256 public tokenTribute; //defauly = 1 Eth
     uint256 public processingReward; // default = 0.1 - amount of ETH to give to whoever processes a proposal
@@ -30,7 +28,7 @@ contract SubmitVote{
     uint256[] votes;
     uint256[] quadorNoVotes;                      
     address[] candidate;
-    }
+}
 
     struct Member {
         uint256 shares; // the # of shares assigned to this member
@@ -48,12 +46,14 @@ contract SubmitVote{
         address electedCandidate; // address of an electeed candidate
         uint256 sharesRequested; // the # of shares the applicant is requesting
         uint256 startingPeriod; // the period in which voting can start for this proposal
+        uint256 endingPeriod;
         bool processed; // true only if the proposal has been processed
         bool didPass; // true only if the proposal has elected a candidate
         bool objectiveProposal;
         uint256 tokenTribute; // amount of tokens offered as tribute
         mapping (address => Ballot) votesByMember; // list of candidates and corresponding votes
     }
+
 
 
     Proposal[] public proposalQueue;
@@ -79,8 +79,8 @@ contract SubmitVote{
         else            
             require(votes>0,"One vote needed");
  
-        require(getCurrentPeriod() >= proposal.startingPeriod, "voting period not started");
-        require(!hasVotingPeriodExpired(proposal.startingPeriod), "voting period expired");
+        
+        require(block.timestamp < proposal.endingPeriod, "voting period expired");
 
         Ballot storage memberBallot = proposal.votesByMember[msg.sender];
 
@@ -130,12 +130,9 @@ contract SubmitVote{
 
     }
 
-    function getCurrentPeriod() public  view returns (uint256) {
-      return block.timestamp.sub(summoningTime).div(periodDuration);
-    }
-
-    function hasVotingPeriodExpired(uint256 startingPeriod) public view  returns (bool) {
-        return getCurrentPeriod() >= startingPeriod.add(votingPeriodLength);
+    function hasVotingExpired(uint256 endingPeriod) internal view returns (bool){
+        uint256 currentPeriod = block.timestamp;
+        return currentPeriod > endingPeriod;
     }
 
 }

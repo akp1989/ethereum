@@ -88,6 +88,13 @@ async function getProposalByIndex(proposalIndex) {
     return proposal;
 }
 
+async function getSummoningTime(){
+    const summoningTime = await voting.summoningTime();
+    console.log("The summoning time is :", summoningTime.toNumber());
+    const date = new Date( summoningTime.toNumber()*1000);
+    console.log(date);
+}
+
 async function getMembers(memberAddress) {
     var memberAddress = await voting.members(memberAddress);
     console.log('Member at address is  : ',memberAddress);
@@ -143,6 +150,7 @@ async function getCandidates(proposalIndex){
 //getProposalDeposit();
 //getTokenTribute();
 //getProcessingReward();
+getSummoningTime();
 //getMembers(config.wallet.address01.publicKey);
  
 //createProposal('true', [config.wallet.address02.publicKey],'1',"Test Details");
@@ -157,7 +165,7 @@ async function getCandidates(proposalIndex){
 //processProposal(0);
 
 
-getCandidates(0);
+//getCandidates(0);
 
 
 // async function testFormat (){

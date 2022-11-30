@@ -5,25 +5,30 @@ import './library/IERC20.sol';
 
 contract VotingParams{
 
-    
+    uint256 private votingPeriod;
     uint256 private proposalDeposit;
     uint256 private tokenTribute;
     uint256 private processingReward;
     IERC20 public daoToken;
 
 
-    constructor(uint256 _proposalDeposit, uint256 _tokenTribute, uint256 _processingReward,address _daoTokenAddress){
+    constructor(uint256 _votingPeriod,uint256 _proposalDeposit, uint256 _tokenTribute, uint256 _processingReward,address _daoTokenAddress){
+        require(_votingPeriod > 0, "VotingParam::Constructor - Voting period should be a positive value");
         require(_daoTokenAddress != address(0), "VotingParam::Constructor - The dao token address cannot be zero address" );
         require(_proposalDeposit > 0, "VotingParam::Constructor - The proposal deposit should be a positive value");
         require(_tokenTribute > 0, "VotingParam::Constructor - The token tribute should be a positive value");
         require(_processingReward > 0, "VotingParam::Constructor - The processing rewards should be a positive value");
         
+        votingPeriod = _votingPeriod;
         proposalDeposit = _proposalDeposit;
         tokenTribute = _tokenTribute;
         processingReward = _processingReward;
         daoToken = IERC20(_daoTokenAddress); 
     }
     
+    function getVotingPeriod() public view returns(uint256){
+        return votingPeriod;
+    }
     function getProposalDeposit() public  view returns(uint256){
         return proposalDeposit;
     }

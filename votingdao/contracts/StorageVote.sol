@@ -11,9 +11,8 @@ contract StorageVote{
     /***************
     GLOBAL CONSTANTS
     ***************/
-    uint256 public constant MAX_LENGTH = 10**18; 
-    uint256 public periodDuration; // default = 17280 = 4.8 hours in seconds (5 periods per day)
-    uint256 public votingPeriodLength; // default = 35 periods (7 days)
+    uint256 public constant MAX_LENGTH = 10**18;
+    uint256 public votingPeriod; // default = 35 periods (7 days)
     uint256 public proposalDeposit; // default = 10 ETH (~$1,000 worth of ETH at contract deployment)
     uint256 public tokenTribute; //defauly = 1 Eth
     uint256 public processingReward; // default = 0.1 - amount of ETH to give to whoever processes a proposal
@@ -47,6 +46,7 @@ contract StorageVote{
         address electedCandidate; // address of an electeed candidate
         uint256 sharesRequested; // the # of shares the applicant is requesting
         uint256 startingPeriod; // the period in which voting can start for this proposal
+        uint256 endingPeriod;
         bool processed; // true only if the proposal has been processed
         bool didPass; // true only if the proposal has elected a candidate
         bool objectiveProposal;
@@ -89,8 +89,7 @@ contract StorageVote{
     //Initialization changes the owner to the deployers address and sets the reviewers
     constructor (
         address summoner,
-        uint256 _periodDuration,
-        uint256 _votingPeriodLength,
+        uint256 _votingPeriod,
         uint256 _proposalDeposit,
         uint256 _tokenTribute,
         uint256 _processingReward,
@@ -102,10 +101,10 @@ contract StorageVote{
         )
     {
         require(summoner != address(0), "Summoner 0");
-        require(_periodDuration > 0, "Duration 0");
+
         
-        require(_votingPeriodLength > 0, "Votinglength 0");
-        require(_votingPeriodLength <= MAX_LENGTH, "Voting period limits");
+        require(_votingPeriod > 0, "Votinglength 0");
+        require(_votingPeriod <= MAX_LENGTH, "Voting period limits");
         
         require(_proposalDeposit >= _processingReward, "Deposit lt reward");
 
@@ -118,15 +117,14 @@ contract StorageVote{
         daoToken = IERC20(_daoTokenAddress);
         treasury = new Treasury(_daoTokenAddress);
 
-        periodDuration = _periodDuration;
-        votingPeriodLength = _votingPeriodLength;
+        votingPeriod = _votingPeriod;
         proposalDeposit = _proposalDeposit;
         tokenTribute = _tokenTribute;
         processingReward = _processingReward;
         quadraticMode = _quadraticMode;
         summoningTime = block.timestamp;
-        members[summoner] = Member(1, true);
-        totalShares = 1;
+        members[summoner] = Member(4, true);
+        totalShares = 4;
         totalSharesRequested = 0;
         submitProposalContract = _submitProposal;
         submitVoteContract = _submitVote;
@@ -221,16 +219,11 @@ contract StorageVote{
 
     }
  
-    function getCurrentPeriod() public  view returns (uint256) {
-      return block.timestamp.sub(summoningTime).div(periodDuration);
-    }
-    function hasVotingPeriodExpired(uint256 startingPeriod) public view  returns (bool) {
-        return getCurrentPeriod() >= startingPeriod.add(votingPeriodLength);
-    }
- 
     function getProposal(uint256 proposalIndex) public view returns(address proposer, 
                                                                     string memory details,
                                                                     address[] memory candidates,
+                                                                    uint256[] memory totalVotes,
+                                                                    uint256[] memory totalQuadorNoVotes,
                                                                     address electedCandidate,
                                                                     uint256 sharesRequested,
                                                                     uint256 startingPeriod,
@@ -243,12 +236,18 @@ contract StorageVote{
         return (proposal.proposer,
                 proposal.details,
                 proposal.candidates,
+                proposal.totalVotes,
+                proposal.totalQuadorNoVotes,
                 proposal.electedCandidate,
                 proposal.sharesRequested,
                 proposal.startingPeriod,
                 proposal.processed,
                 proposal.didPass,
                 proposal.objectiveProposal);
+    }
+
+    function isMember(address memberAddress) public view returns (bool){
+        return(members[memberAddress].shares > 0);
     }
      
     /* Testing helpers */
@@ -268,6 +267,7 @@ contract StorageVote{
     //     members [memberAddress] = Member(shares, true);
     //     totalShares = totalShares.add(shares);
     // }
+
 
     // bool isToggle;
 

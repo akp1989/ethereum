@@ -11,9 +11,8 @@ contract ProcessProposal{
     /***************
     GLOBAL CONSTANTS
     ***************/
-    uint256 public constant MAX_LENGTH = 10**18; 
-    uint256 public periodDuration; // default = 17280 = 4.8 hours in seconds (5 periods per day)
-    uint256 public votingPeriodLength; // default = 35 periods (7 days)
+    uint256 public constant MAX_LENGTH = 10**18;
+    uint256 public votingPeriod; // default = 35 periods (7 days)
     uint256 public proposalDeposit; // default = 10 ETH (~$1,000 worth of ETH at contract deployment)
     uint256 public tokenTribute; //defauly = 1 Eth
     uint256 public processingReward; // default = 0.1 - amount of ETH to give to whoever processes a proposal
@@ -29,7 +28,7 @@ contract ProcessProposal{
     uint256[] votes;
     uint256[] quadorNoVotes;                      
     address[] candidate;
-    }
+}
 
     struct Member {
         uint256 shares; // the # of shares assigned to this member
@@ -47,6 +46,7 @@ contract ProcessProposal{
         address electedCandidate; // address of an electeed candidate
         uint256 sharesRequested; // the # of shares the applicant is requesting
         uint256 startingPeriod; // the period in which voting can start for this proposal
+        uint256 endingPeriod;
         bool processed; // true only if the proposal has been processed
         bool didPass; // true only if the proposal has elected a candidate
         bool objectiveProposal;
@@ -67,7 +67,7 @@ contract ProcessProposal{
 
         Proposal storage proposal = proposalQueue[proposalIndex];
            
-        require(getCurrentPeriod() >= proposal.startingPeriod.add(votingPeriodLength), "not ready");
+        require((block.timestamp >= proposal.endingPeriod), "not ready");
         
         require(proposal.processed == false, "processed already");
         require(proposalIndex == 0 || proposalQueue[proposalIndex.sub(1)].processed, "previous proposal unprocessed");
@@ -135,10 +135,6 @@ contract ProcessProposal{
 
         }
         return (electedCandidate,didPass);
-    }
-
-    function getCurrentPeriod() public  view returns (uint256) {
-      return block.timestamp.sub(summoningTime).div(periodDuration);
     }
 
     //Check if the proposal is a valid proposal

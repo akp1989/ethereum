@@ -11,9 +11,8 @@ contract SubmitProposal{
     /***************
     GLOBAL CONSTANTS
     ***************/
-    uint256 public constant MAX_LENGTH = 10**18; 
-    uint256 public periodDuration; // default = 17280 = 4.8 hours in seconds (5 periods per day)
-    uint256 public votingPeriodLength; // default = 35 periods (7 days)
+    uint256 public constant MAX_LENGTH = 10**18;
+    uint256 public votingPeriod; // default = 35 periods (7 days)
     uint256 public proposalDeposit; // default = 10 ETH (~$1,000 worth of ETH at contract deployment)
     uint256 public tokenTribute; //defauly = 1 Eth
     uint256 public processingReward; // default = 0.1 - amount of ETH to give to whoever processes a proposal
@@ -29,7 +28,7 @@ contract SubmitProposal{
     uint256[] votes;
     uint256[] quadorNoVotes;                      
     address[] candidate;
-    }
+}
 
     struct Member {
         uint256 shares; // the # of shares assigned to this member
@@ -47,6 +46,7 @@ contract SubmitProposal{
         address electedCandidate; // address of an electeed candidate
         uint256 sharesRequested; // the # of shares the applicant is requesting
         uint256 startingPeriod; // the period in which voting can start for this proposal
+        uint256 endingPeriod;
         bool processed; // true only if the proposal has been processed
         bool didPass; // true only if the proposal has elected a candidate
         bool objectiveProposal;
@@ -106,9 +106,6 @@ contract SubmitProposal{
             require(daoToken.allowance(candidates[j], address(this)) >= tokenTribute.mul(sharesRequested), "Transfer not authorized by candidate");
             require(daoToken.transferFrom(candidates[j], address(treasury), tokenTribute.mul(sharesRequested)), "Failed processing fee transfer");
         }
-        
-        // compute startingPeriod for proposal
-        uint256 startingPeriod = getCurrentPeriod().max(proposalQueue.length == 0 ? 0 : proposalQueue[proposalQueue.length.sub(1)].startingPeriod).add(1);
 
         // create proposal ...
         Proposal storage proposal = proposalQueue.push(); 
@@ -118,7 +115,8 @@ contract SubmitProposal{
         proposal.totalVotes= new uint256[](candidates.length);
         proposal.totalQuadorNoVotes= new uint256[](candidates.length);
         proposal.sharesRequested= sharesRequested;
-        proposal.startingPeriod= startingPeriod;
+        proposal.startingPeriod= block.timestamp;
+        proposal.endingPeriod = proposal.startingPeriod.add(votingPeriod);
         proposal.processed= false;
         proposal.didPass= false;
         proposal.electedCandidate= address(0x0);
@@ -131,11 +129,5 @@ contract SubmitProposal{
         return proposalIndex;
 
     }
-
-    function getCurrentPeriod() public  view returns (uint256) {
-      return block.timestamp.sub(summoningTime).div(periodDuration);
-    }
-
-
-    
+   
 }
