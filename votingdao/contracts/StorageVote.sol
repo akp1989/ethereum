@@ -227,6 +227,7 @@ contract StorageVote{
                                                                     address electedCandidate,
                                                                     uint256 sharesRequested,
                                                                     uint256 startingPeriod,
+                                                                    uint256 endingPeriod,
                                                                     bool processed,
                                                                     bool didPass,
                                                                     bool objectiveProposal
@@ -241,6 +242,7 @@ contract StorageVote{
                 proposal.electedCandidate,
                 proposal.sharesRequested,
                 proposal.startingPeriod,
+                proposal.endingPeriod,
                 proposal.processed,
                 proposal.didPass,
                 proposal.objectiveProposal);
@@ -251,32 +253,32 @@ contract StorageVote{
     }
      
     /* Testing helpers */
-    // function getProposalQueueLength() public view returns (uint256) {
-    //     return proposalQueue.length;
-    // }
+    function getProposalQueueLength() public view returns (uint256) {
+        return proposalQueue.length;
+    }
 
-    // function getMemberProposalVote(address memberAddress, uint256 proposalIndex) public view returns (uint256[] memory, uint256[] memory, address[] memory) {
-    // return (proposalQueue[proposalIndex].votesByMember[memberAddress].votes, 
-    //         proposalQueue[proposalIndex].votesByMember[memberAddress].quadorNoVotes,
-    //         proposalQueue[proposalIndex].votesByMember[memberAddress].candidate);
-    // }
+    function getMemberProposalVote(address memberAddress, uint256 proposalIndex) public view returns (uint256[] memory, uint256[] memory, address[] memory) {
+    return (proposalQueue[proposalIndex].votesByMember[memberAddress].votes, 
+            proposalQueue[proposalIndex].votesByMember[memberAddress].quadorNoVotes,
+            proposalQueue[proposalIndex].votesByMember[memberAddress].candidate);
+    }
 
-    // function addMember(address memberAddress, uint256 shares) public  {
-    //     //Check if proposal is by member
-    //     onlyMember();
-    //     members [memberAddress] = Member(shares, true);
-    //     totalShares = totalShares.add(shares);
-    // }
+    function addMember(address memberAddress, uint256 shares) public  {
+        //Check if proposal is by member
+        onlyMember();
+        members [memberAddress] = Member(shares, true);
+        totalShares = totalShares.add(shares);
+    }
 
 
-    // bool isToggle;
+    bool isToggle;
 
-    // function doNothing() public{
-    //     if(isToggle)
-    //         isToggle = false;
-    //     else
-    //         isToggle = true;
-    // }
+    function doNothing() public{
+        if(isToggle)
+            isToggle = false;
+        else
+            isToggle = true;
+    }
 
        
 }
