@@ -5,7 +5,7 @@ import styles from '../styles/Home.module.css'
 import { Box,Container,Stack, Button,InputLabel,FormLabel, FormControlLabel, RadioGroup, Radio,Select,FormControl, MenuItem } from '@mui/material' 
 import { TextField } from '@mui/material'
 import { downloadContent} from '../component/ipfs'
-import { getProposal, getVotingStatus, submitVote, processProposal} from '../component/votingContractCall'
+import { getProposal, submitVote, processProposal} from '../component/votingContractCall'
 import { BigNumber } from 'ethers'
 
 const dateForDisplay =  new Date().getFullYear()
@@ -15,7 +15,7 @@ const dateForDisplay =  new Date().getFullYear()
 
 const viewProposalPageModel = {
   proposalIndex: '',
-  isObjective: '',
+  isObjective: false,
   isProcessed: '',
   isPassed: '',
   proposer: '',
@@ -23,12 +23,17 @@ const viewProposalPageModel = {
   candidate:'',
   electedCandidate: '',
   sharesRequested:0,
-  startingPeriod:0, 
-  votingStatus:'',
+  startingPeriod: '',
+  endingPeriod: '',
+  totalVotes:new Map(),
+  yesVote : 0,
+  totalQuadorNoVotes:new Map(), 
+  noVote : 0,
   cid: '',
   votes: 1,
   proposalDescription: '',
   transactionResponse: '',
+
 }
 
 const Home: NextPage = () => { 
@@ -41,33 +46,49 @@ const Home: NextPage = () => {
       [event.target.name]: event.target.value.trim()
     }
     setFormData(formData);
-    console.log(formData);
+    if(event.target.name=='candidate')
+      setVoteCount(event.target.value.trim());
+      
   }
 
   const resetFormData = async() =>{
     setFormData(viewProposalPageModel);
   }
   
-  const _getVotingStatus = async(startingPeriod) => {
-    let votingStatus = await getVotingStatus(startingPeriod);
+  const setVoteCount = async(candidate) =>{
     formData = {
       ...formData,
-      votingStatus : (votingStatus) ? 'VotingExpired' : 'Voting in Progress',
+      yesVote : formData.totalVotes.get(candidate),
+      noVote : formData.totalQuadorNoVotes.get(candidate),
+
     }
     setFormData(formData);
   }
+
   const getProposalForIndex = async() =>{
     resetFormData();
     let proposal = await getProposal(formData.proposalIndex);
    
     let proposalDesc;
-    let _votingStatus;
+    var candidates : string[];
+    var totalVotes : BigNumber[];
+    var totalQuadorNoVotes : BigNumber[] ; 
+    var totalVotesMap = new Map<string,BigNumber>() ;
+    var totalQuadorNoVotesMap = new Map<string,BigNumber>();
     try {
       proposalDesc = await downloadContent(proposal.details);
-      _getVotingStatus(proposal.startingPeriod);
+      
+      candidates = proposal.candidates;
+      totalVotes = proposal.totalVotes;
+      totalQuadorNoVotes = proposal.totalQuadorNoVotes;
+      candidates.forEach(function(value,index){
+        totalVotesMap.set(value,totalVotes[index]);
+        totalQuadorNoVotesMap.set(value,totalQuadorNoVotes[index]);
+      });
     } catch (error) {
       console.log("Error retrieving content from IPFS for",proposal.details);
     }
+    
     
     formData = {
       ...formData, 
@@ -79,7 +100,10 @@ const Home: NextPage = () => {
       electedCandidate: proposal.electedCandidate,
       cid : proposal.details,
       sharesRequested : BigNumber.from(proposal.sharesRequested).toNumber(),
-      startingPeriod : BigNumber.from(proposal.startingPeriod).toNumber(),  
+      startingPeriod :new Date(proposal.startingPeriod*1000).toUTCString(), 
+      endingPeriod : new Date(proposal.endingPeriod*1000).toUTCString(), 
+      totalVotes : totalVotesMap,
+      totalQuadorNoVotes : totalQuadorNoVotesMap,
       proposalDescription : JSON.stringify(proposalDesc.data),
     }
     setFormData(formData);
@@ -163,20 +187,15 @@ const Home: NextPage = () => {
                       >                  
                 </TextField> 
                 <br></br>
-                <Stack direction="row" spacing={1}>
                 <TextField
                       type='text'
-                      label='Voting status'
-                      name='votingStatus'
+                      label='Ending Period'
+                      name='endingPeriod'
                       variant = 'outlined'
-                      value={formData.votingStatus}
+                      value={formData.endingPeriod}
                       disabled
-                      style={{width:'180px'}}
                       >                  
                 </TextField> 
-
-                <Button variant="contained" sx={{width:10}} onClick={async() => await _getVotingStatus(formData.startingPeriod)}>Get</Button>
-                </Stack>
                 <br></br>
                 <RadioGroup
                       aria-labelledby="proposalobjective-radio-buttons-group"
@@ -238,10 +257,33 @@ const Home: NextPage = () => {
                         name='candidate'>
 
                   {formData.candidates.map( 
-                                            address =><MenuItem key={address} value={address}> {address} </MenuItem>
+                                            address =><MenuItem key={address} value={address}> {address}  </MenuItem>
                                           )}
                 </Select>
                 </FormControl>
+                <br></br>
+                <Stack direction="row" spacing={1}>
+                <TextField
+                      type='text'
+                      label={formData.isObjective ?'Yes Vote': "Vote"}
+                      name='yesVote'
+                      variant = 'outlined'
+                      value={formData.yesVote}
+                      disabled
+                      style={{width:'100px'}}
+                      >                  
+                </TextField> 
+                <TextField
+                      type='text'
+                      label= {formData.isObjective ?'No Vote': "Quad Vote"}
+                      name='noVote'
+                      variant = 'outlined'
+                      value={formData.noVote}
+                      disabled
+                      style={{width:'100px'}}
+                      >                  
+                </TextField> 
+                </Stack>
                 <br></br>
                 <Stack direction="row" spacing={1}>
                   <Button variant="contained" sx={{width:150}} onClick={async() => await _submitVote()}>Vote</Button>

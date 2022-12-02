@@ -67,11 +67,6 @@ export const getProposal = async(proposalIndex) =>{
     return (proposal);
 }
 
-export const getVotingStatus = async(startingPeriod) => {
-    await initVotingContract();
-    var votingStatus = await votingContractEthers.hasVotingPeriodExpired(startingPeriod);
-    return votingStatus;
-}
 export const getFeeData = async() =>{
     let feeData = await ethersProvider.getFeeData(); 
     console.log("Fee Data:", feeData); 

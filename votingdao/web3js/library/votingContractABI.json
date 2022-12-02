@@ -328,6 +328,11 @@
 				"type": "uint256"
 			},
 			{
+				"internalType": "uint256",
+				"name": "endingPeriod",
+				"type": "uint256"
+			},
+			{
 				"internalType": "bool",
 				"name": "processed",
 				"type": "bool"

@@ -9,8 +9,8 @@ module.exports = {
         httpurl : "https://rpc-mumbai.maticvigil.com/v1/e2eb64e5292b40809a540f45ff9fea3d78d7f4cc",
         masterdoccontractAddress : '0xa3cD937a5825e27FD7e88E32dCAf1A2e047d86f7',
         genToken : "0x45eb38939d6e26a675cbb9ac797B0399Fa8448E3",
-        voting : "0xC314c64AB787Baa8c3F6018E143e51969E8EcbD4",
-        treasury : "0x779cDddBD0755Ade84ddaE17FbBC347Eb351dC3e",
+        voting : "0xcd0ca39791BFd25182D2d25775D2856338D746a1",
+        treasury : "0x52b4888427fa60040E1b066F2fe33F3a82877a44",
     },
     ipfs:{
         uploadURL :'http://157.245.55.46:3100/uploadMultipart',
