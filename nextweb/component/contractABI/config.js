@@ -7,10 +7,12 @@ module.exports = {
     },
     matic:{
         httpurl : "https://rpc-mumbai.maticvigil.com/v1/e2eb64e5292b40809a540f45ff9fea3d78d7f4cc",
-        masterdoccontractAddress : '0xa3cD937a5825e27FD7e88E32dCAf1A2e047d86f7',
         genToken : "0x45eb38939d6e26a675cbb9ac797B0399Fa8448E3",
         voting : "0xcd0ca39791BFd25182D2d25775D2856338D746a1",
         treasury : "0x52b4888427fa60040E1b066F2fe33F3a82877a44",
+        submitProposal : "0x907F99185343388dd772447Aa15829e530539Ff3",
+        submitVote : "0x4C5E6421678e918D5f72799dC28539a2cc642baa",
+        processProposal : "0xAf6E53d580fa113BBDB45192552B2CE93751A7Df",
     },
     ipfs:{
         uploadURL :'http://157.245.55.46:3100/uploadMultipart',
