@@ -10,6 +10,7 @@ import DocumentSearch from './documentSearch';
 import KeyGeneration from './generateSecurityKey';
 import SubmitProposal from './submitProposal';
 import ViewProposal from './viewProposal';
+import CreateTransfer from './createTransfer';
 import { checkWallet} from './../component/web3walletcheck';
 
 
@@ -58,6 +59,8 @@ const Home: NextPage = () =>{
                   <Tab label="Create Proposal"/>
 
                   <Tab label="View Proposal"/>
+
+                  <Tab label="Create Transfer"/>
     
             </Tabs>
             {selectedTab ===0 && <DocumentCreation/>}
@@ -66,6 +69,7 @@ const Home: NextPage = () =>{
             {selectedTab ===3 && <KeyGeneration/>}
             {selectedTab ===4 && <SubmitProposal/>}
             {selectedTab ===5 && <ViewProposal/>}
+            {selectedTab ===6 && <CreateTransfer/>}
             </Box>    
      
           </Container>

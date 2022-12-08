@@ -214,9 +214,6 @@ const deploymentConfig = {
         it('Failed scenario - Different proposal supporting transfer', async () => {
             await transferTokenDAO.transfer(1,true, {from:summoner}).should.be.rejectedWith("TokenTransfer :: transfer, The transfer is not supported by a valid proposal");
         })
-        it('Failed scenario - Invalid proposal supporting transfer', async () => {
-            await transferTokenDAO.transfer(2,true, {from:summoner}).should.be.rejectedWith("Invalid proposal");
-        })
         
     })
 
@@ -258,10 +255,11 @@ const deploymentConfig = {
 
         })
   
-        it('Happy case - DAO Token transferred', async () => {
+        it('Happy case - Ether transferred', async () => {
             const initialReceiverBalance = await ethers.getBalance(applicant2);
             const initialTreasuryBalance = await ethers.getBalance(treasuryAddress);
             await transferTokenEthers.transfer(1,false, {from:summoner});
+            console.log(await ethers.getBalance(applicant2));
             await verifyEtherTransfer(proposal1,{initialTreasuryBalance:initialTreasuryBalance,initialReceiverBalance : initialReceiverBalance});
         })
 
@@ -270,9 +268,6 @@ const deploymentConfig = {
         })
         it('Failed scenario - Different proposal supporting transfer', async () => {
             await transferTokenEthers.transfer(0,false, {from:summoner}).should.be.rejectedWith("TokenTransfer :: transfer, The transfer is not supported by a valid proposal");
-        })
-        it('Failed scenario - Invalid proposal supporting transfer', async () => {
-            await transferTokenEthers.transfer(2,false, {from:summoner}).should.be.rejectedWith("Invalid proposal");
         })
         
     })

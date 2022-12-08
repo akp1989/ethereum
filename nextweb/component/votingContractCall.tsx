@@ -1,13 +1,16 @@
 import { BigNumber, ethers } from 'ethers';
 const config = require ('./contractABI/config');
+const contractABI = require('./contractABI/transferTokenABI');
+const contractBC = require('./contractABI/transferTokenByteCode');
 
 var ethersProvider;
 var ethersSigner;
-
 var votingContractEthers;
+var transferContractEthers;
 
 //ABI and address for Master document Contract
 const votingContractABI = require('./contractABI/votingContractABI.json')
+const transferContractABI = require('./contractABI/transferTokenABI.json')
 
 const initEthers = async(window) =>{
     const{ ethereum } = window;
@@ -21,6 +24,11 @@ const initVotingContract = async() =>{
     votingContractEthers = new ethers.Contract(config.matic.voting, votingContractABI, ethersProvider);
 }
 
+const initTransferContract = async(contractAddress) =>{
+    await initEthers(window);
+    transferContractEthers = new ethers.Contract(contractAddress, transferContractABI, ethersProvider);
+}
+
 export const createProposal = async(proposalPageModel) =>{
     await initVotingContract();
     var feeData = await getFeeData();
@@ -30,7 +38,7 @@ export const createProposal = async(proposalPageModel) =>{
                                             BigNumber.from(proposalPageModel.sharesRequested),
                                             proposalPageModel.ipfsHash,
                                                 {
-                                                    gasLimit : '500000',
+                                                    gasLimit : 500000,
                                                     maxFeePerGas : feeData.maxFeePerGas
                                                 }
                                             );
@@ -44,7 +52,7 @@ export const submitVote = async(proposalIndex,candidate,vote) =>{
                                                                                         candidate,
                                                                                         vote,
                                                                                         {
-                                                                                            gasLimit : '300000',
+                                                                                            gasLimit : 300000,
                                                                                             maxFeePerGas : feeData.maxFeePerGas
                                                                                         });
      return (JSON.stringify(transactionResult));
@@ -55,7 +63,7 @@ export const processProposal = async(proposalIndex) => {
     var feeData = await getFeeData();
     var transactionResult = await votingContractEthers.connect(ethersSigner).processProposal(proposalIndex,
                                                                                             {
-                                                                                                gasLimit : '200000',
+                                                                                                gasLimit : 200000,
                                                                                                 maxFeePerGas : feeData.maxFeePerGas
                                                                                             });
     return (JSON.stringify(transactionResult));
@@ -65,6 +73,56 @@ export const getProposal = async(proposalIndex) =>{
     await initVotingContract();
     var proposal = await votingContractEthers.getProposal(proposalIndex);
     return (proposal);
+}
+
+
+export const createTransfer = async(transferPageModel) =>{
+    await initEthers(window);
+    var feeData = await getFeeData();
+    const transferToken = new ethers.ContractFactory(contractABI, contractBC, ethersSigner);
+    var deployTxn = await transferToken.deploy(transferPageModel.amount, transferPageModel.receiver, 
+                                                        transferPageModel.dao, transferPageModel.treasury,transferPageModel.daoToken,
+                                                        {
+                                                            gasLimit : 1500000,
+                                                            maxFeePerGas : feeData.maxFeePerGas
+                                                        });
+     await deployTxn.deployed();
+     var approveTxn = await approveTransfer(deployTxn.address,10);
+     var transactionResponse = {};
+     transactionResponse['address'] = deployTxn.address;
+     transactionResponse['hash1'] = deployTxn.deployTransaction.hash;
+     transactionResponse['hash2'] = approveTxn.hash;
+     return transactionResponse;
+}
+
+export const approveTransfer = async(contractAddress, approvalAmount) =>{
+    await initTransferContract(contractAddress);
+    var feeData = await getFeeData();
+    var transactionResult = await transferContractEthers.connect(ethersSigner).approve(approvalAmount, {
+                                                            gasLimit : 100000,
+                                                            maxFeePerGas : feeData.maxFeePerGas
+                                                        });
+     return transactionResult;
+}
+export const balanceTransfer = async(contractAddress) =>{
+    await initTransferContract(contractAddress);
+    var balance = await transferContractEthers.balanceOf();
+    var allowance = await transferContractEthers.allowance();
+    var transactionResult = {'balance':0,'allowance':0};
+    transactionResult['balance'] = balance;
+    transactionResult['allowance'] = allowance; 
+    return transactionResult;
+}
+
+export const completeTransfer = async(contractAddress,proposalIndex,isDaoToken) => {
+    await initTransferContract(contractAddress);
+    var feeData = await getFeeData();
+    console.log('Is DAO Token :',isDaoToken);
+    var transactionResponse = await transferContractEthers.connect(ethersSigner).transfer(proposalIndex,isDaoToken, {
+                                                                gasLimit : 100000,
+                                                                maxFeePerGas : feeData.maxFeePerGas
+                                                            });
+    return (JSON.stringify(transactionResponse));
 }
 
 export const getFeeData = async() =>{

@@ -52,7 +52,7 @@ export const createDocumentContract = async(documentPageModel) =>{
                                                                                                     documentPageModel.checkSum, documentPageModel.secretKey,
                                                                                                     documentPageModel.reviewers.split(','),
                                                                                                     {
-                                                                                                        gasLimit : '2000000',
+                                                                                                        gasLimit : 2000000,
                                                                                                         maxFeePerGas : feeData.maxFeePerGas
                                                                                                     });
         

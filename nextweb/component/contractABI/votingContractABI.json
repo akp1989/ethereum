@@ -2,6 +2,65 @@
 	{
 		"inputs": [
 			{
+				"internalType": "uint256",
+				"name": "proposalIndex",
+				"type": "uint256"
+			}
+		],
+		"name": "processProposal",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "proposalIndex",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint8",
+				"name": "processingCode",
+				"type": "uint8"
+			}
+		],
+		"name": "processVotingResult",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bool",
+				"name": "objectiveProposal",
+				"type": "bool"
+			},
+			{
+				"internalType": "address[]",
+				"name": "candidates",
+				"type": "address[]"
+			},
+			{
+				"internalType": "uint256",
+				"name": "sharesRequested",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "details",
+				"type": "string"
+			}
+		],
+		"name": "submitProposal",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "address",
 				"name": "summoner",
 				"type": "address"
@@ -118,6 +177,29 @@
 		"type": "event"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "proposalIndex",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "candidate",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "votes",
+				"type": "uint256"
+			}
+		],
+		"name": "submitVote",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -194,37 +276,6 @@
 	},
 	{
 		"inputs": [],
-		"name": "MAX_LENGTH",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "memberAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "shares",
-				"type": "uint256"
-			}
-		],
-		"name": "addMember",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
 		"name": "daoToken",
 		"outputs": [
 			{
@@ -237,41 +288,19 @@
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "doNothing",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"inputs": [
-			{
-				"internalType": "address",
-				"name": "memberAddress",
-				"type": "address"
-			},
 			{
 				"internalType": "uint256",
 				"name": "proposalIndex",
 				"type": "uint256"
 			}
 		],
-		"name": "getMemberProposalVote",
+		"name": "getElectedCandidate",
 		"outputs": [
 			{
-				"internalType": "uint256[]",
+				"internalType": "address",
 				"name": "",
-				"type": "uint256[]"
-			},
-			{
-				"internalType": "uint256[]",
-				"name": "",
-				"type": "uint256[]"
-			},
-			{
-				"internalType": "address[]",
-				"name": "",
-				"type": "address[]"
+				"type": "address"
 			}
 		],
 		"stateMutability": "view",
@@ -352,19 +381,6 @@
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "getProposalQueueLength",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -378,6 +394,19 @@
 				"internalType": "bool",
 				"name": "",
 				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "MAX_LENGTH",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -405,37 +434,6 @@
 			}
 		],
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "proposalIndex",
-				"type": "uint256"
-			}
-		],
-		"name": "processProposal",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "proposalIndex",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint8",
-				"name": "processingCode",
-				"type": "uint8"
-			}
-		],
-		"name": "processVotingResult",
-		"outputs": [],
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -539,57 +537,6 @@
 			}
 		],
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bool",
-				"name": "objectiveProposal",
-				"type": "bool"
-			},
-			{
-				"internalType": "address[]",
-				"name": "candidates",
-				"type": "address[]"
-			},
-			{
-				"internalType": "uint256",
-				"name": "sharesRequested",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "details",
-				"type": "string"
-			}
-		],
-		"name": "submitProposal",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "proposalIndex",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "candidate",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "votes",
-				"type": "uint256"
-			}
-		],
-		"name": "submitVote",
-		"outputs": [],
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
