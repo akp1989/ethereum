@@ -218,7 +218,12 @@ contract StorageVote{
     emit VotingParamUpdated(proposalIndex,electedCandidate);
 
     }
- 
+    
+    function getElectedCandidate(uint256 proposalIndex) public view returns (address) {
+        Proposal storage proposal = proposalQueue[proposalIndex];
+        return proposal.electedCandidate;
+    }
+
     function getProposal(uint256 proposalIndex) public view returns(address proposer, 
                                                                     string memory details,
                                                                     address[] memory candidates,

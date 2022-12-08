@@ -7,10 +7,10 @@ import './StorageVote.sol';
 
 contract TransferToken{
 
-    address private receiver; 
-    uint256 private transferAmount;
+    address public receiver; 
+    uint256 public transferAmount;
 
-    bool private isExecuted;
+    bool public isExecuted;
     Treasury private treasury;
     StorageVote private voting;
     IERC20 public daoToken;
@@ -33,7 +33,7 @@ contract TransferToken{
     function transfer(uint256 proposal, bool isDaoToken) public {
         require(!isExecuted, "TokenTransfer :: transfer, Transfer for the proposal already executed");
         require(voting.isMember(msg.sender), "TokenTransfer :: transfer,  Cannot be called by a non-member");                                                                    
-        (,,,,,address electedCandidate,,,,,) = voting.getProposal(proposal);
+        address electedCandidate= voting.getElectedCandidate(proposal);
         require(electedCandidate == address(this), "TokenTransfer :: transfer, The transfer is not supported by a valid proposal");
         if(isDaoToken){
             treasury.transferToken(proposal,receiver, transferAmount);

@@ -96,9 +96,19 @@ async function getSummoningTime(){
 }
 
 async function getMembers(memberAddress) {
-    var memberAddress = await voting.members(memberAddress);
-    console.log('Member at address is  : ',memberAddress);
+    var members = await voting.members(memberAddress);
+    console.log('Member at address is  : ',members);
     return members;
+}
+
+async function isMemeber(candidate){
+    var result = await voting.isMember(candidate);
+    console.log(result);
+}
+
+async function electedCandidate(proposalIndex){
+    var result = await voting.getElectedCandidate(proposalIndex);
+    console.log(result);
 }
 
 async function createProposal(isObjective,candidates, sharesReqeusted, details){
@@ -140,7 +150,14 @@ async function getCandidates(proposalIndex){
     console.log(candidates);
 
 }
- 
+
+
+ //getMembers(config.walletMeta.address03.publicKey);
+//  isMemeber(config.walletMeta.address01.publicKey);
+ //getProposalByIndex(3);
+//submitVote(3,'0xcdD812617F366c8dAdce75dE0cd5aEb5bFf8601b',1);
+electedCandidate(2);
+
 //getDAOToken();
 //getTreasuryAddress();
 //getCurrentPeriod(); 
@@ -150,26 +167,16 @@ async function getCandidates(proposalIndex){
 //getProposalDeposit();
 //getTokenTribute();
 //getProcessingReward();
-getSummoningTime();
-//getMembers(config.wallet.address01.publicKey);
- 
+//getSummoningTime();
+
 //createProposal('true', [config.wallet.address02.publicKey],'1',"Test Details");
 //authorizeProposalDeposit();
 //authorizeTokenTribute(config.wallet.address02.privateKey)
 
-//getProposalByIndex(0);
-
 //checkIfVotingExpired(0);
-//submitVote(0,config.wallet.address02.publicKey,1);
-
 //processProposal(0);
-
-
 //getCandidates(0);
-
-
 // async function testFormat (){
-
 // console.log(Ethers.utils.parseEther("1"));
 // console.log(Ethers.utils.formatEther(1));
 // }
