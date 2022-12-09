@@ -117,8 +117,8 @@ export const balanceTransfer = async(contractAddress) =>{
 export const completeTransfer = async(contractAddress,proposalIndex,isDaoToken) => {
     await initTransferContract(contractAddress);
     var feeData = await getFeeData();
-    console.log('Is DAO Token :',isDaoToken);
-    var transactionResponse = await transferContractEthers.connect(ethersSigner).transfer(proposalIndex,isDaoToken, {
+    const isDaoTokenB = (isDaoToken === 'true')?true:false;
+    var transactionResponse = await transferContractEthers.connect(ethersSigner).transfer(proposalIndex,isDaoTokenB, {
                                                                 gasLimit : 100000,
                                                                 maxFeePerGas : feeData.maxFeePerGas
                                                             });
