@@ -3,14 +3,15 @@ module.exports = {
     ganache:{
         httpurl : "http://127.0.0.1:8545",
         genToken: "0x578e2F6fc640Cc165536F0B1bEa7795d772461D4",
-        voting : "0x519E9851b4375340EAC2C96c121aE735DB780a2e"      
+        voting : "0x0Bf0Ef8F21D9165f5806F8777694Db8ad513D9bF",
+        treasury: "0x87CDe91DE6C2671001d5D6501b94f4C1c526507C",     
     },
     matic:{
         httpurl : "https://rpc-mumbai.maticvigil.com/v1/e2eb64e5292b40809a540f45ff9fea3d78d7f4cc",
         masterdoccontractAddress : '0xa3cD937a5825e27FD7e88E32dCAf1A2e047d86f7',
         genToken : "0x45eb38939d6e26a675cbb9ac797B0399Fa8448E3",
-        voting : "0xc72cd2759d80573bFD303F95BAB86328FDaad0fe",
-        treasury : "0x2e9f12952a9c0b5bDAdDd935Ef0Caf8923C9Dc3a",
+        voting : "0xbed2ba9b90f4bbee7e40bc8228eb77228bb9fd82",
+        treasury : "0xDCD94f5eFe854cf6e9B966CD5b95d4778bf932dD",
     },
     wallet:{
         address01: {

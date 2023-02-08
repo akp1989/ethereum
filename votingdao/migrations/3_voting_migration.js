@@ -13,35 +13,32 @@ module.exports = async function (deployer) {
   const submitProposal = await deployer.deploy(SubmitProposal);
   const submitVote = await deployer.deploy(SubmitVote);
   const processProposal = await deployer.deploy(ProcessProposal);
-  // const voting = await deployer.deploy(Voting, 
-  //                                       maticdeployer,
-  //                                       60,
-  //                                       3,
-  //                                       10,
-  //                                       0,
-  //                                       0,
-  //                                       true,
-  //                                       genToken.address,
-  //                                       submitProposal.address,
-  //                                       submitVote.address,
-  //                                       processProposal.address);
+  const voting = await deployer.deploy(Voting, 
+                                        localdeployer,
+                                        300,
+                                        3,
+                                        10,
+                                        0,
+                                        true,
+                                        genToken.address,
+                                        submitProposal.address,
+                                        submitVote.address,
+                                        processProposal.address);
 
-  const voting = await deployProxy(Voting,
-                                    [
-                                      localdeployer,
-                                      60,
-                                      3,
-                                      10,
-                                      0,
-                                      0,
-                                      true,
-                                      genToken.address,
-                                      submitProposal.address,
-                                      submitVote.address,
-                                      processProposal.address
-                                    ],
-                                    {from:localdeployer,kind : "uups"}
-                                    );
+  // const voting = await deployProxy(Voting,
+  //                                   [ localdeployer,
+  //                                     60,
+  //                                     3,
+  //                                     10,
+  //                                     0,
+  //                                     true,
+  //                                     genToken.address,
+  //                                     submitProposal.address,
+  //                                     submitVote.address,
+  //                                     processProposal.address
+  //                                   ],
+  //                                   {from:localdeployer,kind : "uups"}
+  //                                   );
   console.log('GenToken deployed at : ', genToken.address);
   console.log('Submit Proposal deployed at : ', submitProposal.address);
   console.log('Submit Vote deployed at : ', submitVote.address);

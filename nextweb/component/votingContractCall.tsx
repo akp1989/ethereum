@@ -39,7 +39,7 @@ export const createProposal = async(proposalPageModel) =>{
                                             proposalPageModel.ipfsHash,
                                                 {
                                                     gasLimit : 500000,
-                                                    maxFeePerGas : feeData.maxFeePerGas
+                                                    maxFeePerGas : feeData.additionalValue
                                                 }
                                             );
     return (JSON.stringify(transactionResult));
@@ -53,7 +53,7 @@ export const submitVote = async(proposalIndex,candidate,vote) =>{
                                                                                         vote,
                                                                                         {
                                                                                             gasLimit : 300000,
-                                                                                            maxFeePerGas : feeData.maxFeePerGas
+                                                                                            maxFeePerGas : feeData.additionalValue
                                                                                         });
      return (JSON.stringify(transactionResult));
 }
@@ -64,7 +64,7 @@ export const processProposal = async(proposalIndex) => {
     var transactionResult = await votingContractEthers.connect(ethersSigner).processProposal(proposalIndex,
                                                                                             {
                                                                                                 gasLimit : 200000,
-                                                                                                maxFeePerGas : feeData.maxFeePerGas
+                                                                                                maxFeePerGas : feeData.additionalValue
                                                                                             });
     return (JSON.stringify(transactionResult));
 }
@@ -84,7 +84,7 @@ export const createTransfer = async(transferPageModel) =>{
                                                         transferPageModel.dao, transferPageModel.treasury,transferPageModel.daoToken,
                                                         {
                                                             gasLimit : 1500000,
-                                                            maxFeePerGas : feeData.maxFeePerGas
+                                                            maxFeePerGas : feeData.additionalValue
                                                         });
      await deployTxn.deployed();
      var approveTxn = await approveTransfer(deployTxn.address,10);
@@ -100,7 +100,7 @@ export const approveTransfer = async(contractAddress, approvalAmount) =>{
     var feeData = await getFeeData();
     var transactionResult = await transferContractEthers.connect(ethersSigner).approve(approvalAmount, {
                                                             gasLimit : 100000,
-                                                            maxFeePerGas : feeData.maxFeePerGas
+                                                            maxFeePerGas : feeData.additionalValue
                                                         });
      return transactionResult;
 }
@@ -120,17 +120,21 @@ export const completeTransfer = async(contractAddress,proposalIndex,isDaoToken) 
     const isDaoTokenB = (isDaoToken === 'true')?true:false;
     var transactionResponse = await transferContractEthers.connect(ethersSigner).transfer(proposalIndex,isDaoTokenB, {
                                                                 gasLimit : 100000,
-                                                                maxFeePerGas : feeData.maxFeePerGas
+                                                                maxFeePerGas : feeData.additionalValue
                                                             });
     return (JSON.stringify(transactionResponse));
 }
 
 export const getFeeData = async() =>{
     let feeData = await ethersProvider.getFeeData(); 
-    console.log("Fee Data:", feeData); 
     console.log("Gas Price in Gwei:", ethers.utils.formatUnits(feeData.gasPrice,'gwei'));
     console.log("maxPriorityFeePerGas in Gwei:", ethers.utils.formatUnits(feeData.maxPriorityFeePerGas,'gwei'));
     console.log("maxFeePerGas Price in Gwei:", ethers.utils.formatUnits(feeData.maxFeePerGas,'gwei'));
+    //Adding 0.1 GWEI to maxFeePerGas to avoid ,maxPriorityFeePerGas cannot be greater than maxFeePerGas
+    var additionalValue = feeData.maxFeePerGas.add(BigNumber.from(ethers.utils.parseUnits('0.1','gwei')));
+    console.log("Modified maxFeePerGas is : ",ethers.utils.formatUnits(additionalValue,'gwei'));
+    feeData.additionalValue = additionalValue;
+    console.log("Fee Data:", feeData); 
     return feeData;
 }
         

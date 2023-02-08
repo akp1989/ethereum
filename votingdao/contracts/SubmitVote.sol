@@ -82,6 +82,12 @@ contract SubmitVote{
         
         require(block.timestamp < proposal.endingPeriod, "voting period expired");
 
+        //Collect the proposal deposit and store in the treasury
+        require( daoToken.balanceOf(msg.sender) >= tokenTribute.mul(votes),"Voter lacks token for voting");
+        require( daoToken.allowance(msg.sender, address(this)) >= tokenTribute.mul(votes), "Voter did not authorized voting fee");
+        
+        require(daoToken.transferFrom(msg.sender, address(treasury),tokenTribute.mul(votes)),"Voting fee transfer failed");
+
         Ballot storage memberBallot = proposal.votesByMember[msg.sender];
 
         // store vote

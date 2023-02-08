@@ -1,5 +1,5 @@
-import Web3 from 'web3'
-import { ethers } from 'ethers';
+import Web3 from 'web3' 
+import { BigNumber, ethers } from 'ethers';
 
 const config = require ('./contractABI/config');
 
@@ -122,9 +122,14 @@ export const searchDocument = async (searchKey, searchKeyOption) => {
 
 export const getFeeData = async() =>{
     let feeData = await ethersProvider.getFeeData(); 
-    console.log("Fee Data:", feeData); 
     console.log("Gas Price in Gwei:", ethers.utils.formatUnits(feeData.gasPrice,'gwei'));
     console.log("maxPriorityFeePerGas in Gwei:", ethers.utils.formatUnits(feeData.maxPriorityFeePerGas,'gwei'));
     console.log("maxFeePerGas Price in Gwei:", ethers.utils.formatUnits(feeData.maxFeePerGas,'gwei'));
+    //Adding 0.1 GWEI to maxFeePerGas to avoid ,maxPriorityFeePerGas cannot be greater than maxFeePerGas
+    var additionalValue = feeData.maxFeePerGas.add(BigNumber.from(ethers.utils.parseUnits('0.1','gwei')));
+    console.log("Modified maxFeePerGas is : ",ethers.utils.formatUnits(additionalValue,'gwei'));
+    feeData.additionalValue = additionalValue;
+    console.log("Fee Data:", feeData); 
     return feeData;
 }
+ 

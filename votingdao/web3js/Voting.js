@@ -7,11 +7,11 @@ const { parseTransaction } = require('ethers/lib/utils');
 
 //Defining the etheres connection and provider
 //MaticMumbai
-const ethers = new Ethers.providers.JsonRpcProvider(config.matic.httpurl);
-const wallet1 = new Ethers.Wallet(config.walletMeta.address01.privateKey,ethers);
+const ethers = new Ethers.providers.JsonRpcProvider(config.ganache.httpurl);
+const wallet1 = new Ethers.Wallet(config.wallet.address01.privateKey,ethers);
  
-const genToken = new Ethers.Contract(config.matic.genToken, genTokenABI, ethers); 
-const genTokenRW = new Ethers.Contract(config.matic.genToken, genTokenABI, wallet1);
+const genToken = new Ethers.Contract(config.ganache.genToken, genTokenABI, ethers); 
+const genTokenRW = new Ethers.Contract(config.ganache.genToken, genTokenABI, wallet1);
 
 // const  web3Provider = new Web3.providers.HttpProvider(config.ganache.httpurl);
 // web3 = new Web3(web3Provider);
@@ -22,46 +22,28 @@ const genTokenRW = new Ethers.Contract(config.matic.genToken, genTokenABI, walle
 // const wallet2 = new Ethers.Wallet(config.wallet.address02.privateKey,ethers);
 
 //Instantiating a contract with providers for read transactions
-const voting = new Ethers.Contract(config.matic.voting,votingABI, ethers);
+const voting = new Ethers.Contract(config.ganache.voting,votingABI, ethers);
 //Instantiating a contract with wallet for RW transactions
-const votingRW = new Ethers.Contract(config.matic.voting, votingABI, wallet1);
+const votingRW = new Ethers.Contract(config.ganache.voting, votingABI, wallet1);
 
 
 //Getting balance for ERC20 token
 async function getDAOToken() {
-    // const tokenAddress = await voting.daoToken();
-    const tokenAddress = await votingWeb3.methods.daoToken().call();
+     const tokenAddress = await voting.daoToken();
+    //const tokenAddress = await votingWeb3.methods.daoToken().call();
     console.log('DAO token address is : ',tokenAddress);
     return tokenAddress;
 }
 
 async function getTreasuryAddress() {
-    const treasuryAddress = await voting.getTreasuryAddress();
+    const treasuryAddress = await voting.treasury();
     console.log('Treasury address is : ', treasuryAddress);
     return treasuryAddress;
 }
 
-async function getCurrentPeriod(){
-    const currentPeriod = await voting.getCurrentPeriod();
-    console.log("CurrentPeriod is :", currentPeriod);
-    return currentPeriod;
-}
-
 async function getVotingPeriod(){
-    const votingPeriod = await voting.votingPeriodLength();
+    const votingPeriod = await voting.votingPeriod();
     console.log("Voting period is :", votingPeriod);
-}
-
-async function getPeriodDuration(){
-    const periodDuration = await voting.periodDuration();
-    console.log("Period Duration is :" , periodDuration);
-    return periodDuration;
-}
-
-async function getTotalShares(){
-    const totalShares = await voting.totalShares();
-    console.log("Total share in this :",totalShares);
-    return totalShares;
 }
 
 async function getProposalDeposit(){
@@ -82,12 +64,6 @@ async function getProcessingReward(){
     return processingReward;
 }
 
-async function getProposalByIndex(proposalIndex) {
-    var proposal = await voting.proposalQueue(proposalIndex);
-    console.log('Proposal for Index is  : ',proposal);
-    return proposal;
-}
-
 async function getSummoningTime(){
     const summoningTime = await voting.summoningTime();
     console.log("The summoning time is :", summoningTime.toNumber());
@@ -95,11 +71,27 @@ async function getSummoningTime(){
     console.log(date);
 }
 
+async function isQuadratic(){
+    const quadratic = await voting.quadraticMode();
+    console.log('Quadratic mode status :', quadratic);
+}
+
+async function getProposalByIndex(proposalIndex) {
+    var proposal = await voting.getProposal(proposalIndex);
+    console.log('Proposal for Index is  : ',proposal);
+    return proposal;
+}
+
+
+
+
 async function getMembers(memberAddress) {
     var members = await voting.members(memberAddress);
     console.log('Member at address is  : ',members);
     return members;
 }
+
+
 
 async function isMemeber(candidate){
     var result = await voting.isMember(candidate);
@@ -152,24 +144,24 @@ async function getCandidates(proposalIndex){
 }
 
 
- //getMembers(config.walletMeta.address03.publicKey);
-//  isMemeber(config.walletMeta.address01.publicKey);
- //getProposalByIndex(3);
-//submitVote(3,'0xcdD812617F366c8dAdce75dE0cd5aEb5bFf8601b',1);
-electedCandidate(2);
+//getMembers(config.walletMeta.address03.publicKey);
+//isMemeber(config.walletMeta.address01.publicKey);
+//getProposalByIndex(3);
+
+//electedCandidate(2);
 
 //getDAOToken();
-//getTreasuryAddress();
-//getCurrentPeriod(); 
+//getTreasuryAddress(); 
 //getVotingPeriod();
-//getPeriodDuration();
-//getTotalShares();
 //getProposalDeposit();
 //getTokenTribute();
 //getProcessingReward();
 //getSummoningTime();
-
-//createProposal('true', [config.wallet.address02.publicKey],'1',"Test Details");
+//isQuadratic();
+// createProposal('false', [config.wallet.address02.publicKey],'1',"Proposal2");
+// getProposalByIndex(1);
+//nothing();
+submitVote(1,config.wallet.address02.publicKey,1);
 //authorizeProposalDeposit();
 //authorizeTokenTribute(config.wallet.address02.privateKey)
 

@@ -56,12 +56,12 @@ async function transferFrom(owner,recepient,transferAmount){
     console.log('The log for transfer of the amount is:', transfer);
 }
 
-getBalance(config.wallet.address02.publicKey);
+getBalance(config.wallet.address01.publicKey);
 
-//approve (config.wallet.address03.publicKey, "0.05");
+//approve ('0x0Bf0Ef8F21D9165f5806F8777694Db8ad513D9bF', "20.0");
 
-//getApproval(config.wallet.address01.publicKey,config.wallet.address02.publicKey);
+//getApproval(config.wallet.address03.publicKey,'0x0Bf0Ef8F21D9165f5806F8777694Db8ad513D9bF');
 
-//transfer(config.wallet.address02.publicKey, "10");
+//transfer(config.wallet.address02.publicKey, "1000");
 
 //transferFrom(config.wallet.address01.publicKey, config.wallet.address03.publicKey, "0.05");
