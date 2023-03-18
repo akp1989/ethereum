@@ -1,0 +1,312 @@
+[
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "group",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint16",
+				"name": "proposalIndex",
+				"type": "uint16"
+			},
+			{
+				"indexed": true,
+				"internalType": "string",
+				"name": "proposalName",
+				"type": "string"
+			}
+		],
+		"name": "addProposalEvent",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "group",
+				"type": "address"
+			}
+		],
+		"name": "addUserEvent",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "group",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint16",
+				"name": "proposalIndex",
+				"type": "uint16"
+			}
+		],
+		"name": "removeProposalEvent",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "group",
+				"type": "address"
+			}
+		],
+		"name": "removeUserEvent",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "group",
+				"type": "address"
+			},
+			{
+				"internalType": "uint16",
+				"name": "proposalIdx",
+				"type": "uint16"
+			},
+			{
+				"internalType": "string",
+				"name": "proposalName",
+				"type": "string"
+			}
+		],
+		"name": "addProposal",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint16",
+						"name": "proposalIndex",
+						"type": "uint16"
+					},
+					{
+						"internalType": "string",
+						"name": "proposalName",
+						"type": "string"
+					}
+				],
+				"internalType": "struct StorageUser.Proposal[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "group",
+				"type": "address"
+			}
+		],
+		"name": "addUser",
+		"outputs": [
+			{
+				"internalType": "address[]",
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "group",
+				"type": "address"
+			}
+		],
+		"name": "getGroupProposals",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint16",
+						"name": "proposalIndex",
+						"type": "uint16"
+					},
+					{
+						"internalType": "string",
+						"name": "proposalName",
+						"type": "string"
+					}
+				],
+				"internalType": "struct StorageUser.Proposal[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "getUserGroups",
+		"outputs": [
+			{
+				"internalType": "address[]",
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "groupMap",
+		"outputs": [
+			{
+				"internalType": "uint16",
+				"name": "proposalIndex",
+				"type": "uint16"
+			},
+			{
+				"internalType": "string",
+				"name": "proposalName",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "group",
+				"type": "address"
+			},
+			{
+				"internalType": "uint16",
+				"name": "proposalIdx",
+				"type": "uint16"
+			}
+		],
+		"name": "removeProposal",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint16",
+						"name": "proposalIndex",
+						"type": "uint16"
+					},
+					{
+						"internalType": "string",
+						"name": "proposalName",
+						"type": "string"
+					}
+				],
+				"internalType": "struct StorageUser.Proposal[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "group",
+				"type": "address"
+			}
+		],
+		"name": "removeUser",
+		"outputs": [
+			{
+				"internalType": "address[]",
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "userMap",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]

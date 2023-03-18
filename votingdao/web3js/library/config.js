@@ -4,7 +4,8 @@ module.exports = {
         httpurl : "http://127.0.0.1:8545",
         genToken: "0x578e2F6fc640Cc165536F0B1bEa7795d772461D4",
         voting : "0x0Bf0Ef8F21D9165f5806F8777694Db8ad513D9bF",
-        treasury: "0x87CDe91DE6C2671001d5D6501b94f4C1c526507C",     
+        treasury: "0x87CDe91DE6C2671001d5D6501b94f4C1c526507C",
+        user: "0x445Ff25a8938b24b8c7a08030fb7966eC89F0ADc",
     },
     matic:{
         httpurl : "https://rpc-mumbai.maticvigil.com/v1/e2eb64e5292b40809a540f45ff9fea3d78d7f4cc",
@@ -12,6 +13,7 @@ module.exports = {
         genToken : "0x45eb38939d6e26a675cbb9ac797B0399Fa8448E3",
         voting : "0xbed2ba9b90f4bbee7e40bc8228eb77228bb9fd82",
         treasury : "0xDCD94f5eFe854cf6e9B966CD5b95d4778bf932dD",
+        user: "0xeDf36bb5fa146487e9a61d9a8cfC6d0a5B81aac9",
     },
     wallet:{
         address01: {
